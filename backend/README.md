@@ -4,6 +4,8 @@ App.py resources
 - https://flask-restful.readthedocs.io/en/latest/quickstart.html
 - https://flask.palletsprojects.com/en/3.0.x/quickstart/
 - https://www.geeksforgeeks.org/how-to-connect-reactjs-with-flask-api/
+- https://www.youtube.com/watch?v=71EU8gnZqZQ  (Guide on using Flask for User Auth Login)
+
 Run app: 
 python3 app.py
 
