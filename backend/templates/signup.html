@@ -10,11 +10,21 @@
 
 <body>
     <h1>Signup</h1>
+    {% if error %}
+    <p>{{ error }}</p>
+    {% endif %}
     <form method="POST" action="{{ url_for('signup') }}">
         <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+        <label for="confirm_email">Confirm Email:</label><br>
+        <input type="email" id="confirm_email" name="confirm_email" required><br>
         <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br><br>
+        <input type="password" id="password" name="password" required><br>
+        <p>Password must be atleast 8 characters long and contain at least one alphabet letter, one number, and one special character</p>
+        <label for="confirm_password">Confirm Password:</label><br>
+        <input type="password" id="confirm_password" name="confirm_password" required><br><br>
         <input type="submit" value="Signup">
     </form>
 </body>

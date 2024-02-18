@@ -11,7 +11,8 @@ class User(db.Entity, UserMixin):
     id = PrimaryKey(int, auto=True)
     username = Required(str, unique=True)
     password = Required(str)
-    last_login = Optional(datetime)
+    email = Required(str, unique=True)
+    last_login = Optional(datetime) #don't know if this is necessary
     meals = Set('Meal')
 
 

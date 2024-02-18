@@ -4,6 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
 from pony.orm import commit
 from models import db, User, Meal
+import re
+import string
 
 login_manager = LoginManager()
 # https://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
@@ -45,9 +47,12 @@ def home():
 def login():
     error = None
     if request.method == "POST":
-        username = request.form["username"]
+        login_identifier = request.form["login_identifier"]
         password = request.form["password"]
-        user = User.get(username=username)
+        
+        # Check if login_identifier is email or username
+        user = User.get(email=login_identifier) or User.get(username=login_identifier)
+        
         if user and check_password_hash(user.password, password):
             # Store user ID in session
             session["user_id"] = user.id
@@ -60,17 +65,63 @@ def login():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    error = None
     if request.method == "POST":
         username = request.form["username"]
+        email = request.form["email"]
+        confirm_email = request.form["confirm_email"]
         password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        
+        # Check if email and confirm email fields match
+        if email != confirm_email:
+            error = "Emails do not match"
+            return render_template("signup.html", error=error)
+
+        # Check if password and confirm password fields match
+        if password != confirm_password:
+            error = "Passwords do not match"
+            return render_template("signup.html", error=error)
+
+        # Check if email exists in database
+        existing_email = User.get(email=email)
+        if existing_email:
+            error = "Email already exists"
+            return render_template("signup.html", error=error)
+
+        # Check if username exists in database
         existing_user = User.get(username=username)
         if existing_user:
-            return "Username already exists"
-        else:
-            hashed_password = generate_password_hash(password)
-            user = User(username=username, password=hashed_password)
-            commit()
-            return redirect(url_for("login"))
+            error = "Username already exists"
+            return render_template("signup.html", error=error)
+
+        # Check if email is valid using regex
+        # Copied regex from https://saturncloud.io/blog/how-can-i-validate-an-email-address-using-a-regular-expression/
+        if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
+            error = "Invalid email address"
+            return render_template("signup.html", error=error)
+        
+        # Check password complexity
+        if (not any(char in string.ascii_letters for char in password) or
+            not any(char in string.digits for char in password) or
+            not any(char in string.punctuation for char in password) or
+            len(password) < 8):
+            error = "Password must be atleast 8 characters long and contain at least one alphabet letter, one number, and one special character"
+            return render_template("signup.html", error=error)
+
+        # Hash the password
+        hashed_password = generate_password_hash(password)
+
+        # Create a new user object
+        user = User(username=username, email=email, password=hashed_password)
+
+        # Commit changes to the database
+        commit()
+        
+        # Redirect to login page after successful signup
+        return redirect(url_for("login"))
+
+    # Render the signup template for GET requests
     return render_template("signup.html")
 
 
