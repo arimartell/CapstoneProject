@@ -62,6 +62,11 @@ def login():
             error = "Invalid username or password"
     return render_template("login.html", error=error)
 
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form["email"]
+    return render_template("forgot_password.html")
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():

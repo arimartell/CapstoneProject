@@ -9,7 +9,9 @@
     <h1>List of Users</h1>
     <ol>
         {% for user in users %}
-            <li>Username: {{ user.username }}, Password: {{ user.password }}</li>
+            <li>Username: {{ user.username }}, 
+                Password: {{ user.password }}, 
+                Email: {{ user.email }}</li>
         {% endfor %}
     </ol>
 </body>
