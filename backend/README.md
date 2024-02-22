@@ -15,4 +15,4 @@ Database terminal commands https://www.sqlitetutorial.net/sqlite-select/:
 SELECT * FROM 
 sqlite3 ./main.db3
 .tables
-.schema 
+.schema

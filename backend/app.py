@@ -36,6 +36,8 @@ db.generate_mapping(create_tables=True)
 
 Pony(app)
 
+g = {}
+
 
 # Define a route for the root URL
 @app.route("/")
@@ -49,10 +51,10 @@ def login():
     if request.method == "POST":
         login_identifier = request.form["login_identifier"]
         password = request.form["password"]
-        
+
         # Check if login_identifier is email or username
         user = User.get(email=login_identifier) or User.get(username=login_identifier)
-        
+
         if user and check_password_hash(user.password, password):
             # Store user ID in session
             session["user_id"] = user.id
@@ -62,11 +64,13 @@ def login():
             error = "Invalid username or password"
     return render_template("login.html", error=error)
 
+
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
         email = request.form["email"]
     return render_template("forgot_password.html")
+
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -77,7 +81,7 @@ def signup():
         confirm_email = request.form["confirm_email"]
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
-        
+
         # Check if email and confirm email fields match
         if email != confirm_email:
             error = "Emails do not match"
@@ -105,12 +109,14 @@ def signup():
         if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
             error = "Invalid email address"
             return render_template("signup.html", error=error)
-        
+
         # Check password complexity
-        if (not any(char in string.ascii_letters for char in password) or
-            not any(char in string.digits for char in password) or
-            not any(char in string.punctuation for char in password) or
-            len(password) < 8):
+        if (
+            not any(char in string.ascii_letters for char in password)
+            or not any(char in string.digits for char in password)
+            or not any(char in string.punctuation for char in password)
+            or len(password) < 8
+        ):
             error = "Password must be atleast 8 characters long and contain at least one alphabet letter, one number, and one special character"
             return render_template("signup.html", error=error)
 
@@ -122,7 +128,7 @@ def signup():
 
         # Commit changes to the database
         commit()
-        
+
         # Redirect to login page after successful signup
         return redirect(url_for("login"))
 
@@ -185,6 +191,31 @@ def list_users():
     return render_template("user_list.html", users=users)
 
 
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    if request.method == "POST":
+        # TODO: Validations for fields!
+        User[current_user.id].unit_type = request.form["unittype"]
+        User[current_user.id].sex = request.form["sex"]
+        User[current_user.id].weight = request.form["weight"]
+        h = int(request.form["heightfeet"])
+        User[current_user.id].height = int(request.form["heightinches"]) + 12 * h
+        User[current_user.id].birthday = request.form["birthday"]
+        User[current_user.id].activity_level = request.form["activitylevel"]
+        User[current_user.id].goal_type = request.form["goaltype"]
+        User[current_user.id].goal_weight = (
+            int(request.form["targetweight"])
+            if request.form["targetweight"] != ""
+            else 0
+        )
+
+        commit()
+        print(request.form)
+    print(current_user.username)
+    return render_template("profile.html", u=current_user)
+
+
 # Run the Flask application if this script is executed directly
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

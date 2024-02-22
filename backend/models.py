@@ -12,9 +12,16 @@ class User(db.Entity, UserMixin):
     username = Required(str, unique=True)
     password = Required(str)
     email = Required(str, unique=True)
-    last_login = Optional(datetime) #don't know if this is necessary
-    meals = Set('Meal')
-
+    last_login = Optional(datetime)  # don't know if this is necessary
+    meals = Set("Meal")
+    unit_type = Optional(str, default="imperial")
+    sex = Optional(str, default="")
+    weight = Optional(int, default=0)          # lbs
+    height = Optional(int, default=0)          # inches
+    birthday = Optional(datetime)
+    activity_level = Optional(str, default="")
+    goal_type = Optional(str, default="") # weight loss or weight maintenance
+    goal_weight = Optional(int, default=0)
 
 class Meal(db.Entity):
     user = Required(User)
@@ -28,3 +35,4 @@ class Meal(db.Entity):
     carbs_sugar = Optional(int, default=0)
     protein = Required(int, default=0)
     sodium = Optional(int, default=0)
+
