@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import current_user, login_required, LoginManager, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
-from pony.orm import commit
-from models import db, User, Meal
+from pony.orm import commit, db_session, select, desc
+from models import db, User, Meal, Staple_meal
 import re
 import string
 
@@ -148,6 +148,7 @@ def load_user(user_id):
 @app.route("/meal", methods=["GET", "POST"])
 @login_required
 def meal():
+
     # Check if the request is POST
     if request.method == "POST":
         # Gets back form data
@@ -183,6 +184,124 @@ def meal():
     else:
         # if not a POST request direct to meal page template
         return render_template("meal.html")
+    
+@app.route("/staple_meal", methods=["GET", "POST"])
+@login_required
+def staple_meal():
+    # Create lists of staple meals and their macros
+    egg_staple_meal = ["Egg", 66, 0.6, 4.6, 1.3, 0, 0.3, 0.3, 6.4, 0.2, 1]
+    bagel_staple_meal = ["Bagel", 245, 47.9, 1.5, 0, 0.4, 4.02, 6, 10, .43, 1] 
+    chicken_staple_meal = ["Chicken", 198, 0, 4.3, 1.2, 0, 0, 0, 37, 0.089, 120]
+    steak_staple_meal = ["Steak", 614, 0, 41, 16, 0, 0, 0, 58, 0.115, 221]
+    bread_staple_meal = ["Bread", 72, 13, 0.9, 0.2, 0, 0.7, 1.5, 2.4, 0.132, 1]
+    rice_staple_meal = ["Rice", 205, 45, 0.4, 0.1, 0, 0.6, 0.1, 4.3, 0.0016, 158]
+    meal_list = [egg_staple_meal, bagel_staple_meal, chicken_staple_meal, steak_staple_meal, bread_staple_meal, rice_staple_meal]
+
+    # Check if the request is POST
+    if request.method == "POST":
+        # Gets back form data and parses for blank inputs
+        eggs = request.form["Eggs"] if request.form["Eggs"] != '' else 0
+        bagel = request.form["Bagel"] if request.form["Bagel"] != '' else 0
+        chicken = request.form["Chicken"] if request.form["Chicken"] != '' else 0
+        steak = request.form["Steak"] if request.form["Steak"] != '' else 0
+        bread = request.form["Bread"] if request.form["Bread"] != '' else 0
+        rice = request.form["Rice"] if request.form["Rice"] != '' else 0
+
+        # Create new base meal to add macro count from each staple item to
+        new_meal = Meal(
+            name="Meal",
+            calories=0.0,
+            carbs=0.0,
+            total_fat=0.0,
+            sat_fat=0.0,
+            trans_fat=0.0,
+            carbs_fiber=0.0,
+            carbs_sugar=0.0,
+            protein=0.0,
+            sodium=0.0,
+            user=current_user,
+        )
+        # Parse through each staple input and extract macros to add to total
+        if int(eggs) > 0 :
+            serving_size = float(eggs) / egg_staple_meal[10]
+            new_meal.calories += egg_staple_meal[1] * serving_size
+            new_meal.carbs += egg_staple_meal[2] * serving_size
+            new_meal.total_fat += egg_staple_meal[3] * serving_size
+            new_meal.sat_fat += egg_staple_meal[4] * serving_size
+            new_meal.trans_fat += egg_staple_meal[5] * serving_size
+            new_meal.carbs_fiber += egg_staple_meal[6] * serving_size
+            new_meal.carbs_sugar += egg_staple_meal[7] * serving_size
+            new_meal.protein += egg_staple_meal[8] * serving_size
+            new_meal.sodium += egg_staple_meal[9] * serving_size
+        
+        if int(bagel) > 0 :
+            serving_size = float(bagel) / bagel_staple_meal[10]
+            new_meal.calories += bagel_staple_meal[1] * serving_size
+            new_meal.carbs += bagel_staple_meal[2] * serving_size
+            new_meal.total_fat += bagel_staple_meal[3] * serving_size
+            new_meal.sat_fat += bagel_staple_meal[4] * serving_size
+            new_meal.trans_fat += bagel_staple_meal[5] * serving_size
+            new_meal.carbs_fiber += bagel_staple_meal[6] * serving_size
+            new_meal.carbs_sugar += bagel_staple_meal[7] * serving_size
+            new_meal.protein += bagel_staple_meal[8] * serving_size
+            new_meal.sodium += bagel_staple_meal[9] * serving_size
+  
+        if int(chicken) > 0:
+            serving_size = float(chicken) / chicken_staple_meal[10]
+            new_meal.calories += chicken_staple_meal[1] * serving_size
+            new_meal.carbs += chicken_staple_meal[2] * serving_size
+            new_meal.total_fat += chicken_staple_meal[3] * serving_size
+            new_meal.sat_fat += chicken_staple_meal[4] * serving_size
+            new_meal.trans_fat += chicken_staple_meal[5] * serving_size
+            new_meal.carbs_fiber += chicken_staple_meal[6] * serving_size
+            new_meal.carbs_sugar += chicken_staple_meal[7] * serving_size
+            new_meal.protein += chicken_staple_meal[8] * serving_size
+            new_meal.sodium += chicken_staple_meal[9] * serving_size
+
+        if int(steak) > 0:
+            serving_size = float(steak) / steak_staple_meal[10]
+            new_meal.calories += steak_staple_meal[1] * serving_size
+            new_meal.carbs += steak_staple_meal[2] * serving_size
+            new_meal.total_fat += steak_staple_meal[3] * serving_size
+            new_meal.sat_fat += steak_staple_meal[4] * serving_size
+            new_meal.trans_fat += steak_staple_meal[5] * serving_size
+            new_meal.carbs_fiber += steak_staple_meal[6] * serving_size
+            new_meal.carbs_sugar += steak_staple_meal[7] * serving_size
+            new_meal.protein += steak_staple_meal[8] * serving_size
+            new_meal.sodium += steak_staple_meal[9] * serving_size
+
+        if int(bread) > 0:
+            serving_size = float(bread) / bread_staple_meal[10]
+            new_meal.calories += bread_staple_meal[1] * serving_size
+            new_meal.carbs += bread_staple_meal[2] * serving_size
+            new_meal.total_fat += bread_staple_meal[3] * serving_size
+            new_meal.sat_fat += bread_staple_meal[4] * serving_size
+            new_meal.trans_fat += bread_staple_meal[5] * serving_size
+            new_meal.carbs_fiber += bread_staple_meal[6] * serving_size
+            new_meal.carbs_sugar += bread_staple_meal[7] * serving_size
+            new_meal.protein += bread_staple_meal[8] * serving_size
+            new_meal.sodium += bread_staple_meal[9] * serving_size
+
+        if int(rice) > 0:
+            serving_size = float(rice) / rice_staple_meal[10]
+            new_meal.calories += rice_staple_meal[1] * serving_size
+            new_meal.carbs += rice_staple_meal[2] * serving_size
+            new_meal.total_fat += rice_staple_meal[3] * serving_size
+            new_meal.sat_fat += rice_staple_meal[4] * serving_size
+            new_meal.trans_fat += rice_staple_meal[5] * serving_size
+            new_meal.carbs_fiber += rice_staple_meal[6] * serving_size
+            new_meal.carbs_sugar += rice_staple_meal[7] * serving_size
+            new_meal.protein += rice_staple_meal[8] * serving_size
+            new_meal.sodium += rice_staple_meal[9] * serving_size
+
+
+        # Commit a new meal to database
+        commit()
+        # Redirect to staple_meal page
+        return redirect(url_for("staple_meal"))
+    else:
+        # if not a POST request direct to home page template
+        return render_template("home.html") 
 
 
 @app.route("/users")  ### Testing if it creates an account and hashes password
