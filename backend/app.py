@@ -5,7 +5,7 @@ from pony.flask import Pony
 from pony.orm import commit, db_session, select, desc
 from models import db, User, Meal, Staple_meal
 import re
-import string
+from email_verif_code import *
 
 login_manager = LoginManager()
 # https://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
@@ -69,8 +69,65 @@ def login():
 def forgot_password():
     if request.method == "POST":
         email = request.form["email"]
+        
+        # Check if the email exists in the database
+        user = User.get(email=email)
+        if user is None:
+            error = "Email not found"
+            return render_template("forgot_password.html", error=error)
+        
+        # Generate verification code
+        verification_code = generate_verification_code()
+        
+        # Send verification email
+        send_verification_email(email, verification_code)
+        
+        # Store verification code in session
+        session["verification_code"] = verification_code
+        session["email"] = email
+
+        return redirect(url_for("verify_code"))
+
     return render_template("forgot_password.html")
 
+@app.route("/verify-code", methods=["GET", "POST"])
+def verify_code():
+    if request.method == "POST":
+        entered_code = request.form["verification_code"]
+
+        # Succesful entry redirect to reset password
+        if session.get("verification_code") == entered_code:
+            return redirect(url_for("reset_password"))
+        else:
+        # Throw error, allow for reentry of code
+            error = "Invalid verification code"
+            return render_template("verify_code.html", error=error)
+        
+    return render_template("verify_code.html")
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
+        if new_password != confirm_password:
+            # Throw error, allow reentry of passwords
+            error = "Passwords do not match"
+            return render_template("reset_password.html", error=error)
+
+        # Update password in the database
+        email = session.get("email")
+        user = User.get(email=email)
+        user.password = generate_password_hash(new_password)
+        commit()
+
+        # Clear session data
+        session.pop("verification_code", None)
+        session.pop("email", None)
+
+        return redirect(url_for("login"))
+
+    return render_template("reset_password.html")
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
