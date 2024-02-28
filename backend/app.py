@@ -44,6 +44,28 @@ db.generate_mapping(create_tables=True)
 Pony(app)
 
 
+def is_password_complex(password: string) -> bool:
+    """
+    Check if the password meets complexity requirements. The requiremnts are it must contain:
+    atleast one letter, one number and one special character.
+
+    Parameters: 
+    password (string): The inputted password from user.
+
+    Returns:
+    bool: True or False depending on if password meets complexity requirements
+
+
+    """
+    if (
+        not any(char in string.ascii_letters for char in password)
+        or not any(char in string.digits for char in password)
+        or not any(char in string.punctuation for char in password)
+        or len(password) < 8
+    ):
+        return False
+    return True
+
 # Define a route for the root URL
 @app.route("/")
 def home():
@@ -138,6 +160,11 @@ def reset_password():
             error = "Passwords do not match"
             return render_template("reset_password.html", error=error)
 
+        # Check password complexity
+        if not is_password_complex(new_password):
+            error = "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"
+            return render_template("reset_password.html", error=error)
+
         # Update password in the database
         email = session.get("email")
         user = User.get(email=email)
@@ -192,13 +219,8 @@ def signup():
             return render_template("signup.html", error=error)
 
         # Check password complexity
-        if (
-            not any(char in string.ascii_letters for char in password)
-            or not any(char in string.digits for char in password)
-            or not any(char in string.punctuation for char in password)
-            or len(password) < 8
-        ):
-            error = "Password must be atleast 8 characters long and contain at least one alphabet letter, one number, and one special character"
+        if not is_password_complex(password):
+            error = "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"
             return render_template("signup.html", error=error)
 
         # Hash the password
