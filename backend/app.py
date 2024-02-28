@@ -6,9 +6,12 @@ from pony.orm import commit, db_session, select, desc
 from models import db, User, Meal, Staple_meal
 import re
 from email_verif_code import *
+import time
+import datetime
+from datetime import date, datetime
 
 login_manager = LoginManager()
-# https://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
+# hpyttps://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
 
 # Flask app instance
 app = Flask(__name__)
@@ -328,11 +331,47 @@ def profile():
             if request.form["targetweight"] != ""
             else 0
         )
+        User[current_user.id].maintenance_calories = 0
 
         commit()
         print(request.form)
     print(current_user.username)
     return render_template("profile.html", u=current_user)
+
+@app.route("/biometrics", methods=["GET", "POST"])
+@login_required
+def biometrics():
+    if request.method == "GET":
+        #BMR formula male: 66 + (6.23 x lbs) + (12.7 x inch) - (6.8 x yrs)
+        #BMR formula female: 655 + (4.3 x lbs) + (4.7 x inch) - (4.7 x yrs)
+        #TDEE formula: 1.2 x bmr (sendentary) 1.375 x bmr (light) 1.55 x bmr (moderate) 1.725 x bmr (heavy) 1.9 x bmr (extreme)
+        lbs = User[current_user.id].weight 
+        inch = User[current_user.id].height
+        yrs = date.today().year - User[current_user.id].birthday.date().year  
+        exercise = User[current_user.id].activity_level
+        sex = User[current_user.id].sex
+        if (sex == "Male") :
+            bmr = 66 + (6.23 * lbs) + (12.7 * inch) - (6.8 * yrs)
+        else :
+            bmr = 655 + (4.3 * lbs) + (4.7 * inch) - (4.7 * yrs)
+        if exercise == "sedentary":
+            tdee = 1.2 * bmr
+        elif exercise == "light":
+            tdee = 1.375 * bmr
+        elif exercise == "moderate":
+            tdee = 1.55 * bmr
+        elif exercise == "heavy":
+            tdee = 1.725 * bmr
+        elif exercise == "extreme":
+            tdee = 1.9 * bmr
+        else :
+            tdee = 0
+        print(tdee)
+        User[current_user.id].maintainence_calories = tdee
+        commit()
+        print(User[current_user.id].maintenance_calories)
+    return render_template("biometrics.html", u=current_user)
+
 
 
 # Run the Flask application if this script is executed directly
