@@ -12,7 +12,7 @@ class User(db.Entity, UserMixin):
     username = Required(str, unique=True)
     password = Required(str)
     email = Required(str, unique=True)
-    last_login = Optional(datetime)  # don't know if this is necessary
+    last_login = Optional(datetime)
     meals = Set("Meal")
     unit_type = Optional(str, default="imperial")
     sex = Optional(str, default="")

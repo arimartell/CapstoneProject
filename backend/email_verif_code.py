@@ -8,6 +8,7 @@ def generate_verification_code():
     letters_and_digits = string.ascii_letters + string.digits
     return ''.join(random.choice(letters_and_digits) for i in range(6))
 
+    # https://mailtrap.io/blog/python-send-email-gmail/
 def send_verification_email(receiver_email, verification_code):
     sender_email = "emailauthcode@gmail.com"
     sender_password = "fkth eyfj tmwn wvww"
@@ -31,7 +32,7 @@ def send_verification_email(receiver_email, verification_code):
     # Add HTML body to email
     message.attach(MIMEText(body, "html"))
 
-   # Connect to Gmail's SMTP server and send email
+    # Connect to Gmail's SMTP server and send email
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, receiver_email, message.as_string())
