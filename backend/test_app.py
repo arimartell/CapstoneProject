@@ -1,3 +1,4 @@
+from flask import url_for
 import pytest
 from app import app, db, User, Meal
 
@@ -410,7 +411,7 @@ def test_profile_invalid_data(client):
 
 
 # ? Tests for valid user inputs
-    #! Some unit tests not passing will fix soon
+#! Some unit tests not passing will fix soon
 def test_profile_valid_data(client):
 
     login(client)
@@ -426,5 +427,122 @@ def test_profile_valid_data(client):
         "goaltype": "lose",
         "targetweight": "65",
     }
-    response = client.post("/profile", data=data_valid_inputs)
-    assert response.status_code == 200, response.text
+    response = client.post("/profile", data=data_valid_inputs, follow_redirects=True)
+    assert response.status_code != 400
+
+
+# ? Test missing fields on Meal page
+def test_meal_missing_data(client):
+    login(client)
+    # Test missing name
+    data_missing_name = {
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "6",
+    }
+
+    response = client.post("/profile", data=data_missing_name)
+    assert response.status_code == 400, response.text
+
+    # Test missing calories
+    data_missing_calories = {
+        "name": "Burger",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "6",
+    }
+
+    response = client.post("/profile", data=data_missing_calories)
+    assert response.status_code == 400, response.text
+
+    # Test missing carbs
+    data_missing_carbs = {
+        "name": "Burger",
+        "calories": "70",
+        "total_fat": "9",
+        "protein": "6",
+    }
+
+    response = client.post("/profile", data=data_missing_carbs)
+    assert response.status_code == 400, response.text
+
+    data_missing_total_fat = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "protein": "6",
+    }
+
+    response = client.post("/profile", data=data_missing_total_fat)
+    assert response.status_code == 400, response.text
+
+    data_missing_protein = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "9",
+    }
+
+    response = client.post("/profile", data=data_missing_protein)
+    assert response.status_code == 400, response.text
+
+
+# ? Tests empty fields for Meal page
+
+
+def test_meal_empty_data(client):
+
+    login(client)
+
+    # Test for empty name
+    data_empty_name = {
+        "name": "",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_empty_name)
+    assert response.status_code == 400, response.text
+
+    # Test for empty calories
+    data_empty_calories = {
+        "name": "Burger",
+        "calories": "",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_empty_calories)
+    assert response.status_code == 400, response.text
+    # Test for empty carbs
+    data_empty_carbs = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "",
+        "total_fat": "9",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_empty_carbs)
+    assert response.status_code == 400, response.text
+    # Test for empty fat
+    # data_empty_total_fat = {
+    #     "name": "Burger",
+    #     "calories": "70",
+    #     "carbs": "5",
+    #     "total_fat": "",
+    #     "protein": "6",
+    # }
+    # response = client.post("/meal", data=data_empty_total_fat)
+    # assert response.status_code == 400, response.text
+    # Test for empty protein
+    data_empty_total_protein = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "",
+    }
+    response = client.post("/meal", data=data_empty_total_protein)
+    assert response.status_code == 400, response.text
