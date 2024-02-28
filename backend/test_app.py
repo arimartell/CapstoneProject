@@ -1,6 +1,7 @@
 from flask import url_for
 import pytest
 from app import app, db, User, Meal
+from pony.orm import db_session
 
 
 # Fixture to create a test client and set up the database
@@ -39,6 +40,65 @@ def test_signup_page(client):
     response = client.get("/signup")
     assert response.status_code == 200
 
+
+def test_valid_signup(client):
+    # Test if signup is successful
+    data = {
+        "username": "test_user",
+        "email": "test@example.com",
+        "confirm_email": "test@example.com",
+        "password": "$$Test1$$",
+        "confirm_password": "$$Test1$$"
+    }
+    response = client.post("/signup", data=data, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"login" in response.data
+    
+    with db_session:
+        user = User.get(username="test_user")
+        if user:
+            user.delete()
+
+def test_invalid_signup_existing_username(client):
+    # Test signup fail due to existing username in database
+    with db_session:
+        # Create the existing user within a db_session context
+        existing_user = User(username="test_user", email="test@example.com", password="existing_password")
+        existing_user.flush()  # Flush the user to commit it to the database
+
+    data = {
+        "username": "test_user",
+        "email": "test@example.com",
+        "confirm_email": "test@example.com",
+        "password": "$$Test1$$",
+        "confirm_password": "$$Test1$$"
+    }
+    response = client.post("/signup", data=data, follow_redirects=True)
+
+    # Assert that the signup fails due to the existing username
+    assert b"Email already exists" in response.data
+
+    with db_session:
+        user = User.get(username="test_user")
+        if user:
+            user.delete()
+
+def test_invalid_login(client):
+    # Test invalid login credentials
+    data = {"login_identifier": "wrong_user", "password": "wrong_password"}
+    response = client.post("/login", data=data, follow_redirects=True)
+    assert b"Invalid username or password" in response.data
+
+def test_successful_login(client):
+    # Test sucessful login of existing user
+    data = {
+        "login_identifier": "Tabshir",
+        "password": "Test1$$$$"
+    }
+    response = client.post("/login", data=data, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert response.request.path == "/"
 
 def test_meal_page(client):
     # Test if the meal page returns a status code of 401 for unauthorized access
