@@ -53,7 +53,29 @@ def test_valid_signup(client):
     response = client.post("/signup", data=data, follow_redirects=True)
     assert response.status_code == 200
     assert b"login" in response.data
-    
+
+    with db_session:
+        user = User.get(username="test_user")
+        if user:
+            user.delete()
+
+def test_invalid_signup_existing_email(client):
+    with db_session:
+        existing_user = User(username="test_user", email="test@example.com", password="existing_password")
+        existing_user.flush()  # Flush the user to commit it to the database
+
+    data = {
+        "username": "test2_user",
+        "email": "test@example.com",
+        "confirm_email": "test@example.com",
+        "password": "$$Test1$$",
+        "confirm_password": "$$Test1$$"
+    }
+    response = client.post("/signup", data=data, follow_redirects=True)
+
+    # Assert that the signup fails due to the existing email
+    assert b"Email already exists" in response.data
+
     with db_session:
         user = User.get(username="test_user")
         if user:
@@ -62,26 +84,64 @@ def test_valid_signup(client):
 def test_invalid_signup_existing_username(client):
     # Test signup fail due to existing username in database
     with db_session:
-        # Create the existing user within a db_session context
         existing_user = User(username="test_user", email="test@example.com", password="existing_password")
-        existing_user.flush()  # Flush the user to commit it to the database
+        existing_user.flush()
 
     data = {
         "username": "test_user",
-        "email": "test@example.com",
-        "confirm_email": "test@example.com",
+        "email": "test2@example.com",
+        "confirm_email": "test2@example.com",
         "password": "$$Test1$$",
         "confirm_password": "$$Test1$$"
     }
     response = client.post("/signup", data=data, follow_redirects=True)
 
     # Assert that the signup fails due to the existing username
-    assert b"Email already exists" in response.data
+    assert b"Username already exists" in response.data
 
     with db_session:
         user = User.get(username="test_user")
         if user:
             user.delete()
+
+def test_invalid_signup_invalid_password(client):
+    data = {
+        "username": "test_user",
+        "email": "test@example.com",
+        "confirm_email": "test@example.com",
+        "password": "Test",
+        "confirm_password": "Test"
+    }
+    response = client.post("/signup", data=data, follow_redirects=True)
+
+    # Assert that the signup fails due to invalid password
+    assert b"Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character" in response.data
+
+def test_invalid_signup_not_matching_password(client):
+    data = {
+        "username": "test_user",
+        "email": "test@example.com",
+        "confirm_email": "test@example.com",
+        "password": "Test1$$$$",
+        "confirm_password": "Test2$$$$"
+    }
+    response = client.post("/signup", data=data, follow_redirects=True)
+
+    # Assert that the signup fails due to Passwords not matching
+    assert b"Passwords do not match" in response.data
+
+def test_invalid_signup_not_matching_email(client):
+    data = {
+        "username": "test_user",
+        "email": "test@example.com",
+        "confirm_email": "test1@example.com",
+        "password": "Test1$$$$",
+        "confirm_password": "Test1$$$$"
+    }
+    response = client.post("/signup", data=data, follow_redirects=True)
+
+    # Assert that the signup fails due to Emails not matching
+    assert b"Emails do not match" in response.data
 
 def test_invalid_login(client):
     # Test invalid login credentials
