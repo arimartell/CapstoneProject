@@ -40,6 +40,17 @@ def test_signup_page(client):
     response = client.get("/signup")
     assert response.status_code == 200
 
+def test_staple_meal_page(client):
+    # Test if the staple_meal page returns a status code of 200
+    response = client.get("/staple_meal")
+    assert response.status_code == 200
+
+def test_biometrics_page(client):
+    # Test if the biometrics page returns a status code of 401 
+    response = client.get("/biometrics")
+    assert response.status_code == 200
+
+
 
 def test_valid_signup(client):
     # Test if signup is successful
@@ -666,3 +677,4 @@ def test_meal_empty_data(client):
     }
     response = client.post("/meal", data=data_empty_total_protein)
     assert response.status_code == 400, response.text
+
