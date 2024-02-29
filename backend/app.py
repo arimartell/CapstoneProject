@@ -105,6 +105,10 @@ def login():
                 # Directs first time users to edit profile before going into meal route, is recurring user direct to home
                 return redirect(url_for("profile"))
             else:
+                # Update the last_login field
+                user.last_login = datetime.now()
+                # Save the changes to the user
+                commit()
                 return redirect(url_for("home"))
         else:
             error = "Invalid username or password"
