@@ -253,13 +253,11 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
-
-# Used https://www.geeksforgeeks.org/flask-app-routing/ to help understand routing
 @app.route("/meal", methods=["GET", "POST"])
 @login_required
 def meal():
     if request.method == "POST":
-    # Ensure fields are not missing
+         # Ensure fields are not missing
         if "name" not in request.form:
             return "Missing 'name'", 400
         if "calories" not in request.form:
@@ -267,10 +265,10 @@ def meal():
         if "carbs" not in request.form:
             return "Missing 'carbs'", 400
         if "total_fat" not in request.form:
-            return "Missing 'total_fat'"
+            return "Missing 'total_fat'", 400
         if "protein" not in request.form:
             return "Missing 'protein'", 400
-    # Ensuree fields are not empty
+        # Ensure fields are not empty
         if request.form["name"] == "":
             return "Invalid 'name'", 400
         if request.form["calories"] == "":
@@ -278,23 +276,33 @@ def meal():
         if request.form["carbs"] == "":
             return "Invalid 'carbs'", 400
         if request.form["total_fat"] == "":
-            return "Invalid 'total_fat'"
+            return "Invalid 'total_fat'", 400
         if request.form["protein"] == "":
             return "Invalid 'protein'", 400
-        
+        # Validation so input can only be digits for all fields except name
+        if not re.match(r"^\d+$", request.form["calories"]):
+            return "Invalid 'calories'", 400
+        if not re.match(r"^\d+$", request.form["carbs"]):
+            return "Invalid 'carbs'", 400
+        if not re.match(r"^\d+$", request.form["total_fat"]):
+            return "Invalid 'total_fat'", 400
+        if not re.match(r"^\d+$", request.form["protein"]):
+            return "Invalid 'protein'", 400
         # Gets back form data
         name = request.form["name"]
-        calories = request.form["calories"]
-        carbs = request.form["carbs"]
-        total_fat = request.form["total_fat"]
-        protein = request.form["protein"]
+        calories = int(request.form["calories"])
+        carbs = int(request.form["carbs"])
+        total_fat = int(request.form["total_fat"])
+        protein = int(request.form["protein"])
 
-        # Optional fields
+        # Optional fields based on model 
         optional_fields = {}
         optional_field_names = ["sat_fat", "trans_fat", "carbs_fiber", "carbs_sugar", "sodium"]
         for field_name in optional_field_names:
             if field_name in request.form:
-                optional_fields[field_name] = int(request.form[field_name])
+                if request.form[field_name] != "":
+                    optional_fields[field_name] = request.form[field_name]
+                
 
         new_meal = Meal(
             name=name,
@@ -303,7 +311,7 @@ def meal():
             total_fat=total_fat,
             protein=protein,
             user=current_user,
-            **optional_fields  # Unpack optional fields into the Meal constructor
+            **optional_fields
         )
 
 
@@ -398,6 +406,8 @@ def list_users():
     users = User.select()  # Fetch all users from the database
     return render_template("user_list.html", users=users)
 
+ # ? Example of guarding a page by checking if a user has filled out their profile with a helper function,
+# ? we can use this for when users try to input into meal page without filling out profile
 
 def has_filled_out_profile():
     if User[current_user.id].unit_type == "":
@@ -412,10 +422,7 @@ def has_filled_out_profile():
         return False
     if User[current_user.id].goal_type == "":
         return False
-    # ? Example of guarding a page by checking if a user has filled out their profile with a helper function,
-    # ? we can use this for when users try to input into meal page without filling out profile
-    # if has_filled_out_profile() == False:
-    #     return "Profile Not filled!", 400
+
 
 
 @app.route("/profile", methods=["GET", "POST"])
@@ -458,14 +465,15 @@ def profile():
             return "Invalid 'activitylevel'", 400
         if request.form["goaltype"] == "":
             return "Invalid 'goaltype'", 400
-        #Validation so input can only be digits https://docs.python.org/3/library/re.html for regex 
+        # Validation so input can only be digits https://docs.python.org/3/library/re.html for regex 
         if not re.match(r"^\d+$", request.form["weight"]):
             return "Invalid weight", 400
         if not re.match(r"^\d+$", request.form["heightfeet"]):
             return "Invalid height feet", 400
         if not re.match(r"^\d+$", request.form["heightinches"]):
             return "Invalid height inches", 400
-        if request.form["goaltype"] == "lose":
+        # If user chose loss for goal return invalid if nondigit/empty 
+        if request.form["goaltype"] == "loss":
             if not re.match(r"^\d+$", request.form["targetweight"]):
                 return "Invalid target weight", 400
         # Update user's profile information based on form data

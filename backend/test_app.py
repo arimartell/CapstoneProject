@@ -94,7 +94,7 @@ def test_profile_missing_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
 
@@ -109,7 +109,7 @@ def test_profile_missing_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_missing_sex)
@@ -123,7 +123,7 @@ def test_profile_missing_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_missing_weight)
@@ -136,7 +136,7 @@ def test_profile_missing_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_missing_heightfeet)
@@ -149,7 +149,7 @@ def test_profile_missing_data(client):
         "heightfeet": "5",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_missing_heightinches)
@@ -162,7 +162,7 @@ def test_profile_missing_data(client):
         "heightfeet": "5",
         "heightinches": "9",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_missing_birthday)
@@ -175,7 +175,7 @@ def test_profile_missing_data(client):
         "heightfeet": "5",
         "heightinches": "9",
         "birthday": "1990-01-01",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_missing_activitylevel)
@@ -202,7 +202,7 @@ def test_profile_missing_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
     }
     response = client.post("/profile", data=data_missing_targetweight)
     assert response.status_code == 400, response.text
@@ -222,7 +222,7 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_unittype)
@@ -237,7 +237,7 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_sex)
@@ -252,7 +252,7 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_weight)
@@ -267,7 +267,7 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_heightfeet)
@@ -282,7 +282,7 @@ def test_profile_empty_data(client):
         "heightinches": "",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_heightinches)
@@ -297,7 +297,7 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_birthday)
@@ -312,7 +312,7 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_empty_activitylevel)
@@ -342,13 +342,14 @@ def test_profile_empty_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "",
     }
     response = client.post("/profile", data=data_empty_targetweight)
     assert response.status_code == 400, response.text
 
-
+# Pytest docus for unit test https://docs.pytest.org/en/7.1.x/how-to/fixtures.html?highlight=login
+    
 # ? Test for invalid weight, heightfeet, heightinches, targetweight that contain nondigits
 def test_profile_invalid_data(client):
     login(client)
@@ -361,7 +362,7 @@ def test_profile_invalid_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_invalid_weight)
@@ -375,7 +376,7 @@ def test_profile_invalid_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_invalid_heightfeet)
@@ -389,7 +390,7 @@ def test_profile_invalid_data(client):
         "heightinches": "abc",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_invalid_heightinches)
@@ -403,7 +404,7 @@ def test_profile_invalid_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "abc",
     }
     response = client.post("/profile", data=data_invalid_targetweight)
@@ -411,7 +412,6 @@ def test_profile_invalid_data(client):
 
 
 # ? Tests for valid user inputs
-#! Some unit tests not passing will fix soon
 def test_profile_valid_data(client):
 
     login(client)
@@ -424,7 +424,7 @@ def test_profile_valid_data(client):
         "heightinches": "9",
         "birthday": "1990-01-01",
         "activitylevel": "active",
-        "goaltype": "lose",
+        "goaltype": "loss",
         "targetweight": "65",
     }
     response = client.post("/profile", data=data_valid_inputs, follow_redirects=True)
@@ -442,7 +442,7 @@ def test_meal_missing_data(client):
         "protein": "6",
     }
 
-    response = client.post("/profile", data=data_missing_name)
+    response = client.post("/meal", data=data_missing_name)
     assert response.status_code == 400, response.text
 
     # Test missing calories
@@ -453,7 +453,7 @@ def test_meal_missing_data(client):
         "protein": "6",
     }
 
-    response = client.post("/profile", data=data_missing_calories)
+    response = client.post("/meal", data=data_missing_calories)
     assert response.status_code == 400, response.text
 
     # Test missing carbs
@@ -464,9 +464,9 @@ def test_meal_missing_data(client):
         "protein": "6",
     }
 
-    response = client.post("/profile", data=data_missing_carbs)
+    response = client.post("/meal", data=data_missing_carbs)
     assert response.status_code == 400, response.text
-
+    # Test missing total_fat
     data_missing_total_fat = {
         "name": "Burger",
         "calories": "70",
@@ -474,9 +474,9 @@ def test_meal_missing_data(client):
         "protein": "6",
     }
 
-    response = client.post("/profile", data=data_missing_total_fat)
+    response = client.post("/meal", data=data_missing_total_fat)
     assert response.status_code == 400, response.text
-
+    # Test missing protein
     data_missing_protein = {
         "name": "Burger",
         "calories": "70",
@@ -484,12 +484,11 @@ def test_meal_missing_data(client):
         "total_fat": "9",
     }
 
-    response = client.post("/profile", data=data_missing_protein)
+    response = client.post("/meal", data=data_missing_protein)
     assert response.status_code == 400, response.text
 
 
 # ? Tests empty fields for Meal page
-
 
 def test_meal_empty_data(client):
 
@@ -527,15 +526,15 @@ def test_meal_empty_data(client):
     response = client.post("/meal", data=data_empty_carbs)
     assert response.status_code == 400, response.text
     # Test for empty fat
-    # data_empty_total_fat = {
-    #     "name": "Burger",
-    #     "calories": "70",
-    #     "carbs": "5",
-    #     "total_fat": "",
-    #     "protein": "6",
-    # }
-    # response = client.post("/meal", data=data_empty_total_fat)
-    # assert response.status_code == 400, response.text
+    data_empty_total_fat = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_empty_total_fat)
+    assert response.status_code == 400, response.text
     # Test for empty protein
     data_empty_total_protein = {
         "name": "Burger",
@@ -546,3 +545,64 @@ def test_meal_empty_data(client):
     }
     response = client.post("/meal", data=data_empty_total_protein)
     assert response.status_code == 400, response.text
+
+#? Test non digit data for meal page 
+def test_meal_nondigit_data(client):
+
+    login(client) 
+    # Tests for non digit calories
+    data_nondigit_calories = {
+        "name": "Burger",
+        "calories": "abc",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_nondigit_calories)
+    assert response.status_code == 400, response.text
+    # Tests for non digit carbs
+    data_nondigit_carbs = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "abc",
+        "total_fat": "9",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_nondigit_carbs)
+    assert response.status_code == 400, response.text
+    # Tests for non digit total_fat
+    data_nondigit_total_fat = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "abc",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_nondigit_total_fat)
+    assert response.status_code == 400, response.text
+    # Tests for non digit protein
+    data_nondigit_protein = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "abc",
+    }
+    response = client.post("/meal", data=data_nondigit_protein)
+    assert response.status_code == 400, response.text
+
+#? Test valid data for meal page
+    
+def test_meal_valid_data(client):
+
+    login(client) 
+# Tests for valid inputs
+    data_meal_valid_inputs = {
+        "name": "Burger",
+        "calories": "70",
+        "carbs": "5",
+        "total_fat": "9",
+        "protein": "6",
+    }
+    response = client.post("/meal", data=data_meal_valid_inputs, follow_redirects=True)
+    assert response.status_code == 200, response.text

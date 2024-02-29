@@ -9,20 +9,33 @@
 
 <body>
     <h1>Meal</h1>
-    <form action="/meal" method="post">Name
-        <input type="text" name="name" id=""> Calories
-        <input type="text" name="calories" id=""> Carbs
-        <input type="text" name="carbs" id=""> Total Fat
-        <input type="text" name="total_fat" id=""> Saturated Fat
-        <input type="text" name="sat_fat" id=""> Trans Fat
-        <input type="text" name="trans_fat" id="">Fiber
-        <input type="text" name="carbs_fiber" id=""> Sugar
-        <input type="text" name="carbs_sugar" id=""> Protein
-        <input type="text" name="protein" id=""> Sodium
-        <input type="text" name="sodium" id="">
-        <button type="submit">
-            Submit Meal
-        </button>
+    <p>All fields marked with * are required</p>
+    <form action="/meal" method="post">
+        <table>
+            <tr>
+                <td>Name*<input type="text" name="name" id=""></td>
+                <td>Calories* (kcal)<input type="number" name="calories" id=""></td>
+            </tr>
+            <tr>
+                <td>Carbs* (g)<input type="number" name="carbs" id=""></td>
+                <td>Total Fat* (g)<input type="number" name="total_fat" id=""></td>
+            </tr>
+            <tr>
+                <td>Saturated Fat (g)<input type="number" name="sat_fat" id=""></td>
+                <td>Trans Fat (g)<input type="number" name="trans_fat" id=""></td>
+            </tr>
+            <tr>
+                <td>Fiber (g)<input type="number" name="carbs_fiber" id=""></td>
+                <td>Sugars (g)<input type="number" name="carbs_sugar" id=""></td>
+            </tr>
+            <tr>
+                <td>Protein* (g)<input type="number" name="protein" id=""></td>
+                <td>Sodium (mg)<input type="number" name="sodium" id=""></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit">Submit</button></td>
+            </tr>
+        </table>
     </form>
 </body>
 

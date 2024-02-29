@@ -7,12 +7,16 @@ App.py resources
 - https://www.youtube.com/watch?v=71EU8gnZqZQ  (Guide on using Flask for User Auth Login)
 
 Run app: 
+cd backend
 python3 app.py
 
 Run test cases command: 
 pytest 
+
 Database terminal commands https://www.sqlitetutorial.net/sqlite-select/:
-SELECT * FROM 
+cd backebd
 sqlite3 ./main.db3
+SELECT * FROM user;
+SELECT * FROM meal;
 .tables
 .schema
