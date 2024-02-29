@@ -480,6 +480,14 @@ def profile():
         if request.form["goaltype"] == "loss":
             if not re.match(r"^\d+$", request.form["targetweight"]):
                 return "Invalid target weight", 400
+            
+
+        temp_tweight = request.form["targetweight"]
+        true_tweight = 0
+        # Check if the retrieved value is not empty and consists entirely of digits
+        if temp_tweight != "" and re.match(r"^\d+$", request.form["targetweight"]):
+         # If both conditions are true, convert the value to an integer
+            true_tweight = int(request.form["targetweight"])
         # Update user's profile information based on form data
         User[current_user.id].unit_type = request.form["unittype"]
         User[current_user.id].sex = request.form["sex"]
@@ -489,11 +497,7 @@ def profile():
         User[current_user.id].birthday = request.form["birthday"]
         User[current_user.id].activity_level = request.form["activitylevel"]
         User[current_user.id].goal_type = request.form["goaltype"]
-        User[current_user.id].goal_weight = (
-            int(request.form["targetweight"])
-            if request.form["targetweight"] != "" and not re.match(r"^\d+$", request.form["targetweight"])
-            else 0
-        )
+        User[current_user.id].goal_weight = true_tweight
         User[current_user.id].maintenance_calories = 0
 
         commit()
