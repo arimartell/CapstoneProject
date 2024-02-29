@@ -523,10 +523,8 @@ def biometrics():
             tdee = 1.9 * bmr
         else :
             tdee = 0
-        print(tdee)
-        User[current_user.id].maintainence_calories = tdee
+        current_user.maintainence_calories = int(tdee)
         commit()
-        print(User[current_user.id].maintenance_calories)
     return render_template("biometrics.html", u=current_user)
 
 
