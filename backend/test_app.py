@@ -48,7 +48,7 @@ def test_staple_meal_page(client):
 def test_biometrics_page(client):
     # Test if the biometrics page returns a status code of 401 
     response = client.get("/biometrics")
-    assert response.status_code == 200
+    assert response.status_code == 401
 
 
 
