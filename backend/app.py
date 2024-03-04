@@ -57,8 +57,6 @@ def is_password_complex(password: string) -> bool:
 
     Returns:
     bool: True or False depending on if password meets complexity requirements
-
-
     """
     if (
         not any(char in string.ascii_letters for char in password)
@@ -197,32 +195,32 @@ def signup():
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
 
-        # Check if email and confirm email fields match
-        if email != confirm_email:
-            error = "Emails do not match"
+        # Check if username exists in database
+        existing_user = User.get(username=username)
+        if existing_user:
+            error = "Username already exists"
             return render_template("signup.html", error=error)
-
-        # Check if password and confirm password fields match
-        if password != confirm_password:
-            error = "Passwords do not match"
-            return render_template("signup.html", error=error)
-
+        
         # Check if email exists in database
         existing_email = User.get(email=email)
         if existing_email:
             error = "Email already exists"
             return render_template("signup.html", error=error)
 
-        # Check if username exists in database
-        existing_user = User.get(username=username)
-        if existing_user:
-            error = "Username already exists"
+        # Check if email and confirm email fields match
+        if email != confirm_email:
+            error = "Emails do not match"
             return render_template("signup.html", error=error)
-
+        
         # Check if email is valid using regex
         # Copied regex from https://saturncloud.io/blog/how-can-i-validate-an-email-address-using-a-regular-expression/
         if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
             error = "Invalid email address"
+            return render_template("signup.html", error=error)
+
+        # Check if password and confirm password fields match
+        if password != confirm_password:
+            error = "Passwords do not match"
             return render_template("signup.html", error=error)
 
         # Check password complexity
