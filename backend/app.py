@@ -47,7 +47,7 @@ db.generate_mapping(create_tables=True)
 
 Pony(app)
 
-
+# Tabshir Ahmed created this helper function to check password complexity
 def is_password_complex(password: string) -> bool:
     """
     Check if the password meets complexity requirements. The requiremnts are it must contain:
@@ -81,7 +81,7 @@ def home():
         username = None
     return render_template("home.html", username=username)
 
-
+#Tabshir Ahmed added this route/page
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
@@ -102,7 +102,7 @@ def login():
                 user.last_login = datetime.now()
                 # Save the changes to the user
                 commit()
-                # Directs first time users to edit profile before going into meal route, is recurring user direct to home
+                # Directs first time users to edit profile before going into meal route, recurring user direct to home
                 return redirect(url_for("profile"))
             else:
                 # Update the last_login field
@@ -114,7 +114,7 @@ def login():
             error = "Invalid username or password"
     return render_template("login.html", error=error)
 
-
+#Tabshir Ahmed added this route/page
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
@@ -140,13 +140,12 @@ def forgot_password():
 
     return render_template("forgot_password.html")
 
-
+#Tabshir Ahmed added this route/page
 @app.route("/verify-code", methods=["GET", "POST"])
 def verify_code():
     if request.method == "POST":
         entered_code = request.form["verification_code"]
-
-        # Succesful entry redirect to reset password
+        # Succesful entry, redirect to reset password form
         if session.get("verification_code") == entered_code:
             return redirect(url_for("reset_password"))
         else:
@@ -156,7 +155,7 @@ def verify_code():
 
     return render_template("verify_code.html")
 
-
+#Tabshir Ahmed added this route/page
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     if request.method == "POST":
@@ -166,27 +165,23 @@ def reset_password():
             # Throw error, allow reentry of passwords
             error = "Passwords do not match"
             return render_template("reset_password.html", error=error)
-
         # Check password complexity
         if not is_password_complex(new_password):
             error = "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"
             return render_template("reset_password.html", error=error)
-
         # Update password in the database
         email = session.get("email")
         user = User.get(email=email)
         user.password = generate_password_hash(new_password)
         commit()
-
         # Clear session data
         session.pop("verification_code", None)
         session.pop("email", None)
 
         return redirect(url_for("login"))
-
     return render_template("reset_password.html")
 
-
+#Tabshir Ahmed added this route/page
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     error = None
@@ -232,17 +227,12 @@ def signup():
 
         # Hash the password
         hashed_password = generate_password_hash(password)
-
         # Create a new user object
         user = User(username=username, email=email, password=hashed_password)
-
-        # Commit changes to the database
+        # Commit user to database
         commit()
-
         # Redirect to login page after successful signup
         return redirect(url_for("login"))
-
-    # Render the signup template for GET requests
     return render_template("signup.html")
 
 
@@ -409,7 +399,7 @@ def staple_meal():
         # if not a POST request direct to staple_meal page template
         return render_template("staple_meal.html")
 
-
+#Tabshir Ahmed added this route/page (primarily used for testing in initial stages, will probably remove)
 @app.route("/users")  ### Testing if it creates an account and hashes password
 def list_users():
     users = User.select()  # Fetch all users from the database
