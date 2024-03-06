@@ -507,11 +507,21 @@ def profile():
 @login_required
 def biometrics():
     if request.method == "GET":
+        #Grab user attributes to use in calculations
         lbs = User[current_user.id].weight 
         inch = User[current_user.id].height
         yrs = date.today().year - User[current_user.id].birthday.date().year  
         exercise = User[current_user.id].activity_level
         sex = User[current_user.id].sex
+        goal_type = User[current_user.id].goal_type 
+        
+        #Calculate recommended daily protein intake for given weight goal
+        #TODO weight gain and muscle building goals
+        if goal_type == "weight loss" :
+            protein_scalar = .75
+        else :
+            protein_scalar = 1
+        protein = lbs * protein_scalar
 
         #BMR calculated using Harris–Benedict equation
         if (sex == "Male") :
@@ -533,8 +543,9 @@ def biometrics():
         else :
             tdee = 0
         
-        #Update users maintainence cals and push to table
+        #Update users maintainence cals, protein goal, and push to table
         current_user.maintainence_calories = int(tdee)
+        current_user.protein_goal = int(protein)
         commit()
     return render_template("biometrics.html", u=current_user)
 
