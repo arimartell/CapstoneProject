@@ -3,7 +3,7 @@ import pytest
 from app import app, db, User, Meal
 from pony.orm import db_session
 
-
+#Ariana Martell did all unit tests pertaining to meal and profile page 
 # Fixture to create a test client and set up the database
 @pytest.fixture
 def client():

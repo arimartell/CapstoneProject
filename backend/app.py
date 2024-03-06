@@ -258,6 +258,7 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+# Ariana Martell worked on meal page 
 @app.route("/meal", methods=["GET", "POST"])
 @login_required
 def meal():
@@ -412,7 +413,7 @@ def list_users():
     users = User.select()  # Fetch all users from the database
     return render_template("user_list.html", users=users)
 
- # ? Example of guarding a page by checking if a user has filled out their profile with a helper function,
+ # ? Ariana Martell: Example of guarding a page by checking if a user has filled out their profile with a helper function,
 # ? we can use this for when users try to input into meal page without filling out profile
 
 def has_filled_out_profile():
@@ -430,7 +431,7 @@ def has_filled_out_profile():
         return False
 
 
-
+# Ariana Martell worked on profile page 
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():

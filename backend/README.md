@@ -10,11 +10,12 @@ Run app:
 cd backend
 python3 app.py
 
-Run test cases command: 
+Run test cases command:
 pytest 
 
+
 Database terminal commands https://www.sqlitetutorial.net/sqlite-select/:
-cd backebd
+cd backend
 sqlite3 ./main.db3
 SELECT * FROM user;
 SELECT * FROM meal;
