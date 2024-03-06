@@ -24,7 +24,7 @@ Run app:
 
 Run test cases command:
 - cd backend
-- pytest 
+- pytest test_app.py
 
 Note that we have to make sure that users used for unit tests are in the database
 
@@ -57,3 +57,12 @@ Ariana Martell:
 - Implemented a guard to make sure users aren't inputting data to meal page when they haven't filled out the profile page, it will throw "Profile Not filled!" error
 - Implemented regular expression-based validation to prevent the passage of invalid data
 - Created test_app.py file and made unit tests for profile and meal pages: test_profile_missing_data, test_profile_empty_data, test_profile_invalid_data, test_profile_valid_data, test_meal_missing_data, test_meal_empty_data, test_meal_nondigit_data, test_meal_valid_data
+
+Luca Burlacu:
+- Implemented staple_meal and biometics pages inline with existing architecture 
+- Staged changes to User class to incorportate attributes relating to biometrics 
+- Created html templates for staple_meal and biometrics
+- Implemented staple_meal and biometrics app routes in main file with calculations based on get and post requests
+- Calculated BMR using the Harris–Benedict equation and scaling it by user activity level to achieve daily maintenece calories
+- Set up tables for staple food types and created functionality to summize macro counts from each so user can form meals directly through the staple_meal page
+- Set up testing modeles test_biometrics_page and test_staple_meal page to check connectivity based on authroization 
