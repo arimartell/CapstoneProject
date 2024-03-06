@@ -38,10 +38,14 @@ SELECT * FROM meal;
 
 # Who Worked on What?
 Tabshir Ahmed:
-- Created the login, signup, forgot password, reset password, and verify code features.
-- Created the email_verif_code.py file to assist with sending emails for verification.
-- Created HTML templates for home.html, login.html, signup.html, forgot_password.html, reset_password.html, verify_code.html.
-- Started implementing unit testing for user login/auth. Created test_valid_signup, test_invalid_signup_existing_email, test_invalid_signup_existing_username, test_invalid_signup_invalid_password, test_invalid_signup_not_matching_password, test_invalid_signup_not_matching_email, test_invalid_login, test_successful_login
+- Developed the user authentication system, including features for login, sign-up, password recovery (forgot password), password reset, and email verification code functionality.
+- Created the email_verif_code.py file to help assist with sending verification codes via email to ensure the integrity and authenticity of the user verification system.
+- Designed and implemented HTML templates for home.html, login.html, signup.html, forgot_password.html, reset_password.html, verify_code.html.
+- Implemented unit testing for user authentication. It encompasses various scenarious such as: test_valid_signup, test_invalid_signup_existing_email, test_invalid_signup_existing_username, test_invalid_signup_invalid_password, test_invalid_signup_not_matching_password, test_invalid_signup_not_matching_email, test_invalid_login, test_successful_login
+- Implemented password encryption and hashing for user logins, ensuring secure storage of user credentials in the database. This process includes generating and storing a hash associated with each user for future login attempts.
+- Implemented a signup feature to enforce unique usernames and email addresses, alongside stringent password requirements. These requirements include a minimum of eight characters, including at least one letter, one number, and one special character. Implemented various other edge cases for signups.
+- Developed a forgot password feature enabling users to initiate a resetting their password. This process is fortified by the use of email authentication ensuring the password reset request is genuine.
+- Implementing code for email verification and integrating it with the password reset process. Once a user initiates the password reset process by clicking on forgot password, they will be asked to type their email and if that email exists in the database, it is sent a verification code which they type on the verify code form. Afterwards they are forwarded to the password reset form where stringent password measures similar to signup are instilled.
 
 Ariana Martell:
 - Set up Flask app and integrated with PONY ORM
