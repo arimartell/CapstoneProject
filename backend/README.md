@@ -13,6 +13,7 @@ python3 app.py
 Run test cases command:
 pytest 
 
+Note that we have to make sure that users used for unit tests are in the database
 
 Database terminal commands https://www.sqlitetutorial.net/sqlite-select/:
 cd backend

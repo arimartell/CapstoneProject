@@ -20,6 +20,7 @@ from datetime import date, datetime
 login_manager = LoginManager()
 # hpyttps://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
 
+#Ariana Martell started flask app integration
 # Flask app instance
 app = Flask(__name__)
 # Config the login manager within the Flask app
@@ -67,6 +68,7 @@ def is_password_complex(password: string) -> bool:
         return False
     return True
 
+#Ariana Martell added this route/page
 # Define a route for the root URL
 @app.route("/")
 def home():
