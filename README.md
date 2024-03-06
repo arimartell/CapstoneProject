@@ -9,16 +9,22 @@ app.py resources
 - https://docs.ponyorm.org/transactions.html (Testing database with using db_session from Pony ORM)
 
 Modules to install:
-pip install flask flask-login pony pytest
+
+- pip install flask
+- flask-login
+- pony
+- pytest
 
 NOTE: we only implemented code in backend folder, ignore frontend folder
 
 Run app: 
-cd backend
-python3 app.py
+
+- cd backend
+- python3 app.py
 
 Run test cases command:
-pytest 
+- cd backend
+- pytest 
 
 Note that we have to make sure that users used for unit tests are in the database
 
