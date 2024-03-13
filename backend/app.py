@@ -16,6 +16,8 @@ from email_verif_code import *
 import time
 import datetime
 from datetime import date, datetime
+import requests
+import json
 
 login_manager = LoginManager()
 # hpyttps://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
@@ -568,6 +570,93 @@ def biometrics():
         current_user.protein_goal = int(protein)
         commit()
     return render_template("biometrics.html", u=current_user)
+
+@app.route("/lookup", methods=["GET", "POST"])
+def lookup():
+    if request.method == "POST":
+        search = request.form["food"]
+        app_id = "dca363b5"
+        app_key = "6b400d1db41322ce8fc5cd0e892b418d"
+        url = f"https://api.edamam.com/api/food-database/v2/parser?app_id={app_id}&app_key={app_key}&ingr={search}&nutrition-type=cooking"
+    
+        response = requests.get(url)
+        if response.status_code != 200:
+            print("Error:", response.status_code)
+            api_response = None
+        else:
+            api_response = response.text
+        
+        if api_response:
+                parsed_data = []
+                response_json = json.loads(api_response)
+                seen_labels = set()
+                for hint in response_json["hints"]:
+                    food_info = hint["food"]
+                    measures = hint["measures"]
+                    label = food_info["label"]
+                    if label not in seen_labels:
+                        seen_labels.add(label)
+                        for measure in measures:
+                            if measure["label"] == "Gram":  # Filter for measures in grams
+                                parsed_data.append({
+                                    "label": label,
+                                    "food_id": food_info["foodId"],
+                                    "serving_uri": measure["uri"]
+                                })
+        else:
+            parsed_data = None
+        food_list = parsed_data
+        return render_template("lookup_results.html", food_items = food_list)
+    else:
+        return render_template("lookup.html")
+
+@app.route("/lookup_results", methods=["GET", "POST"])
+def lookup_results():
+    if request.method == "POST":
+        uri = request.form["serving_uri"]
+        # Define the URL and headers
+        url = 'https://api.edamam.com/api/food-database/v2/nutrients'
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+
+        # Define the payload data
+        data = {
+            "ingredients": [
+                {
+                    "quantity": 100,
+                    "measureURI": uri,
+                    "qualifiers": [""],
+                    "foodId": "food_axxyoglauthkj2bzoyuueb6eb3bh"
+                }
+            ]
+        }
+
+        # Specify the app_id and app_key in the URL parameters
+        params = {
+            'app_id': 'dca363b5',
+            'app_key': '6b400d1db41322ce8fc5cd0e892b418d'
+        }
+
+        # Send the POST request
+        response = requests.post(url, headers=headers, params=params, json=data)
+
+        # Check if the request was successful
+        if response.ok:
+            # Parse the nutrient information from the response
+            nutrients = response.json().get('totalNutrients', {})
+            
+            # Print the parsed nutrient information
+            for nutrient, info in nutrients.items():
+                print(f"{info['label']}: {info['quantity']} {info['unit']}")
+        else:
+            # Print the error message if the request failed
+            print(f"Error: {response.status_code} - {response.reason}")
+        return render_template("lookup_nutrition.html", nutrients = nutrients.items())
+    else:
+        return render_template("lookup_results.html")
+
 
 
 # Run the Flask application if this script is executed directly
