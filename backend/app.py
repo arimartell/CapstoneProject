@@ -20,7 +20,7 @@ from datetime import date, datetime
 login_manager = LoginManager()
 # hpyttps://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
 
-#Ariana Martell started flask app integration
+# Ariana Martell started flask app integration
 # Flask app instance
 app = Flask(__name__)
 # Config the login manager within the Flask app
@@ -47,13 +47,14 @@ db.generate_mapping(create_tables=True)
 
 Pony(app)
 
+
 # Tabshir Ahmed created this helper function to check password complexity
 def is_password_complex(password: string) -> bool:
     """
     Check if the password meets complexity requirements. The requiremnts are it must contain:
     atleast one letter, one number and one special character.
 
-    Parameters: 
+    Parameters:
     password (string): The inputted password from user.
 
     Returns:
@@ -68,7 +69,8 @@ def is_password_complex(password: string) -> bool:
         return False
     return True
 
-#Ariana Martell added this route/page
+
+# Ariana Martell added this route/page
 # Define a route for the root URL
 @app.route("/")
 def home():
@@ -81,7 +83,8 @@ def home():
         username = None
     return render_template("home.html", username=username)
 
-#Tabshir Ahmed added this route/page
+
+# Tabshir Ahmed added this route/page
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
@@ -114,7 +117,8 @@ def login():
             error = "Invalid username or password"
     return render_template("login.html", error=error)
 
-#Tabshir Ahmed added this route/page
+
+# Tabshir Ahmed added this route/page
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
@@ -140,7 +144,8 @@ def forgot_password():
 
     return render_template("forgot_password.html")
 
-#Tabshir Ahmed added this route/page
+
+# Tabshir Ahmed added this route/page
 @app.route("/verify-code", methods=["GET", "POST"])
 def verify_code():
     if request.method == "POST":
@@ -155,7 +160,8 @@ def verify_code():
 
     return render_template("verify_code.html")
 
-#Tabshir Ahmed added this route/page
+
+# Tabshir Ahmed added this route/page
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     if request.method == "POST":
@@ -181,7 +187,8 @@ def reset_password():
         return redirect(url_for("login"))
     return render_template("reset_password.html")
 
-#Tabshir Ahmed added this route/page
+
+# Tabshir Ahmed added this route/page
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     error = None
@@ -197,7 +204,7 @@ def signup():
         if existing_user:
             error = "Username already exists"
             return render_template("signup.html", error=error)
-        
+
         # Check if email exists in database
         existing_email = User.get(email=email)
         if existing_email:
@@ -208,7 +215,7 @@ def signup():
         if email != confirm_email:
             error = "Emails do not match"
             return render_template("signup.html", error=error)
-        
+
         # Check if email is valid using regex
         # Copied regex from https://saturncloud.io/blog/how-can-i-validate-an-email-address-using-a-regular-expression/
         if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
@@ -250,12 +257,14 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
-# Ariana Martell worked on meal page 
+
+# Ariana Martell worked on meal page
 @app.route("/meal", methods=["GET", "POST"])
 @login_required
 def meal():
     if request.method == "POST":
-         # Ensure fields are not missing
+        
+        # Ensure fields are not missing
         if "name" not in request.form:
             return "Missing 'name'", 400
         if "calories" not in request.form:
@@ -278,29 +287,34 @@ def meal():
         if request.form["protein"] == "":
             return "Invalid 'protein'", 400
         # Validation so input can only be digits for all fields except name
-        if not re.match(r"^\d+$", request.form["calories"]):
+        if not re.match(r"^(\d|\d\.)+$", request.form["calories"]):
             return "Invalid 'calories'", 400
-        if not re.match(r"^\d+$", request.form["carbs"]):
+        if not re.match(r"^(\d|\d\.)+$", request.form["carbs"]):
             return "Invalid 'carbs'", 400
-        if not re.match(r"^\d+$", request.form["total_fat"]):
+        if not re.match(r"^(\d|\d\.)+$", request.form["total_fat"]):
             return "Invalid 'total_fat'", 400
-        if not re.match(r"^\d+$", request.form["protein"]):
+        if not re.match(r"^(\d|\d\.)+$", request.form["protein"]):
             return "Invalid 'protein'", 400
         # Gets back form data
         name = request.form["name"]
-        calories = int(request.form["calories"])
-        carbs = int(request.form["carbs"])
-        total_fat = int(request.form["total_fat"])
-        protein = int(request.form["protein"])
+        calories = float(request.form["calories"])
+        carbs = float(request.form["carbs"])
+        total_fat = float(request.form["total_fat"])
+        protein = float(request.form["protein"])
 
-        # Optional fields based on model 
+        # Optional fields based on model
         optional_fields = {}
-        optional_field_names = ["sat_fat", "trans_fat", "carbs_fiber", "carbs_sugar", "sodium"]
+        optional_field_names = [
+            "sat_fat",
+            "trans_fat",
+            "carbs_fiber",
+            "carbs_sugar",
+            "sodium",
+        ]
         for field_name in optional_field_names:
             if field_name in request.form:
                 if request.form[field_name] != "":
                     optional_fields[field_name] = request.form[field_name]
-                
 
         new_meal = Meal(
             name=name,
@@ -312,8 +326,6 @@ def meal():
             **optional_fields
         )
 
-
-        
         if has_filled_out_profile() == False:
             return "Profile Not filled!", 400
         # Commit a new meal to database
@@ -321,8 +333,13 @@ def meal():
         # Redirect to meal page
         return redirect(url_for("meal"))
     else:
+        recent_meals_query = Meal.select(lambda m: m.user == current_user)
+        recent_meals = recent_meals_query[:]
+
+
+
         # if not a POST request direct to meal page template
-        return render_template("meal.html")
+        return render_template("meal.html", recent=recent_meals)
 
 
 @app.route("/staple_meal", methods=["GET", "POST"])
@@ -399,14 +416,17 @@ def staple_meal():
         # if not a POST request direct to staple_meal page template
         return render_template("staple_meal.html")
 
-#Tabshir Ahmed added this route/page (primarily used for testing in initial stages, will probably remove)
+
+# Tabshir Ahmed added this route/page (primarily used for testing in initial stages, will probably remove)
 @app.route("/users")  ### Testing if it creates an account and hashes password
 def list_users():
     users = User.select()  # Fetch all users from the database
     return render_template("user_list.html", users=users)
 
- # ? Ariana Martell: Example of guarding a page by checking if a user has filled out their profile with a helper function,
+
+# ? Ariana Martell: Example of guarding a page by checking if a user has filled out their profile with a helper function,
 # ? we can use this for when users try to input into meal page without filling out profile
+
 
 def has_filled_out_profile():
     if User[current_user.id].unit_type == "":
@@ -423,7 +443,7 @@ def has_filled_out_profile():
         return False
 
 
-# Ariana Martell worked on profile page 
+# Ariana Martell worked on profile page
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
@@ -447,7 +467,7 @@ def profile():
             return "Missing 'goaltype'", 400
         if "targetweight" not in request.form:
             return "Missing 'targetweight'", 400
-    # Ensure fields are not empty in request form
+        # Ensure fields are not empty in request form
         if request.form["unittype"] == "":
             return "Invalid 'unittype'", 400
         if request.form["sex"] == "":
@@ -464,24 +484,23 @@ def profile():
             return "Invalid 'activitylevel'", 400
         if request.form["goaltype"] == "":
             return "Invalid 'goaltype'", 400
-        # Validation so input can only be digits https://docs.python.org/3/library/re.html for regex 
+        # Validation so input can only be digits https://docs.python.org/3/library/re.html for regex
         if not re.match(r"^\d+$", request.form["weight"]):
             return "Invalid weight", 400
         if not re.match(r"^\d+$", request.form["heightfeet"]):
             return "Invalid height feet", 400
         if not re.match(r"^\d+$", request.form["heightinches"]):
             return "Invalid height inches", 400
-        # If user chose loss for goal return invalid if nondigit/empty 
+        # If user chose loss for goal return invalid if nondigit/empty
         if request.form["goaltype"] == "loss":
             if not re.match(r"^\d+$", request.form["targetweight"]):
                 return "Invalid target weight", 400
-            
 
         temp_tweight = request.form["targetweight"]
         true_tweight = 0
         # Check if the retrieved value is not empty and consists entirely of digits
         if temp_tweight != "" and re.match(r"^\d+$", request.form["targetweight"]):
-         # If both conditions are true, convert the value to an integer
+            # If both conditions are true, convert the value to an integer
             true_tweight = int(request.form["targetweight"])
         # Update user's profile information based on form data
         User[current_user.id].unit_type = request.form["unittype"]
@@ -503,33 +522,34 @@ def profile():
     print(current_user.username)
     return render_template("profile.html", u=current_user)
 
+
 @app.route("/biometrics", methods=["GET", "POST"])
 @login_required
 def biometrics():
     if request.method == "GET":
-        #Grab user attributes to use in calculations
-        lbs = User[current_user.id].weight 
+        # Grab user attributes to use in calculations
+        lbs = User[current_user.id].weight
         inch = User[current_user.id].height
-        yrs = date.today().year - User[current_user.id].birthday.date().year  
+        yrs = date.today().year - User[current_user.id].birthday.date().year
         exercise = User[current_user.id].activity_level
         sex = User[current_user.id].sex
-        goal_type = User[current_user.id].goal_type 
-        
-        #Calculate recommended daily protein intake for given weight goal
-        #TODO weight gain and muscle building goals
-        if goal_type == "weight loss" :
-            protein_scalar = .75
-        else :
+        goal_type = User[current_user.id].goal_type
+
+        # Calculate recommended daily protein intake for given weight goal
+        # TODO weight gain and muscle building goals
+        if goal_type == "weight loss":
+            protein_scalar = 0.75
+        else:
             protein_scalar = 1
         protein = lbs * protein_scalar
 
-        #BMR calculated using Harris–Benedict equation
-        if (sex == "Male") :
+        # BMR calculated using Harris–Benedict equation
+        if sex == "Male":
             bmr = 66 + (6.23 * lbs) + (12.7 * inch) - (6.8 * yrs)
-        else :
+        else:
             bmr = 655 + (4.3 * lbs) + (4.7 * inch) - (4.7 * yrs)
-        
-        #total daily energy expenditure scaled by activity level
+
+        # total daily energy expenditure scaled by activity level
         if exercise == "sedentary":
             tdee = 1.2 * bmr
         elif exercise == "light":
@@ -540,15 +560,14 @@ def biometrics():
             tdee = 1.725 * bmr
         elif exercise == "extreme":
             tdee = 1.9 * bmr
-        else :
+        else:
             tdee = 0
-        
-        #Update users maintainence cals, protein goal, and push to table
+
+        # Update users maintainence cals, protein goal, and push to table
         current_user.maintainence_calories = int(tdee)
         current_user.protein_goal = int(protein)
         commit()
     return render_template("biometrics.html", u=current_user)
-
 
 
 # Run the Flask application if this script is executed directly

@@ -9,7 +9,49 @@
 </head>
 
 <body>
-    <h1>Meal</h1>
+    <h1>Quick Log From Recent Meals</h1>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: start; align-items: center;">
+        {% for meal in recent %}
+        <div
+            style="display: flex; flex-direction: column; margin: 0 1rem; border: solid 2px orange; border-radius: 25%; padding: 2rem;">
+            <h3>
+                {{meal.name}}
+            </h3>
+            <form action="/meal" method="POST">
+                <input type="hidden" name="name" value="{{ meal.name }}">
+                {%if meal.calories %}
+                <input type="hidden" name="calories" value="{{ meal.calories }}">
+                {% endif %}
+                {%if meal.carbs %}
+                <input type="hidden" name="carbs" value="{{ meal.carbs }}">
+                {% endif %}
+                {%if meal.total_fat %}
+                <input type="hidden" name="total_fat" value="{{ meal.total_fat }}">
+                {% endif %}
+                {%if meal.sat_fat %}
+                <input type="hidden" name="sat_fat" value="{{ meal.sat_fat }}">
+                {% endif %}
+                {%if meal.trans_fat %}
+                <input type="hidden" name="trans_fat" value="{{ meal.trans_fat }}">
+                {% endif %}
+                {%if meal.carbs_fiber %}
+                <input type="hidden" name="carbs_fiber" value="{{ meal.carbs_fiber }}">
+                {% endif %}
+                {%if meal.carbs_sugar %}
+                <input type="hidden" name="carbs_sugar" value="{{ meal.carbs_sugar }}">
+                {% endif %}
+                {%if meal.protein %}
+                <input type="hidden" name="protein" value="{{ meal.protein }}">
+                {% endif %}
+                {%if meal.sodium %}
+                <input type="hidden" name="sodium" value="{{ meal.sodium }}">
+                {% endif %}
+                <button type="submit" onclick="window.location.reload()">Quick-Add</button>
+            </form>
+        </div>
+        {%endfor%}
+    </div>
+    <h1>Log a New Meal</h1>
     <p>All fields marked with * are required</p>
     <form action="/meal" method="post">
         <table>
