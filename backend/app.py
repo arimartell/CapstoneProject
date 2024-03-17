@@ -18,6 +18,7 @@ import datetime
 from datetime import date, datetime
 import requests
 import json
+from calculations import *
 
 login_manager = LoginManager()
 # hpyttps://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
@@ -530,46 +531,39 @@ def profile():
 def biometrics():
     if request.method == "GET":
         # Grab user attributes to use in calculations
-        lbs = User[current_user.id].weight
-        inch = User[current_user.id].height
-        yrs = date.today().year - User[current_user.id].birthday.date().year
-        exercise = User[current_user.id].activity_level
+        weight = User[current_user.id].weight
+        height = User[current_user.id].height
+        age = date.today().year - User[current_user.id].birthday.date().year
+        activity_level = User[current_user.id].activity_level
         sex = User[current_user.id].sex
-        goal_type = User[current_user.id].goal_type
+        goal_weight = User[current_user.id].goal_weight
+
+        # Calculate BMR
+        bmr = int(calculate_bmr(weight, height, age, sex))
+
+        # Calculate TDEE
+        tdee = int(calculate_tdee(bmr, activity_level))
+
+        # Calculate weeks needed to reach weight goal
+        weeks_to_goal = calculate_goal_weight_loss(weight, goal_weight)
+
+        # Calculate average daily calories under the weight loss plan
+        daily_calories = calculate_daily_calories(weight, height, age, sex, activity_level)
+
+        # Render the template with the calculated values
+        return render_template("biometrics.html", user=current_user, bmr=bmr, tdee=tdee, age=age, weeks_to_goal=weeks_to_goal, daily_calories=daily_calories)
+
+    return render_template("biometrics.html")
+
+
 
         # Calculate recommended daily protein intake for given weight goal
         # TODO weight gain and muscle building goals
-        if goal_type == "weight loss":
-            protein_scalar = 0.75
-        else:
-            protein_scalar = 1
-        protein = lbs * protein_scalar
-
-        # BMR calculated using Harris–Benedict equation
-        if sex == "Male":
-            bmr = 66 + (6.23 * lbs) + (12.7 * inch) - (6.8 * yrs)
-        else:
-            bmr = 655 + (4.3 * lbs) + (4.7 * inch) - (4.7 * yrs)
-
-        # total daily energy expenditure scaled by activity level
-        if exercise == "sedentary":
-            tdee = 1.2 * bmr
-        elif exercise == "light":
-            tdee = 1.375 * bmr
-        elif exercise == "moderate":
-            tdee = 1.55 * bmr
-        elif exercise == "heavy":
-            tdee = 1.725 * bmr
-        elif exercise == "extreme":
-            tdee = 1.9 * bmr
-        else:
-            tdee = 0
-
-        # Update users maintainence cals, protein goal, and push to table
-        current_user.maintainence_calories = int(tdee)
-        current_user.protein_goal = int(protein)
-        commit()
-    return render_template("biometrics.html", u=current_user)
+        # if goal_type == "weight loss":
+        #     protein_scalar = 0.75
+        # else:
+        #     protein_scalar = 1
+        # protein = lbs * protein_scalar
 
 @app.route("/lookup", methods=["GET", "POST"])
 def lookup():

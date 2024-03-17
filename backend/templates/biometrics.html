@@ -4,18 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select meal</title>
+    <title>Biometrics</title>
     <a href="{{ url_for('home') }}">Home</a><br>
 </head>
 
 <body>
     <h1>Biometrics</h1>
-    <form action="/biometrics" method="get">
-        <p>
-        <h3>{{u.maintainence_calories}} maintenance cals</h3>
-        <h3>{{u.protein_goal}}g protein</h3>
-        </p>
-    </form>
+    <h2>User Information</h2>
+    <p>Gender: {{ user.sex }}</p>
+    <p>Current Weight: {{ user.weight }} lbs</p>
+    <p>Goal Weight: {{ user.goal_weight }} lbs</p>
+    <p>Height: {{ user.height }} inches</p>
+    <p>Age: {{ age }} years</p>
+
+    <h2>Calculated Information</h2>
+    <p>Basal Metabolic Rate: {{ bmr }} calories/day</p>
+    <p>Total Daily Energy Expenditure: {{ tdee }} calories/day</p>
+    <p>Weeks needed to reach goal weight:</p>
+    <ul>
+        <li>Lose 0.5 lbs/week: {{ weeks_to_goal[0] }}</li>
+        <li>Lose 1 lb/week: {{ weeks_to_goal[1] }}</li>
+        <li>Lose 2 lbs/week: {{ weeks_to_goal[2] }}</li>
+    </ul>
+    <p>Average daily calories under the weight loss plan:</p>
+    <ul>
+        <li>0.5 lbs/week: {{ daily_calories[0] }} calories/day</li>
+        <li>1 lb/week: {{ daily_calories[1] }} calories/day</li>
+        <li>2 lbs/week: {{ daily_calories[2] }} calories/day</li>
+    </ul>
 </body>
 
 </html>
