@@ -533,15 +533,18 @@ def biometrics():
         # Grab user attributes to use in calculations
         weight = User[current_user.id].weight
         height = User[current_user.id].height
-        age = date.today().year - User[current_user.id].birthday.date().year
         activity_level = User[current_user.id].activity_level
         sex = User[current_user.id].sex
         goal_weight = User[current_user.id].goal_weight
+        # Age calculation
+        birthday = User[current_user.id].birthday
+        today = datetime.today()
+        age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
 
-        # Calculate BMR
+        # Calculate BMR (Basal Metabolic Rate)
         bmr = int(calculate_bmr(weight, height, age, sex))
 
-        # Calculate TDEE
+        # Calculate TDEE (Total Daily Energy Expenditure)
         tdee = int(calculate_tdee(bmr, activity_level))
 
         # Calculate weeks needed to reach weight goal
@@ -550,11 +553,18 @@ def biometrics():
         # Calculate average daily calories under the weight loss plan
         daily_calories = calculate_daily_calories(weight, height, age, sex, activity_level)
 
-        # Render the template with the calculated values
-        return render_template("biometrics.html", user=current_user, bmr=bmr, tdee=tdee, age=age, weeks_to_goal=weeks_to_goal, daily_calories=daily_calories)
+        # Calculate weights for each week based on weight loss rates
+        current_weight = weight
+        goal_weights_0_5lb = [current_weight - 0.5 * i for i in range(weeks_to_goal[0] + 1)]
+        goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal[1] + 1)]
+        goal_weights_2lb = [current_weight - 2 * i for i in range(weeks_to_goal[2] + 1)]
+        max_weeks = max(weeks_to_goal) + 1  
+        x_labels = [f"Week {i}" for i in range(max_weeks)]
 
-    return render_template("biometrics.html")
-
+        return render_template("biometrics.html", user=current_user, bmr=bmr, tdee=tdee, age=age,
+                               weeks_to_goal=weeks_to_goal, daily_calories=daily_calories,
+                               goal_weights_0_5lb=goal_weights_0_5lb, goal_weights_1lb=goal_weights_1lb,
+                               goal_weights_2lb=goal_weights_2lb, x_labels=x_labels)
 
 
         # Calculate recommended daily protein intake for given weight goal

@@ -5,10 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biometrics</title>
-    <a href="{{ url_for('home') }}">Home</a><br>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            max-width: 1000px; 
+            max-height: 500px;
+        }
+    </style>
 </head>
 
 <body>
+    <a href="{{ url_for('home') }}">Home</a>
     <h1>Biometrics</h1>
     <h2>User Information</h2>
     <p>Gender: {{ user.sex }}</p>
@@ -32,6 +39,59 @@
         <li>1 lb/week: {{ daily_calories[1] }} calories/day</li>
         <li>2 lbs/week: {{ daily_calories[2] }} calories/day</li>
     </ul>
+
+    <canvas id="weightLossChart" width="800" height="600"></canvas>
+
+    <script>
+        var ctx = document.getElementById('weightLossChart').getContext('2d');
+        var weightLossChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ x_labels | tojson }},
+                datasets: [{
+                        label: '0.5 lb/week',
+                        data: {{ goal_weights_0_5lb | tojson }},
+                        borderColor: 'red',
+                    },
+                    {
+                        label: '1 lb/week',
+                        data: {{ goal_weights_1lb | tojson }},
+                        borderColor: 'green',                  
+                    },
+                    {
+                        label: '2 lb/week',
+                        data: {{ goal_weights_2lb | tojson }},
+                        borderColor: 'blue',
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Weight Loss Timeline',
+                        fontSize: 20,
+                        padding: 20
+                    }
+                },
+                scales: {
+                    y: {
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Weight (lbs)'
+                        }
+                    },
+                    x: {
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Weeks'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    
 </body>
 
 </html>
