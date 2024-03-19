@@ -1,13 +1,28 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Font that looks like game style */
+@font-face {
+  font-family: 'G-OTF Shin Go Pro R';
+  src: url('/ShinGoPro-Regular.otf') format('opentype');
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
 }
+
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.shingo {
+  font-family: 'G-OTF Shin Go Pro R';
+}
+
