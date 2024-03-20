@@ -29,7 +29,7 @@ export default function Root() {
           ></label>
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li>
-              {/*link tag for client side render*/}
+              {/*Link tag for client side render*/}
               <Link to="/login">
                 <span className="text-2xl shingo">Login</span>
               </Link>

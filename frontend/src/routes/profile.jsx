@@ -68,12 +68,14 @@ export default function Profile() {
             <input
               className="input join-item input-bordered w-full"
               type="number"
+              min={0}
               name="heightfeet"
               placeholder="Height (ft)"
             />
             <input
               className="input join-item input-bordered w-full"
               type="number"
+              min={0}
               name="heightinches"
               placeholder="Height (in)"
             />

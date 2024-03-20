@@ -43,6 +43,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="carbs"
+              min={0}
               placeholder="Carbs* (g)"
             />
           </label>
@@ -53,6 +54,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="total_fat"
+              min={0}
               placeholder="Total Fat* (g)"
             />
           </label>
@@ -63,6 +65,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="sat_fat"
+              min={0}
               placeholder="Saturated Fat (g)"
             />
           </label>
@@ -73,6 +76,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="trans_fat"
+              min={0}
               placeholder="Trans Fat (g)"
             />
           </label>
@@ -83,6 +87,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="carbs_fiber"
+              min={0}
               placeholder="Fiber (g)"
             />
           </label>
@@ -93,6 +98,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="carbs_sugar"
+              min={0}
               placeholder="Sugars (g)"
             />
           </label>
@@ -103,6 +109,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="protein"
+              min={0}
               placeholder="Protein* (g)"
             />
           </label>
@@ -113,6 +120,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="number"
               name="sodium"
+              min={0}
               placeholder="Sodium (mg)"
             />
           </label>
