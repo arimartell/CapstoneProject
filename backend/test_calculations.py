@@ -20,7 +20,7 @@ def test_calculate_daily_calories():
     print("test_calculate_daily_calories passed")
 
 def test_calculate_macronutrient_ratios():
-    assert calculate_macronutrient_ratios(2160, 'default') == (864.0, 648.0, 648.0)
+    assert calculate_macronutrient_ratios(2160, 'regular') == (864.0, 648.0, 648.0)
     print("test_calculate_macronutrient_ratios passed")
 
 if __name__ == "__main__":

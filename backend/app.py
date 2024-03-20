@@ -466,6 +466,8 @@ def profile():
             return "Missing 'birthday'", 400
         if "activitylevel" not in request.form:
             return "Missing 'activitylevel'", 400
+        if "diettype" not in request.form:
+            return "Missing 'diettype'", 400
         if "goaltype" not in request.form:
             return "Missing 'goaltype'", 400
         if "targetweight" not in request.form:
@@ -485,6 +487,8 @@ def profile():
             return "Invalid 'birthday'", 400
         if request.form["activitylevel"] == "":
             return "Invalid 'activitylevel'", 400
+        if request.form["diettype"] == "":
+            return "Invalid 'diettype'", 400
         if request.form["goaltype"] == "":
             return "Invalid 'goaltype'", 400
         # Validation so input can only be digits https://docs.python.org/3/library/re.html for regex
@@ -516,6 +520,7 @@ def profile():
         User[current_user.id].goal_type = request.form["goaltype"]
         User[current_user.id].goal_weight = true_tweight
         User[current_user.id].maintenance_calories = 0
+        User[current_user.id].diet_type = request.form["diettype"]
 
         commit()
         print(request.form)

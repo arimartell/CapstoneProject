@@ -24,6 +24,7 @@ class User(db.Entity, UserMixin):
     goal_weight = Optional(int, default=0)
     maintenance_calories = Optional(float, default=0.0)
     protein_goal = Optional(float, default=0.0)
+    diet_type = Optional(str, default="")
 
 class Meal(db.Entity):
     user = Required(User)

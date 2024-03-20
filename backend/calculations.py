@@ -49,14 +49,14 @@ def calculate_daily_calories(weight, height, age, sex, activity_level):
     
 def calculate_macronutrient_ratios(daily_calories, diet_type):
     diet_ratios = {
-        'default': {'carbs': 0.4, 'fats': 0.3, 'protein': 0.3},
+        'regular': {'carbs': 0.4, 'fats': 0.3, 'protein': 0.3},
         'ketogenic': {'carbs': 0.1, 'fats': 0.7, 'protein': 0.2},
         'low_fat': {'carbs': 0.6, 'fats': 0.2, 'protein': 0.2},
         'low_carb': {'carbs': 0.2, 'fats': 0.55, 'protein': 0.25},
         'high_protein': {'carbs': 0.4, 'fats': 0.1, 'protein': 0.5}
     }
     
-    diet = diet_ratios.get(diet_type.lower(), diet_ratios['default'])
+    diet = diet_ratios.get(diet_type.lower(), diet_ratios['regular'])
     
     # Calculate macronutrient ratios directly based on the provided daily calories
     carbs_calories = daily_calories * diet['carbs']
