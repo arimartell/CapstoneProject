@@ -635,6 +635,7 @@ def lookup():
 def lookup_results():
     if request.method == "POST":
         uri = request.form["serving_uri"]
+        food_id = request.form["food_id"]
         # Define the URL and headers
         url = 'https://api.edamam.com/api/food-database/v2/nutrients'
         headers = {
@@ -649,7 +650,7 @@ def lookup_results():
                     "quantity": 100,
                     "measureURI": uri,
                     "qualifiers": [""],
-                    "foodId": "food_axxyoglauthkj2bzoyuueb6eb3bh"
+                    "foodId": food_id,
                 }
             ]
         }
@@ -677,6 +678,51 @@ def lookup_results():
         return render_template("lookup_nutrition.html", nutrients = nutrients.items())
     else:
         return render_template("lookup_results.html")
+
+
+@app.route("/recepie_lookup", methods=["GET", "POST"])
+def recepie_lookup():
+    if request.method == "POST":
+        ingr = request.form["ingredients"]
+        ingredients_list = ingr.split('\n')
+        # Define the URL and headers
+        url = 'https://api.edamam.com/api/nutrition-details'
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+
+        # Define the payload data
+        data = {
+            "title": "meal",
+            "ingr": ingredients_list,
+            "url": "",
+            "summary": "",
+            "yield": "",
+            "time": "",
+            "img": "",
+            "prep": ""
+        }
+
+        # Specify the app_id and app_key in the URL parameters
+        params = {
+            'app_id': 'e1148ade',
+            'app_key': 'edb8b2c1e8f7356ab2db349a02ccc13a'
+        }
+
+        # Send the POST request
+        response = requests.post(url, headers=headers, params=params, json=data)
+
+        # Check if the request was successful
+        if response.ok:
+            nutrients = response.json().get('totalNutrients', {})
+        else:
+            # Print the error message if the request failed
+            print(f"Error: {response.status_code} - {response.reason}")
+        return render_template("recepie_nutrition.html", nutrients = nutrients.items())
+    else:
+        return render_template("recepie_lookup.html")
+
 
 
 

@@ -12,6 +12,7 @@
             <li>
                 <form action="/lookup_results" method="post">
                     <input type="hidden" name="serving_uri" value="{{ item['serving_uri'] }}">
+                    <input type="hidden" name="food_id" value="{{ item['food_id'] }}">
                     <button type="submit" style="border: none; background: none; color: blue; cursor: pointer;">{{ item['label'] }}</button>
                 </form>
             </li>

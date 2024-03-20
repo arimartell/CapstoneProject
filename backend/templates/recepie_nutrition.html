@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food List</title>
+    <style>
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nutrition facts:</h1>
+    <ul>
+        {% for nutrient, info in nutrients %}
+            <li>{{ info['label'] }}</li>
+            <li>{{ info['quantity'] }}</li>
+            <li>{{ info['unit'] }}</li>
+            <br> <!-- Optional: Add a line break after each set of nutrient info -->
+        {% endfor %}
+    </ul>
+</body>
+</html>
