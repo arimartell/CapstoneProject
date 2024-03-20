@@ -680,7 +680,7 @@ def lookup_results():
         return render_template("lookup_results.html")
 
 
-@app.route("/recepie_lookup", methods=["GET", "POST"])
+@app.route("/recipe_lookup", methods=["GET", "POST"])
 def recepie_lookup():
     if request.method == "POST":
         ingr = request.form["ingredients"]
@@ -719,9 +719,9 @@ def recepie_lookup():
         else:
             # Print the error message if the request failed
             print(f"Error: {response.status_code} - {response.reason}")
-        return render_template("recepie_nutrition.html", nutrients = nutrients.items())
+        return render_template("recipe_nutrition.html", nutrients = nutrients.items())
     else:
-        return render_template("recepie_lookup.html")
+        return render_template("recipe_lookup.html")
 
 
 
