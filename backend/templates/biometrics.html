@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         canvas {
-            max-width: 1000px; 
+            max-width: 1000px;
             max-height: 500px;
         }
     </style>
@@ -41,6 +41,9 @@
     </ul>
 
     <canvas id="weightLossChart" width="800" height="600"></canvas>
+    <canvas id="macronutrientChart0_5lb" width="800" height="400"></canvas>
+    <canvas id="macronutrientChart1lb" width="800" height="400"></canvas>
+    <canvas id="macronutrientChart2lb" width="800" height="400"></canvas>
 
     <script>
         var ctx = document.getElementById('weightLossChart').getContext('2d');
@@ -56,7 +59,7 @@
                     {
                         label: '1 lb/week',
                         data: {{ goal_weights_1lb | tojson }},
-                        borderColor: 'green',                  
+                        borderColor: 'green',
                     },
                     {
                         label: '2 lb/week',
@@ -76,26 +79,132 @@
                 },
                 scales: {
                     y: {
-                        title: {
+                        scaleLabel: {
                             display: true,
-                            text: 'Weight (lbs)',
-                            color: 'black',
-                            align: 'center'
+                            labelString: 'Weight (lbs)'
                         }
                     },
                     x: {
-                        title: {
+                        scaleLabel: {
                             display: true,
-                            text: 'Weeks',
-                            color: 'black',
-                            align: 'center'
+                            labelString: 'Weeks'
                         }
                     }
                 }
             }
         });
+
+        var ctx2_0_5lb = document.getElementById('macronutrientChart0_5lb').getContext('2d');
+        var macronutrientChart0_5lb = new Chart(ctx2_0_5lb, {
+            type: 'doughnut',
+            data: {
+                labels: ['Carbs', 'Fats', 'Protein'],
+                datasets: [{
+                    label: 'Calories',
+                    data: [
+                        {{ carbs_calories_0_5lb }},
+                        {{ fats_calories_0_5lb }},
+                        {{ protein_calories_0_5lb }}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Macronutrient Ratio (0.5 lb/week)',
+                        fontSize: 20,
+                        padding: 20
+                    }
+                }
+            }
+        });
+
+        var ctx2_1lb = document.getElementById('macronutrientChart1lb').getContext('2d');
+        var macronutrientChart1lb = new Chart(ctx2_1lb, {
+            type: 'doughnut',
+            data: {
+                labels: ['Carbs', 'Fats', 'Protein'],
+                datasets: [{
+                    label: 'Calories',
+                    data: [
+                        {{ carbs_calories_1lb }},
+                        {{ fats_calories_1lb }},
+                        {{ protein_calories_1lb }}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Macronutrient Ratio (1 lb/week)',
+                        fontSize: 20,
+                        padding: 20
+                    }
+                }
+            }
+        });
+
+        var ctx2_2lb = document.getElementById('macronutrientChart2lb').getContext('2d');
+        var macronutrientChart2lb = new Chart(ctx2_2lb, {
+            type: 'doughnut',
+            data: {
+                labels: ['Carbs', 'Fats', 'Protein'],
+                datasets: [{
+                    label: 'Calories',
+                    data: [
+                        {{ carbs_calories_2lb }},
+                        {{ fats_calories_2lb }},
+                        {{ protein_calories_2lb }}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Macronutrient Ratio (2 lb/week)',
+                        fontSize: 20,
+                        padding: 20
+                    }
+                }
+            }
+        });
     </script>
-    
 </body>
 
 </html>

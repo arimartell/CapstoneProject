@@ -558,6 +558,12 @@ def biometrics():
         # Calculate average daily calories under the weight loss plan
         daily_calories = calculate_daily_calories(weight, height, age, sex, activity_level)
 
+        # Calculate macronutrient ratios for each weight loss goal
+        diet_type = User[current_user.id].diet_type
+        carbs_calories_0_5lb, fats_calories_0_5lb, protein_calories_0_5lb = calculate_macronutrient_ratios(daily_calories[0], diet_type)
+        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = calculate_macronutrient_ratios(daily_calories[1], diet_type)
+        carbs_calories_2lb, fats_calories_2lb, protein_calories_2lb = calculate_macronutrient_ratios(daily_calories[2], diet_type)
+
         # Calculate weights for each week based on weight loss rates
         current_weight = weight
         goal_weights_0_5lb = [current_weight - 0.5 * i for i in range(weeks_to_goal[0] + 1)]
@@ -567,9 +573,15 @@ def biometrics():
         x_labels = [f"Week {i}" for i in range(max_weeks)]
 
         return render_template("biometrics.html", user=current_user, bmr=bmr, tdee=tdee, age=age,
-                               weeks_to_goal=weeks_to_goal, daily_calories=daily_calories,
-                               goal_weights_0_5lb=goal_weights_0_5lb, goal_weights_1lb=goal_weights_1lb,
-                               goal_weights_2lb=goal_weights_2lb, x_labels=x_labels)
+                       weeks_to_goal=weeks_to_goal, daily_calories=daily_calories,
+                       goal_weights_0_5lb=goal_weights_0_5lb, goal_weights_1lb=goal_weights_1lb,
+                       goal_weights_2lb=goal_weights_2lb, x_labels=x_labels,
+                       carbs_calories_0_5lb=carbs_calories_0_5lb, fats_calories_0_5lb=fats_calories_0_5lb,
+                       protein_calories_0_5lb=protein_calories_0_5lb,
+                       carbs_calories_1lb=carbs_calories_1lb, fats_calories_1lb=fats_calories_1lb,
+                       protein_calories_1lb=protein_calories_1lb,
+                       carbs_calories_2lb=carbs_calories_2lb, fats_calories_2lb=fats_calories_2lb,
+                       protein_calories_2lb=protein_calories_2lb)
 
 
         # Calculate recommended daily protein intake for given weight goal
