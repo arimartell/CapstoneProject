@@ -675,14 +675,13 @@ def lookup_results():
         else:
             # Print the error message if the request failed
             print(f"Error: {response.status_code} - {response.reason}")
-            return render_template("lookup_results.html")
         return render_template("lookup_nutrition.html", nutrients = nutrients.items())
     else:
         return render_template("lookup_results.html")
 
 
-@app.route("/recipe_lookup", methods=["GET", "POST"])
-def recepie_lookup():
+@app.route("/recipe_logger", methods=["GET", "POST"])
+def recepie_logger():
     if request.method == "POST":
         ingr = request.form["ingredients"]
         ingredients_list = ingr.split('\n')
@@ -720,9 +719,10 @@ def recepie_lookup():
         else:
             # Print the error message if the request failed
             print(f"Error: {response.status_code} - {response.reason}")
+            return render_template("recipe_logger.html", error = "Recipe unknown")
         return render_template("recipe_nutrition.html", nutrients = nutrients.items())
     else:
-        return render_template("recipe_lookup.html")
+        return render_template("recipe_logger.html")
 
 
 
