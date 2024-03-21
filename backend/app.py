@@ -504,7 +504,7 @@ def profile():
                 return "Invalid target weight", 400
 
         temp_tweight = request.form["targetweight"]
-        true_tweight = 0
+        true_tweight = int(request.form["weight"])
         # Check if the retrieved value is not empty and consists entirely of digits
         if temp_tweight != "" and re.match(r"^\d+$", request.form["targetweight"]):
             # If both conditions are true, convert the value to an integer
@@ -675,6 +675,7 @@ def lookup_results():
         else:
             # Print the error message if the request failed
             print(f"Error: {response.status_code} - {response.reason}")
+            return render_template("lookup_results.html")
         return render_template("lookup_nutrition.html", nutrients = nutrients.items())
     else:
         return render_template("lookup_results.html")
