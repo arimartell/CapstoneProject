@@ -1,13 +1,21 @@
+import { useEffect } from 'react';
+import SwipeAnimation from '../components/swipe';
+
 //* Created by: Ariana Martell
 export default function Meal() {
+  useEffect(() => {
+    document.title = 'Meal';
+  }, []);
+
   return (
     <>
+      <SwipeAnimation />
       <div className="size-full min-h-screen flex flex-col justify-center items-center">
         <div className="hero bg-base-200 min-h-[20vh]">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl">Meal Page</div>
-              <p class="py-4">Here you can log a meal.</p>
+              <div className="text-5xl font-bold shingo">Meal Page</div>
+              <p className=" text-2xl py-4">Here you can log a meal.</p>
             </div>
           </div>
         </div>

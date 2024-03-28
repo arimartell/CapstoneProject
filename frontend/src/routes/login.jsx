@@ -1,7 +1,17 @@
 //* Created by: Ariana Martell
+import { Link } from 'react-router-dom';
+import { motion, useIsPresent } from 'framer-motion';
+import SwipeAnimation from '../components/swipe';
+import { useEffect } from 'react';
+
 export default function Login() {
+  useEffect(() => {
+    document.title = 'Login';
+  }, []);
+  
   return (
     <>
+      <SwipeAnimation />
       <div className=" size-full min-h-screen flex justify-center items-center">
         <form
           action="/login"
@@ -30,7 +40,9 @@ export default function Login() {
             <div className="label">
               <span className="label-text-alt italic text-info">
                 <a className="link link-info text-sm" href="#">
-                  Forgot Password?
+                  <Link to="/resetpassword" className="link link-info text-sm">
+                    Forgot Password?
+                  </Link>
                 </a>
               </span>
             </div>
@@ -40,7 +52,9 @@ export default function Login() {
           {/* Create An Account link*/}
           <span className="italic text-info">
             <a className="link link-info text-sm" href="#">
-              Create An Account
+              <Link to="/signup" className="link link-info text-sm">
+                Create An Account
+              </Link>
             </a>
           </span>
         </form>

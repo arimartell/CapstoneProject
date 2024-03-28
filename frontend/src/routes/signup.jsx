@@ -1,13 +1,19 @@
+import SwipeAnimation from '../components/swipe';
+import { useEffect } from 'react';
 //* Created by: Ariana Martell
 export default function Signup() {
+  useEffect(() => {
+    document.title = 'Sign up';
+  }, []);
   return (
     <>
+      <SwipeAnimation />
       <div className=" size-full min-h-screen flex justify-center items-center flex-col">
         <form
           action="/signup"
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
         >
-          <h3 className="text-4xl font-bold">Create an account</h3>
+          <h3 className="text-4xl font-bold shingo">Create an account</h3>
           {/* Username Input */}
           <label className="form-control gap-2 w-full">
             <input
