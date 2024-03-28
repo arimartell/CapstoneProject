@@ -1,7 +1,12 @@
 //* Created by: Ariana Martell
 import { useState } from 'react';
+import { useEffect } from 'react';
+import SwipeAnimation from '../components/swipe';
 
 export default function Profile() {
+  useEffect(() => {
+    document.title = 'Profile';
+  }, []);
   const [goalType, setGoalType] = useState('');
 
   const onGoalChange = (e) => {
@@ -10,12 +15,13 @@ export default function Profile() {
 
   return (
     <>
+      <SwipeAnimation />
       <div className="size-full min-h-full flex flex-col justify-center items-center">
         <div className="hero bg-base-200 min-h-[20vh]">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl shingo">Profile Page</div>
-              <p class="py-4 ">
+              <div className="text-5xl font-bold shingo">Profile Page</div>
+              <p className="py-4 text-2xl">
                 Setup your profile & start tracking a goal by filling out
                 details about yourself.
               </p>
@@ -39,7 +45,7 @@ export default function Profile() {
                 name="sex"
                 value="male"
               />
-              <span className="label-text w-16">Male </span>
+              <span className="label-text w-16 text-base">Male </span>
             </label>
             <label className="label cursor-pointer">
               <input
@@ -48,7 +54,7 @@ export default function Profile() {
                 name="sex"
                 value="female"
               />
-              <span className="label-text w-16">Female</span>
+              <span className="label-text w-16 text-base">Female</span>
             </label>
           </div>
 
@@ -117,7 +123,7 @@ export default function Profile() {
                 value="loss"
                 onClick={onGoalChange}
               />
-              <span className="label-text w-16">Weight Loss </span>
+              <span className="label-text w-16 text-base">Weight Loss </span>
             </label>
             <label className="label cursor-pointer">
               <input
@@ -127,10 +133,12 @@ export default function Profile() {
                 value="maintenance"
                 onClick={onGoalChange}
               />
-              <span className="label-text w-16">Weight Maintenance</span>
+              <span className="label-text w-16 text-base">
+                Weight Maintenance
+              </span>
             </label>
           </div>
-        {/* Drop down another input for target weight if goal is weight loss */}
+          {/* Drop down another input for target weight if goal is weight loss */}
           {goalType === 'loss' ? (
             <>
               <label className="form-control gap-2 w-full">
