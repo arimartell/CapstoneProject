@@ -16,11 +16,14 @@ export default function Root() {
   return (
     <>
       {/* Navbar */}
-      <div className="drawer p-4 z-[1]">
+      <div className="drawer z-[1]">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
-          <label htmlFor="my-drawer" className="btn btn-primary drawer-button">
-            Navigation
+          <label
+            htmlFor="my-drawer"
+            className="btn top-4 left-4 text-2xl absolute btn-primary material-symbols-outlined"
+          >
+            menu
           </label>
         </div>
         <div className="drawer-side">
@@ -37,18 +40,8 @@ export default function Root() {
               </Link>
             </li>
             <li>
-              <Link to="/signup">
-                <span className="text-2xl shingo">Signup</span>
-              </Link>
-            </li>
-            <li>
               <Link to="/profile">
                 <span className="text-2xl shingo">Profile</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/meal">
-                <span className="text-2xl shingo">Meal</span>
               </Link>
             </li>
             <li>
@@ -56,7 +49,16 @@ export default function Root() {
                 <span className="text-2xl shingo">Dashboard</span>
               </Link>
             </li>
-            
+            <li>
+              <Link to="/graph">
+                <span className="text-2xl shingo">Graphs</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/lookup">
+                <span className="text-2xl shingo">Lookup Food</span>
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

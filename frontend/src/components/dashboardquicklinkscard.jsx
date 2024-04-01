@@ -29,7 +29,7 @@ export default function QuickCard({ title }) {
     const choice = e.target.value;
     switch (choice) {
       case 'lookup':
-        navigate('/meal');
+        navigate('/lookup');
         break;
       case 'create':
         navigate('/meal');
@@ -39,7 +39,7 @@ export default function QuickCard({ title }) {
         openDialog();
         break;
       case 'staple':
-        navigate('/meal');
+        navigate('/staple');
       default:
         break;
     }

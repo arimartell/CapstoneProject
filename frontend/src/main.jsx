@@ -11,6 +11,8 @@ import Profile from './routes/profile';
 import ResetPassword from './routes/resetpassword';
 import Dashboard from './routes/dashboard';
 import Lookup from './routes/lookup';
+import Staple from './routes/staple';
+import Graph from './routes/graph';
 
 export const routes = [
   {
@@ -33,24 +35,28 @@ export const routes = [
     element: <Profile />,
     nodeRef: createRef(),
   },
-  { 
+  {
     path: '/resetpassword',
     element: <ResetPassword />,
     nodeRef: createRef(),
-
   },
-  { 
+  {
     path: '/dashboard',
     element: <Dashboard />,
     nodeRef: createRef(),
-
   },
-  { 
+  {
     path: '/lookup',
     element: <Lookup />,
-
   },
-
+  {
+    path: '/staple',
+    element: <Staple />,
+  },
+  {
+    path: '/graph',
+    element: <Graph />
+  }
 ];
 
 const router = createBrowserRouter([
@@ -74,7 +80,6 @@ root.render(
   </React.StrictMode>,
 );
 
-
 // export const routes = [
 //   {
 //     path: '/login',
@@ -96,13 +101,13 @@ root.render(
 //     element: <Profile />,
 //     nodeRef: createRef(),
 //   },
-//   { 
+//   {
 //     path: '/resetpassword',
 //     element: <ResetPassword />,
 //     nodeRef: createRef(),
 
 //   },
-//   { 
+//   {
 //     path: '/dashboard',
 //     element: <Dashboard />,
 //     nodeRef: createRef(),

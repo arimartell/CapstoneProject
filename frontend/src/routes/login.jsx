@@ -12,7 +12,7 @@ export default function Login() {
   return (
     <>
       <SwipeAnimation />
-      <div className=" size-full min-h-screen flex justify-center items-center">
+      <div className="size-full min-h-screen flex justify-center items-center">
         <form
           action="/login"
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
