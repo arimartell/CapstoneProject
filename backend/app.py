@@ -738,7 +738,8 @@ def today():
         total_cals = User[current_user.id].maintenance_calories
         user_meals = Meal.select(lambda m: m.user == current_user)
         for m in user_meals:
-            if m.date.date == datetime.now().date:
+            print(m.date.date())
+            if m.date.date() == datetime.now().date():
                 meals_today.append(m)
         for m in meals_today:
             cals_left -= m.calories

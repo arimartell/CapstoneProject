@@ -21,9 +21,9 @@
     <h1>Cals remaining: {{ cals_left }}</h1>
     <h1>Meals so far: </h1>
     <ul>
-        {% for meal in meals_tday %}
+        {% for meal in meals %}
             <li>{{ meal.name }}</li>
-            <li>{{ meal.calories }}</li>
+            <li>{{ meal.calories }} cals</li>
             <br> 
         {% endfor %}
     </ul>
