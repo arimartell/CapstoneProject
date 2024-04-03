@@ -2,58 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Today's Calorie Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Today</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-        }
-        .header, .footer {
-            text-align: center;
-            padding: 1em;
-        }
-        .meal-list {
+        ul {
             list-style-type: none;
             padding: 0;
         }
-        .meal-item {
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            margin-bottom: 5px;
-            padding: 10px;
-        }
-        .no-meals {
-            text-align: center;
-            font-style: italic;
-            color: grey;
+        li {
+            display: inline-block;
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Today's Calorie Tracker</h1>
-        </div>
-        <div class="content">
-            <p>Total Calories: <strong>{{total_cals}}</strong></p>
-            <p>Calories Left: <strong>{{cals_left}}</strong></p>
-            <h2>Meals</h2>
-            {{#if meals.length}}
-            <ul class="meal-list">
-                {{#each meals}}
-                <li class="meal-item">{{this}}</li>
-                {{/each}}
-            </ul>
-            {{else}}
-            <p class="no-meals">No meals have been added yet.</p>
-            {{/if}}
-        </div>
-        <div class="footer">
-            <p>Track your calories and stay healthy!</p>
-        </div>
-    </div>
+    <h1>Goal cals for the day: {{ total_cals }}</h1>
+    <h1>Total cals for the day: {{ total_cals - cals_left }}</h1>
+    <h1>Cals remaining: {{ cals_left }}</h1>
+    <h1>Meals so far: </h1>
+    <ul>
+        {% for meal in meals_tday %}
+            <li>{{ meal.name }}</li>
+            <li>{{ meal.calories }}</li>
+            <br> 
+        {% endfor %}
+    </ul>
 </body>
 </html>
