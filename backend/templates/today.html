@@ -25,6 +25,11 @@
             margin-bottom: 5px;
             padding: 10px;
         }
+        .no-meals {
+            text-align: center;
+            font-style: italic;
+            color: grey;
+        }
     </style>
 </head>
 <body>
@@ -36,11 +41,15 @@
             <p>Total Calories: <strong>{{total_cals}}</strong></p>
             <p>Calories Left: <strong>{{cals_left}}</strong></p>
             <h2>Meals</h2>
+            {{#if meals.length}}
             <ul class="meal-list">
                 {{#each meals}}
                 <li class="meal-item">{{this}}</li>
                 {{/each}}
             </ul>
+            {{else}}
+            <p class="no-meals">No meals have been added yet.</p>
+            {{/if}}
         </div>
         <div class="footer">
             <p>Track your calories and stay healthy!</p>
