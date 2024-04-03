@@ -326,6 +326,7 @@ def meal():
             total_fat=total_fat,
             protein=protein,
             user=current_user,
+            date=datetime.now(),
             **optional_fields
         )
 
@@ -395,6 +396,7 @@ def staple_meal():
             protein=0.0,
             sodium=0.0,
             user=current_user,
+            date=datetime.now()
         )
         # Parse through each staple input and extract macros to add to total
         for index, value in enumerate(meal_list):
@@ -572,6 +574,10 @@ def biometrics():
         max_weeks = max(weeks_to_goal) + 1  
         x_labels = [f"Week {i}" for i in range(max_weeks)]
 
+        #Luca - updates user maintenance cals in db for use in other tabs
+        User[current_user.id].maintenance_calories = tdee
+        commit()
+
         return render_template("biometrics.html", user=current_user, bmr=bmr, tdee=tdee, age=age,
                        weeks_to_goal=weeks_to_goal, daily_calories=daily_calories,
                        goal_weights_0_5lb=goal_weights_0_5lb, goal_weights_1lb=goal_weights_1lb,
@@ -724,6 +730,21 @@ def recepie_logger():
     else:
         return render_template("recipe_logger.html")
 
+@app.route("/today", methods=["GET", "POST"])
+def today():
+    if request.method == "GET":
+        meals_today = []
+        cals_left = User[current_user.id].maintenance_calories
+        total_cals = User[current_user.id].maintenance_calories
+        user_meals = Meal.select(lambda m: m.user == current_user)
+        for m in user_meals:
+            if m.date.date == datetime.now().date:
+                meals_today.append(m)
+        for m in meals_today:
+            cals_left -= m.calories
+        return render_template("today.html", total_cals=total_cals, cals_left=cals_left, meals=meals_today)
+    else:
+        return render_template("today.html")
 
 
 

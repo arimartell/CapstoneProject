@@ -29,6 +29,7 @@ class User(db.Entity, UserMixin):
 class Meal(db.Entity):
     user = Required(User)
     name = Required(str)
+    date = Required(datetime)
     calories = Required(float, default=0)
     carbs = Required(float, default=0)
     total_fat = Required(float, default=0)

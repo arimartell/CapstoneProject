@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Today's Calorie Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .header, .footer {
+            text-align: center;
+            padding: 1em;
+        }
+        .meal-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .meal-item {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Today's Calorie Tracker</h1>
+        </div>
+        <div class="content">
+            <p>Total Calories: <strong>{{total_cals}}</strong></p>
+            <p>Calories Left: <strong>{{cals_left}}</strong></p>
+            <h2>Meals</h2>
+            <ul class="meal-list">
+                {{#each meals}}
+                <li class="meal-item">{{this}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="footer">
+            <p>Track your calories and stay healthy!</p>
+        </div>
+    </div>
+</body>
+</html>
