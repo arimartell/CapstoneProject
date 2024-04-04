@@ -184,8 +184,6 @@ def reset_password():
     
     return response, 200
 
-from flask_jwt_extended import jwt_required, get_jwt_identity
-
 @app.route("/profile", methods=["GET", "POST"])
 @jwt_required()
 def profile():
