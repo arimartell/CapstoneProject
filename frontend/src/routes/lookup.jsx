@@ -16,8 +16,7 @@ export default function Lookup() {
             <div className="max-w-md">
               <div className="text-5xl font-bold shingo">Lookup a meal</div>
               <p className="py-4 text-2xl">
-                If you're uncertain about the macronutrient composition of your
-                meals, feel free to search for it
+              Feel free to search for a food's Macros
               </p>
             </div>
           </div>
@@ -27,7 +26,7 @@ export default function Lookup() {
           action="/login"
           className="flex size-full flex-col justify-start px-8 mt-48 items-center space-y-4 max-w-md"
         >
-          <label className="input input-bordered flex items-center gap-2">
+          <label className="input input-bordered flex items-center gap-2 w-full">
             <input
               className="grow"
               type="text"

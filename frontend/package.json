@@ -10,6 +10,7 @@
     "format": "prettier . --write --ignore-unknown"
   },
   "dependencies": {
+    "chart.js": "^4.4.2",
     "framer-motion": "^11.0.22",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.4",
