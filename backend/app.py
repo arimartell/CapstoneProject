@@ -1,57 +1,23 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_login import (
-    current_user,
-    login_required,
-    LoginManager,
-    login_user,
-    logout_user,
-)
+from flask import Flask, jsonify, request, session, make_response
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
-from pony.orm import commit, db_session, select, desc
-from models import db, User, Meal, Staple_meal
+from pony.orm import commit
+from models import db, User
+import string
 import re
-from datetime import datetime
+from datetime import timedelta, datetime
 from email_verif_code import *
-import time
-import datetime
-from datetime import date, datetime
-import requests
-import json
 from calculations import *
 
-login_manager = LoginManager()
-# hpyttps://docs.ponyorm.org/integration_with_flask.html Reference for setting up database
-
-# Ariana Martell started flask app integration
-# Flask app instance
 app = Flask(__name__)
-# Config the login manager within the Flask app
-login_manager.init_app(app)
-# Config settings for Flask app
-app.config.update(
-    dict(
-        DEBUG=True,
-        SECRET_KEY="some secret blah blah",
-        PONY={
-            "provider": "sqlite",
-            "filename": "main.db3",
-            "create_db": True,
-        },
-    )
-)
-
-
-# Pony ORM binded with Flask app using config settings
-db.bind(**app.config["PONY"])
-
-# Create map between entities and database tables, create tables if it doesn't exist
+app.secret_key = "some secret blah blah"
+app.config["JWT_SECRET_KEY"] = "jwt_secret_key"
+jwt = JWTManager(app)
+db.bind(provider="sqlite", filename="main.db3", create_db=True)
 db.generate_mapping(create_tables=True)
-
 Pony(app)
 
-
-# Tabshir Ahmed created this helper function to check password complexity
 def is_password_complex(password: string) -> bool:
     """
     Check if the password meets complexity requirements. The requiremnts are it must contain:
@@ -72,683 +38,294 @@ def is_password_complex(password: string) -> bool:
         return False
     return True
 
-
-# Ariana Martell added this route/page
-# Define a route for the root URL
 @app.route("/")
 def home():
-    # Check if the user is authenticated
-    if current_user.is_authenticated:
-        # If authenticated, get the username this is for the welcome on the page
-        username = current_user.username
-    else:
-        # If not authenticated, set username to None
-        username = None
-    return render_template("home.html", username=username)
+    return jsonify(message="Welcome to the home page")
 
-
-# Tabshir Ahmed added this route/page
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["POST"])
 def login():
-    error = None
-    if request.method == "POST":
-        login_identifier = request.form["login_identifier"]
-        password = request.form["password"]
+    data = request.get_json()
+    login_identifier = data.get("login_identifier")
+    password = data.get("password")
 
-        # Check if login_identifier is email or username
-        user = User.get(email=login_identifier) or User.get(username=login_identifier)
+    # Check if login_identifier is email or username
+    user = User.get(email=login_identifier) or User.get(username=login_identifier)
 
-        if user and check_password_hash(user.password, password):
-            # Store user ID in session
-            session["user_id"] = user.id
-            login_user(user)
-            # Check if it's the user's first time logging in
-            if user.last_login is None:
-                # Update the last_login field
-                user.last_login = datetime.now()
-                # Save the changes to the user
-                commit()
-                # Directs first time users to edit profile before going into meal route, recurring user direct to home
-                return redirect(url_for("profile"))
-            else:
-                # Update the last_login field
-                user.last_login = datetime.now()
-                # Save the changes to the user
-                commit()
-                return redirect(url_for("home"))
-        else:
-            error = "Invalid username or password"
-    return render_template("login.html", error=error)
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"message": "Invalid username or password"}), 401
 
+    access_token = create_access_token(identity=user.username)
+    return jsonify(access_token=access_token), 200
 
-# Tabshir Ahmed added this route/page
-@app.route("/forgot-password", methods=["GET", "POST"])
-def forgot_password():
-    if request.method == "POST":
-        email = request.form["email"]
-
-        # Check if the email exists in the database
-        user = User.get(email=email)
-        if user is None:
-            error = "Email not found"
-            return render_template("forgot_password.html", error=error)
-
-        # Generate verification code
-        verification_code = generate_verification_code()
-
-        # Send verification email
-        send_verification_email(email, verification_code)
-
-        # Store verification code in session
-        session["verification_code"] = verification_code
-        session["email"] = email
-
-        return redirect(url_for("verify_code"))
-
-    return render_template("forgot_password.html")
-
-
-# Tabshir Ahmed added this route/page
-@app.route("/verify-code", methods=["GET", "POST"])
-def verify_code():
-    if request.method == "POST":
-        entered_code = request.form["verification_code"]
-        # Succesful entry, redirect to reset password form
-        if session.get("verification_code") == entered_code:
-            return redirect(url_for("reset_password"))
-        else:
-            # Throw error, allow for reentry of code
-            error = "Invalid verification code"
-            return render_template("verify_code.html", error=error)
-
-    return render_template("verify_code.html")
-
-
-# Tabshir Ahmed added this route/page
-@app.route("/reset-password", methods=["GET", "POST"])
-def reset_password():
-    if request.method == "POST":
-        new_password = request.form["new_password"]
-        confirm_password = request.form["confirm_password"]
-        if new_password != confirm_password:
-            # Throw error, allow reentry of passwords
-            error = "Passwords do not match"
-            return render_template("reset_password.html", error=error)
-        # Check password complexity
-        if not is_password_complex(new_password):
-            error = "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"
-            return render_template("reset_password.html", error=error)
-        # Update password in the database
-        email = session.get("email")
-        user = User.get(email=email)
-        user.password = generate_password_hash(new_password)
-        commit()
-        # Clear session data
-        session.pop("verification_code", None)
-        session.pop("email", None)
-
-        return redirect(url_for("login"))
-    return render_template("reset_password.html")
-
-
-# Tabshir Ahmed added this route/page
-@app.route("/signup", methods=["GET", "POST"])
+@app.route("/signup", methods=["POST"])
 def signup():
-    error = None
-    if request.method == "POST":
-        username = request.form["username"]
-        email = request.form["email"]
-        confirm_email = request.form["confirm_email"]
-        password = request.form["password"]
-        confirm_password = request.form["confirm_password"]
+    data = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    confirm_email = data.get("confirm_email")
+    password = data.get("password")
+    confirm_password = data.get("confirm_password")
 
-        # Check if username exists in database
-        existing_user = User.get(username=username)
-        if existing_user:
-            error = "Username already exists"
-            return render_template("signup.html", error=error)
+    # Check if any required field is missing
+    if not all([username, email, confirm_email, password, confirm_password]):
+        return jsonify({"message": "All fields (username, email, confirm_email, password, confirm_password) are required"}), 400
 
-        # Check if email exists in database
-        existing_email = User.get(email=email)
-        if existing_email:
-            error = "Email already exists"
-            return render_template("signup.html", error=error)
+    # Check if username exists in database
+    existing_user = User.get(username=username)
+    if existing_user:
+        return jsonify({"message": "Username already exists"}), 400
 
-        # Check if email and confirm email fields match
-        if email != confirm_email:
-            error = "Emails do not match"
-            return render_template("signup.html", error=error)
+    # Check if email exists in database
+    existing_email = User.get(email=email)
+    if existing_email:
+        return jsonify({"message": "Email already exists"}), 400
 
-        # Check if email is valid using regex
-        # Copied regex from https://saturncloud.io/blog/how-can-i-validate-an-email-address-using-a-regular-expression/
-        if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
-            error = "Invalid email address"
-            return render_template("signup.html", error=error)
+    # Check if email is valid
+    if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
+        return jsonify({"message": "Invalid email address"}), 400
 
-        # Check if password and confirm password fields match
-        if password != confirm_password:
-            error = "Passwords do not match"
-            return render_template("signup.html", error=error)
+    # Check if email and confirm email fields match
+    if email != confirm_email:
+        return jsonify({"message": "Emails do not match"}), 400
 
-        # Check password complexity
-        if not is_password_complex(password):
-            error = "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"
-            return render_template("signup.html", error=error)
+    # Check if password and confirm password fields match
+    if password != confirm_password:
+        return jsonify({"message": "Passwords do not match"}), 400
 
-        # Hash the password
-        hashed_password = generate_password_hash(password)
-        # Create a new user object
-        user = User(username=username, email=email, password=hashed_password)
-        # Commit user to database
-        commit()
-        # Redirect to login page after successful signup
-        return redirect(url_for("login"))
-    return render_template("signup.html")
+    # Check password complexity
+    if not is_password_complex(password):
+        return jsonify({"message": "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"}), 400
 
+    # Hash the password
+    hashed_password = generate_password_hash(password)
+    # Create a new user object
+    user = User(username=username, email=email, password=hashed_password)
+    # Commit user to database
+    commit()
 
-# User session management for Flask https://flask-login.readthedocs.io/en/latest/
+    access_token = create_access_token(identity=user.username)
+    return jsonify(access_token=access_token), 200
 
-
-@login_manager.user_loader
-def load_user(user_id):
-    return db.User.get(id=user_id)
-
-
-@app.route("/logout")
-@login_required
+@app.route("/logout", methods=["POST"])
+@jwt_required()
 def logout():
-    logout_user()
-    return redirect(url_for("login"))
+    # Remove the JWT cookies
+    response = jsonify({"message": "Logout successful"})
+    unset_jwt_cookies(response)
+    return response, 200
 
 
-# Ariana Martell worked on meal page
-@app.route("/meal", methods=["GET", "POST"])
-@login_required
-def meal():
-    if request.method == "POST":
-        
-        # Ensure fields are not missing
-        if "name" not in request.form:
-            return "Missing 'name'", 400
-        if "calories" not in request.form:
-            return "Missing 'calories'", 400
-        if "carbs" not in request.form:
-            return "Missing 'carbs'", 400
-        if "total_fat" not in request.form:
-            return "Missing 'total_fat'", 400
-        if "protein" not in request.form:
-            return "Missing 'protein'", 400
-        # Ensure fields are not empty
-        if request.form["name"] == "":
-            return "Invalid 'name'", 400
-        if request.form["calories"] == "":
-            return "Invalid 'calories'", 400
-        if request.form["carbs"] == "":
-            return "Invalid 'carbs'", 400
-        if request.form["total_fat"] == "":
-            return "Invalid 'total_fat'", 400
-        if request.form["protein"] == "":
-            return "Invalid 'protein'", 400
-        # Validation so input can only be digits for all fields except name
-        if not re.match(r"^(\d|\d\.)+$", request.form["calories"]):
-            return "Invalid 'calories'", 400
-        if not re.match(r"^(\d|\d\.)+$", request.form["carbs"]):
-            return "Invalid 'carbs'", 400
-        if not re.match(r"^(\d|\d\.)+$", request.form["total_fat"]):
-            return "Invalid 'total_fat'", 400
-        if not re.match(r"^(\d|\d\.)+$", request.form["protein"]):
-            return "Invalid 'protein'", 400
-        # Gets back form data
-        name = request.form["name"]
-        calories = float(request.form["calories"])
-        carbs = float(request.form["carbs"])
-        total_fat = float(request.form["total_fat"])
-        protein = float(request.form["protein"])
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json()
+    email = data.get("email")
 
-        # Optional fields based on model
-        optional_fields = {}
-        optional_field_names = [
-            "sat_fat",
-            "trans_fat",
-            "carbs_fiber",
-            "carbs_sugar",
-            "sodium",
-        ]
-        for field_name in optional_field_names:
-            if field_name in request.form:
-                if request.form[field_name] != "":
-                    optional_fields[field_name] = request.form[field_name]
+    # Check if the email exists in the database
+    user = User.get(email=email)
+    if not user:
+        return jsonify({"message": "Email not found"}), 404
 
-        new_meal = Meal(
-            name=name,
-            calories=calories,
-            carbs=carbs,
-            total_fat=total_fat,
-            protein=protein,
-            user=current_user,
-            date=datetime.now(),
-            **optional_fields
-        )
+    # Generate verification code
+    verification_code = generate_verification_code()
 
-        if has_filled_out_profile() == False:
-            return "Profile Not filled!", 400
-        # Commit a new meal to database
-        commit()
-        # Redirect to meal page
-        return redirect(url_for("meal"))
-    else:
-        recent_meals_query = Meal.select(lambda m: m.user == current_user)
-        recent_meals = recent_meals_query[:]
+    # Send verification email
+    send_verification_email(email, verification_code)
 
+    # Store verification code and email in session
+    session["verification_code"] = verification_code
+    session["email"] = email
 
+    # Generate a short-lived access token for resetting password
+    access_token = create_access_token(identity=email, expires_delta=timedelta(minutes=15))
 
-        # if not a POST request direct to meal page template
-        return render_template("meal.html", recent=recent_meals)
+    # Return success message along with the access token for reset-password
+    return jsonify({"message": "Verification code sent successfully", "access_token": access_token}), 200
 
+@app.route("/reset-password", methods=["POST"])
+@jwt_required()
+def reset_password():
+    data = request.get_json()
+    verification_code = data.get("verification_code")
+    new_password = data.get("new_password")
+    confirm_password = data.get("confirm_password")
 
-@app.route("/staple_meal", methods=["GET", "POST"])
-@login_required
-def staple_meal():
-    # Create lists of staple meals and their macros
-    egg_staple_meal = ["Egg", 66, 0.6, 4.6, 1.3, 0, 0.3, 0.3, 6.4, 0.2, 1]
-    bagel_staple_meal = ["Bagel", 245, 47.9, 1.5, 0, 0.4, 4.02, 6, 10, 0.43, 1]
-    chicken_staple_meal = ["Chicken", 198, 0, 4.3, 1.2, 0, 0, 0, 37, 0.089, 120]
-    steak_staple_meal = ["Steak", 614, 0, 41, 16, 0, 0, 0, 58, 0.115, 221]
-    bread_staple_meal = ["Bread", 72, 13, 0.9, 0.2, 0, 0.7, 1.5, 2.4, 0.132, 1]
-    rice_staple_meal = ["Rice", 205, 45, 0.4, 0.1, 0, 0.6, 0.1, 4.3, 0.0016, 158]
-    macro_list = [
-        egg_staple_meal,
-        bagel_staple_meal,
-        chicken_staple_meal,
-        steak_staple_meal,
-        bread_staple_meal,
-        rice_staple_meal,
-    ]
+    # Retrieve verification code and email from session
+    stored_code = session.get("verification_code")
+    stored_email = session.get("email")
 
-    # Check if the request is POST
-    if request.method == "POST":
-        # Gets back form data and parses for blank inputs
-        eggs = request.form["Eggs"] if request.form["Eggs"] != "" else 0
-        bagel = request.form["Bagel"] if request.form["Bagel"] != "" else 0
-        chicken = request.form["Chicken"] if request.form["Chicken"] != "" else 0
-        steak = request.form["Steak"] if request.form["Steak"] != "" else 0
-        bread = request.form["Bread"] if request.form["Bread"] != "" else 0
-        rice = request.form["Rice"] if request.form["Rice"] != "" else 0
-        meal_list = [
-            int(eggs),
-            int(bagel),
-            int(chicken),
-            int(steak),
-            int(bread),
-            int(rice),
-        ]
+    # Check if entered code matches the stored verification code
+    if verification_code != stored_code:
+        return jsonify({"message": "Invalid verification code"}), 401
 
-        # Create new meal obj to add macro count from each staple item to
-        new_meal = Meal(
-            name="Meal",
-            calories=0.0,
-            carbs=0.0,
-            total_fat=0.0,
-            sat_fat=0.0,
-            trans_fat=0.0,
-            carbs_fiber=0.0,
-            carbs_sugar=0.0,
-            protein=0.0,
-            sodium=0.0,
-            user=current_user,
-            date=datetime.now()
-        )
-        # Parse through each staple input and extract macros to add to total
-        for index, value in enumerate(meal_list):
-            if value > 0:
-                serving_size = value / macro_list[index][10]
-                new_meal.calories += macro_list[index][1] * serving_size
-                new_meal.carbs += macro_list[index][2] * serving_size
-                new_meal.total_fat += macro_list[index][3] * serving_size
-                new_meal.sat_fat += macro_list[index][4] * serving_size
-                new_meal.trans_fat += macro_list[index][5] * serving_size
-                new_meal.carbs_fiber += macro_list[index][6] * serving_size
-                new_meal.carbs_sugar += macro_list[index][7] * serving_size
-                new_meal.protein += macro_list[index][8] * serving_size
-                new_meal.sodium += macro_list[index][9] * serving_size
+    # Check if new password matches the confirm password
+    if new_password != confirm_password:
+        return jsonify({"message": "Passwords do not match"}), 400
 
-        # Commit a new meal to database
-        print(new_meal.calories)
-        commit()
-        # Redirect to staple_meal page
-        return redirect(url_for("staple_meal"))
-    else:
-        # if not a POST request direct to staple_meal page template
-        return render_template("staple_meal.html")
+    # Check password complexity
+    if not is_password_complex(new_password):
+        return jsonify({"message": "Password must meet complexity requirements"}), 400
 
+    # Retrieve user from database
+    user = User.get(email=stored_email)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
 
-# Tabshir Ahmed added this route/page (primarily used for testing in initial stages, will probably remove)
-@app.route("/users")  ### Testing if it creates an account and hashes password
-def list_users():
-    users = User.select()  # Fetch all users from the database
-    return render_template("user_list.html", users=users)
+    # Update password in the database
+    user.password = generate_password_hash(new_password)
+    commit()  # Commit changes to the database
 
+    # Clear session data
+    session.pop("verification_code", None)
+    session.pop("email", None)
 
-# ? Ariana Martell: Example of guarding a page by checking if a user has filled out their profile with a helper function,
-# ? we can use this for when users try to input into meal page without filling out profile
-
-
-def has_filled_out_profile():
-    if User[current_user.id].unit_type == "":
-        return False
-    if User[current_user.id].sex == "":
-        return False
-    if User[current_user.id].weight == 0:
-        return False
-    if User[current_user.id].height == 0:
-        return False
-    if User[current_user.id].activity_level == "":
-        return False
-    if User[current_user.id].goal_type == "":
-        return False
-
-
-# Ariana Martell worked on profile page
-@app.route("/profile", methods=["GET", "POST"])
-@login_required
-def profile():
-    # Ensure fields are not missing in the request form
-    if request.method == "POST":
-        if "unittype" not in request.form:
-            return "Missing 'unittype'", 400
-        if "sex" not in request.form:
-            return "Missing 'sex'", 400
-        if "weight" not in request.form:
-            return "Missing 'weight'", 400
-        if "heightfeet" not in request.form:
-            return "Missing 'heightfeet'", 400
-        if "heightinches" not in request.form:
-            return "Missing 'heightinches'", 400
-        if "birthday" not in request.form:
-            return "Missing 'birthday'", 400
-        if "activitylevel" not in request.form:
-            return "Missing 'activitylevel'", 400
-        if "diettype" not in request.form:
-            return "Missing 'diettype'", 400
-        if "goaltype" not in request.form:
-            return "Missing 'goaltype'", 400
-        if "targetweight" not in request.form:
-            return "Missing 'targetweight'", 400
-        # Ensure fields are not empty in request form
-        if request.form["unittype"] == "":
-            return "Invalid 'unittype'", 400
-        if request.form["sex"] == "":
-            return "Invalid 'sex'", 400
-        if request.form["weight"] == "":
-            return "Invalid 'weight'", 400
-        if request.form["heightfeet"] == "":
-            return "Invalid 'heightfeet'", 400
-        if request.form["heightinches"] == "":
-            return "Invalid 'heightinches'", 400
-        if request.form["birthday"] == "":
-            return "Invalid 'birthday'", 400
-        if request.form["activitylevel"] == "":
-            return "Invalid 'activitylevel'", 400
-        if request.form["diettype"] == "":
-            return "Invalid 'diettype'", 400
-        if request.form["goaltype"] == "":
-            return "Invalid 'goaltype'", 400
-        # Validation so input can only be digits https://docs.python.org/3/library/re.html for regex
-        if not re.match(r"^\d+$", request.form["weight"]):
-            return "Invalid weight", 400
-        if not re.match(r"^\d+$", request.form["heightfeet"]):
-            return "Invalid height feet", 400
-        if not re.match(r"^\d+$", request.form["heightinches"]):
-            return "Invalid height inches", 400
-        # If user chose loss for goal return invalid if nondigit/empty
-        if request.form["goaltype"] == "loss":
-            if not re.match(r"^\d+$", request.form["targetweight"]):
-                return "Invalid target weight", 400
-
-        temp_tweight = request.form["targetweight"]
-        true_tweight = int(request.form["weight"])
-        # Check if the retrieved value is not empty and consists entirely of digits
-        if temp_tweight != "" and re.match(r"^\d+$", request.form["targetweight"]):
-            # If both conditions are true, convert the value to an integer
-            true_tweight = int(request.form["targetweight"])
-        # Update user's profile information based on form data
-        User[current_user.id].unit_type = request.form["unittype"]
-        User[current_user.id].sex = request.form["sex"]
-        User[current_user.id].weight = request.form["weight"]
-        h = int(request.form["heightfeet"])
-        User[current_user.id].height = int(request.form["heightinches"]) + 12 * h
-        User[current_user.id].birthday = request.form["birthday"]
-        User[current_user.id].activity_level = request.form["activitylevel"]
-        User[current_user.id].goal_type = request.form["goaltype"]
-        User[current_user.id].goal_weight = true_tweight
-        User[current_user.id].maintenance_calories = 0
-        User[current_user.id].diet_type = request.form["diettype"]
-
-        commit()
-        print(request.form)
-        # Redirect to the home page after successfully updating profile
-        return redirect(url_for("home"))
-
-    print(current_user.username)
-    return render_template("profile.html", u=current_user)
-
-
-@app.route("/biometrics", methods=["GET", "POST"])
-@login_required
-def biometrics():
-    if request.method == "GET":
-        # Grab user attributes to use in calculations
-        weight = User[current_user.id].weight
-        height = User[current_user.id].height
-        activity_level = User[current_user.id].activity_level
-        sex = User[current_user.id].sex
-        goal_weight = User[current_user.id].goal_weight
-        # Age calculation
-        birthday = User[current_user.id].birthday
-        today = datetime.today()
-        age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
-
-        # Calculate BMR (Basal Metabolic Rate)
-        bmr = int(calculate_bmr(weight, height, age, sex))
-
-        # Calculate TDEE (Total Daily Energy Expenditure)
-        tdee = int(calculate_tdee(bmr, activity_level))
-
-        # Calculate weeks needed to reach weight goal
-        weeks_to_goal = calculate_goal_weight_loss(weight, goal_weight)
-
-        # Calculate average daily calories under the weight loss plan
-        daily_calories = calculate_daily_calories(weight, height, age, sex, activity_level)
-
-        # Calculate macronutrient ratios for each weight loss goal
-        diet_type = User[current_user.id].diet_type
-        carbs_calories_0_5lb, fats_calories_0_5lb, protein_calories_0_5lb = calculate_macronutrient_ratios(daily_calories[0], diet_type)
-        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = calculate_macronutrient_ratios(daily_calories[1], diet_type)
-        carbs_calories_2lb, fats_calories_2lb, protein_calories_2lb = calculate_macronutrient_ratios(daily_calories[2], diet_type)
-
-        # Calculate weights for each week based on weight loss rates
-        current_weight = weight
-        goal_weights_0_5lb = [current_weight - 0.5 * i for i in range(weeks_to_goal[0] + 1)]
-        goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal[1] + 1)]
-        goal_weights_2lb = [current_weight - 2 * i for i in range(weeks_to_goal[2] + 1)]
-        max_weeks = max(weeks_to_goal) + 1  
-        x_labels = [f"Week {i}" for i in range(max_weeks)]
-
-        #Luca - updates user maintenance cals in db for use in other tabs
-        User[current_user.id].maintenance_calories = tdee
-        commit()
-
-        return render_template("biometrics.html", user=current_user, bmr=bmr, tdee=tdee, age=age,
-                       weeks_to_goal=weeks_to_goal, daily_calories=daily_calories,
-                       goal_weights_0_5lb=goal_weights_0_5lb, goal_weights_1lb=goal_weights_1lb,
-                       goal_weights_2lb=goal_weights_2lb, x_labels=x_labels,
-                       carbs_calories_0_5lb=carbs_calories_0_5lb, fats_calories_0_5lb=fats_calories_0_5lb,
-                       protein_calories_0_5lb=protein_calories_0_5lb,
-                       carbs_calories_1lb=carbs_calories_1lb, fats_calories_1lb=fats_calories_1lb,
-                       protein_calories_1lb=protein_calories_1lb,
-                       carbs_calories_2lb=carbs_calories_2lb, fats_calories_2lb=fats_calories_2lb,
-                       protein_calories_2lb=protein_calories_2lb)
-
-
-        # Calculate recommended daily protein intake for given weight goal
-        # TODO weight gain and muscle building goals
-        # if goal_type == "weight loss":
-        #     protein_scalar = 0.75
-        # else:
-        #     protein_scalar = 1
-        # protein = lbs * protein_scalar
-
-@app.route("/lookup", methods=["GET", "POST"])
-def lookup():
-    if request.method == "POST":
-        search = request.form["food"]
-        app_id = "dca363b5"
-        app_key = "6b400d1db41322ce8fc5cd0e892b418d"
-        url = f"https://api.edamam.com/api/food-database/v2/parser?app_id={app_id}&app_key={app_key}&ingr={search}&nutrition-type=cooking"
+    # Remove access token generated from forgot-password route
+    response = jsonify({"message": "Password reset successful"})
+    response.delete_cookie("access_token")
     
-        response = requests.get(url)
-        if response.status_code != 200:
-            print("Error:", response.status_code)
-            api_response = None
-        else:
-            api_response = response.text
-        
-        if api_response:
-                parsed_data = []
-                response_json = json.loads(api_response)
-                seen_labels = set()
-                for hint in response_json["hints"]:
-                    food_info = hint["food"]
-                    measures = hint["measures"]
-                    label = food_info["label"]
-                    if label not in seen_labels:
-                        seen_labels.add(label)
-                        for measure in measures:
-                            if measure["label"] == "Gram":  # Filter for measures in grams
-                                parsed_data.append({
-                                    "label": label,
-                                    "food_id": food_info["foodId"],
-                                    "serving_uri": measure["uri"]
-                                })
-        else:
-            parsed_data = None
-        food_list = parsed_data
-        return render_template("lookup_results.html", food_items = food_list)
-    else:
-        return render_template("lookup.html")
+    return response, 200
 
-@app.route("/lookup_results", methods=["GET", "POST"])
-def lookup_results():
+@app.route("/profile", methods=["GET", "POST"])
+@jwt_required()
+def profile():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
+
     if request.method == "POST":
-        uri = request.form["serving_uri"]
-        food_id = request.form["food_id"]
-        # Define the URL and headers
-        url = 'https://api.edamam.com/api/food-database/v2/nutrients'
-        headers = {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
+        data = request.get_json()
 
-        # Define the payload data
-        data = {
-            "ingredients": [
-                {
-                    "quantity": 100,
-                    "measureURI": uri,
-                    "qualifiers": [""],
-                    "foodId": food_id,
-                }
-            ]
-        }
+        # Ensure all required fields are present in the request data
+        required_fields = ["sex", "weight", "heightfeet", "heightinches", "birthday", "activitylevel", "diettype", "goaltype", "targetweight"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"message": f"Missing '{field}'"}), 400
 
-        # Specify the app_id and app_key in the URL parameters
-        params = {
-            'app_id': 'dca363b5',
-            'app_key': '6b400d1db41322ce8fc5cd0e892b418d'
-        }
+        # Ensure none of the fields are empty
+        for field, value in data.items():
+            if value == "":
+                return jsonify({"message": f"Invalid '{field}'"}), 400
 
-        # Send the POST request
-        response = requests.post(url, headers=headers, params=params, json=data)
+        # Validate certain fields using regex
+        if not re.match(r"^\d+$", data["weight"]):
+            return jsonify({"message": "Invalid weight"}), 400
+        if not re.match(r"^\d+$", data["heightfeet"]):
+            return jsonify({"message": "Invalid height feet"}), 400
+        if not re.match(r"^\d+$", data["heightinches"]):
+            return jsonify({"message": "Invalid height inches"}), 400
+        if data["goaltype"] == "loss" and not re.match(r"^\d+$", data["targetweight"]):
+            return jsonify({"message": "Invalid target weight"}), 400
 
-        # Check if the request was successful
-        if response.ok:
-            # Parse the nutrient information from the response
-            nutrients = response.json().get('totalNutrients', {})
-            
-            # Print the parsed nutrient information
-            for nutrient, info in nutrients.items():
-                print(f"{info['label']}: {info['quantity']} {info['unit']}")
-        else:
-            # Print the error message if the request failed
-            print(f"Error: {response.status_code} - {response.reason}")
-        return render_template("lookup_nutrition.html", nutrients = nutrients.items())
-    else:
-        return render_template("lookup_results.html")
+        # Convert target weight to integer if present
+        true_tweight = int(data.get("targetweight", data["weight"]))
 
+        # Update user's profile information based on form data
+        current_user.sex = data["sex"]
+        current_user.weight = data["weight"]
+        h = int(data["heightfeet"])
+        current_user.height = int(data["heightinches"]) + 12 * h
+        current_user.birthday = data["birthday"]
+        current_user.activity_level = data["activitylevel"]
+        current_user.goal_type = data["goaltype"]
+        current_user.goal_weight = true_tweight
+        current_user.maintenance_calories = 0
+        current_user.diet_type = data["diettype"]
 
-@app.route("/recipe_logger", methods=["GET", "POST"])
-def recepie_logger():
-    if request.method == "POST":
-        ingr = request.form["ingredients"]
-        ingredients_list = ingr.split('\n')
-        # Define the URL and headers
-        url = 'https://api.edamam.com/api/nutrition-details'
-        headers = {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
+        commit()
 
-        # Define the payload data
-        data = {
-            "title": "meal",
-            "ingr": ingredients_list,
-            "url": "",
-            "summary": "",
-            "yield": "",
-            "time": "",
-            "img": "",
-            "prep": ""
-        }
+        # Redirect to the home page after successfully updating profile
+        return jsonify({"message": "Profile updated successfully"}), 200
 
-        # Specify the app_id and app_key in the URL parameters
-        params = {
-            'app_id': 'e1148ade',
-            'app_key': 'edb8b2c1e8f7356ab2db349a02ccc13a'
-        }
+    # Handle GET request to retrieve the user's profile
+    return jsonify({
+        "sex": current_user.sex,
+        "weight": current_user.weight,
+        "heightfeet": current_user.height // 12,
+        "heightinches": current_user.height % 12,
+        "birthday": current_user.birthday,
+        "activitylevel": current_user.activity_level,
+        "diettype": current_user.diet_type,
+        "goaltype": current_user.goal_type,
+        "targetweight": current_user.goal_weight
+    }), 200
 
-        # Send the POST request
-        response = requests.post(url, headers=headers, params=params, json=data)
+@app.route("/biometrics", methods=["GET"])
+@jwt_required()
+def biometrics():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
 
-        # Check if the request was successful
-        if response.ok:
-            nutrients = response.json().get('totalNutrients', {})
-        else:
-            # Print the error message if the request failed
-            print(f"Error: {response.status_code} - {response.reason}")
-            return render_template("recipe_logger.html", error = "Recipe unknown")
-        return render_template("recipe_nutrition.html", nutrients = nutrients.items())
-    else:
-        return render_template("recipe_logger.html")
+    # Grab user attributes to use in calculations
+    weight = current_user.weight
+    height = current_user.height
+    activity_level = current_user.activity_level
+    sex = current_user.sex
+    goal_weight = current_user.goal_weight
+    
+    # Age calculation
+    birthday = current_user.birthday
+    today = datetime.today()
+    age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
 
-@app.route("/today", methods=["GET", "POST"])
-def today():
-    if request.method == "GET":
-        meals_today = []
-        cals_left = User[current_user.id].maintenance_calories
-        total_cals = User[current_user.id].maintenance_calories
-        user_meals = Meal.select(lambda m: m.user == current_user)
-        for m in user_meals:
-            print(m.date.date())
-            if m.date.date() == datetime.now().date():
-                meals_today.append(m)
-        for m in meals_today:
-            cals_left -= m.calories
-        return render_template("today.html", total_cals=total_cals, cals_left=cals_left, meals=meals_today)
-    else:
-        return render_template("today.html")
+    # Calculate BMR (Basal Metabolic Rate)
+    bmr = int(calculate_bmr(weight, height, age, sex))
 
+    # Calculate TDEE (Total Daily Energy Expenditure)
+    tdee = int(calculate_tdee(bmr, activity_level))
 
+    # Calculate weeks needed to reach weight goal
+    weeks_to_goal = calculate_goal_weight_loss(weight, goal_weight)
 
-# Run the Flask application if this script is executed directly
+    # Calculate average daily calories under the weight loss plan
+    daily_calories = calculate_daily_calories(weight, height, age, sex, activity_level)
+
+    # Calculate macronutrient ratios for each weight loss goal
+    diet_type = current_user.diet_type
+    carbs_calories_0_5lb, fats_calories_0_5lb, protein_calories_0_5lb = calculate_macronutrient_ratios(daily_calories[0], diet_type)
+    carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = calculate_macronutrient_ratios(daily_calories[1], diet_type)
+    carbs_calories_2lb, fats_calories_2lb, protein_calories_2lb = calculate_macronutrient_ratios(daily_calories[2], diet_type)
+
+    # Calculate weights for each week based on weight loss rates
+    current_weight = weight
+    goal_weights_0_5lb = [current_weight - 0.5 * i for i in range(weeks_to_goal[0] + 1)]
+    goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal[1] + 1)]
+    goal_weights_2lb = [current_weight - 2 * i for i in range(weeks_to_goal[2] + 1)]
+    max_weeks = max(weeks_to_goal) + 1  
+    x_labels = [f"Week {i}" for i in range(max_weeks)]
+
+    # Update user's maintenance calories in the database
+    current_user.maintenance_calories = tdee
+    commit()
+
+    # Prepare JSON response
+    response = {
+        "user": current_username,
+        "bmr": bmr,
+        "tdee": tdee,
+        "age": age,
+        "weeks_to_goal": weeks_to_goal,
+        "daily_calories": daily_calories,
+        "goal_weights_0_5lb": goal_weights_0_5lb,
+        "goal_weights_1lb": goal_weights_1lb,
+        "goal_weights_2lb": goal_weights_2lb,
+        "x_labels": x_labels,
+        "carbs_calories_0_5lb": carbs_calories_0_5lb,
+        "fats_calories_0_5lb": fats_calories_0_5lb,
+        "protein_calories_0_5lb": protein_calories_0_5lb,
+        "carbs_calories_1lb": carbs_calories_1lb,
+        "fats_calories_1lb": fats_calories_1lb,
+        "protein_calories_1lb": protein_calories_1lb,
+        "carbs_calories_2lb": carbs_calories_2lb,
+        "fats_calories_2lb": fats_calories_2lb,
+        "protein_calories_2lb": protein_calories_2lb
+    }
+
+    return jsonify(response)
+
+# To check which user is currently logged in via access token when user logs in
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
