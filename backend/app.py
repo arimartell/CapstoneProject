@@ -401,6 +401,70 @@ def add_meal():
 
     return jsonify({"message": "Meal added successfully"}), 201
 
+@app.route("/staple_meal", methods=["POST"])
+@jwt_required()
+def staple_meal():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
+
+    # Create lists of staple meals and their macros
+    macro_list = [
+        ["Egg", 66, 0.6, 4.6, 1.3, 0, 0.3, 0.3, 6.4, 0.2, 1],
+        ["Bagel", 245, 47.9, 1.5, 0, 0.4, 4.02, 6, 10, 0.43, 1],
+        ["Chicken", 198, 0, 4.3, 1.2, 0, 0, 0, 37, 0.089, 120],
+        ["Steak", 614, 0, 41, 16, 0, 0, 0, 58, 0.115, 221],
+        ["Bread", 72, 13, 0.9, 0.2, 0, 0.7, 1.5, 2.4, 0.132, 1],
+        ["Rice", 205, 45, 0.4, 0.1, 0, 0.6, 0.1, 4.3, 0.0016, 158]
+    ]
+
+    # Get data from the request
+    data = request.get_json()
+
+    # Parse meal data from request
+    meal_list = [
+        int(data["eggs"]),
+        int(data["bagel"]),
+        int(data["chicken"]),
+        int(data["steak"]),
+        int(data["bread"]),
+        int(data["rice"]),
+    ]
+
+    # Create new meal obj to add macro count from each staple item to
+    new_meal = Meal(
+        name="Meal",
+        calories=0.0,
+        carbs=0.0,
+        total_fat=0.0,
+        sat_fat=0.0,
+        trans_fat=0.0,
+        carbs_fiber=0.0,
+        carbs_sugar=0.0,
+        protein=0.0,
+        sodium=0.0,
+        user=current_user,
+        date=datetime.now()
+    )
+
+    # Parse through each staple input and extract macros to add to total
+    for index, value in enumerate(meal_list):
+        if value > 0:
+            serving_size = value / macro_list[index][10]
+            new_meal.calories += macro_list[index][1] * serving_size
+            new_meal.carbs += macro_list[index][2] * serving_size
+            new_meal.total_fat += macro_list[index][3] * serving_size
+            new_meal.sat_fat += macro_list[index][4] * serving_size
+            new_meal.trans_fat += macro_list[index][5] * serving_size
+            new_meal.carbs_fiber += macro_list[index][6] * serving_size
+            new_meal.carbs_sugar += macro_list[index][7] * serving_size
+            new_meal.protein += macro_list[index][8] * serving_size
+            new_meal.sodium += macro_list[index][9] * serving_size
+
+    # Commit the new meal to the database
+    db.commit()
+
+    return jsonify({"message": "Staple meal added successfully"}), 201
+
 # To check which user is currently logged in via access token when user logs in
 @app.route("/protected", methods=["GET"])
 @jwt_required()
