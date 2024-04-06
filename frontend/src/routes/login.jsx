@@ -1,20 +1,67 @@
 //* Created by: Ariana Martell
 import { Link } from 'react-router-dom';
-import { motion, useIsPresent } from 'framer-motion';
 import SwipeAnimation from '../components/swipe';
 import { useEffect } from 'react';
+import { notify } from '../toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.title = 'Login';
+
+
+    // Grab needed elements
+    const subBtn = document.getElementById('loginbutton');
+    const form = document.getElementById('loginform');
+
+    // Prevents default browser behaviour of reloading the page whenever you submit a form
+    form.onsubmit = (e) => {
+      e.preventDefault();
+    };
+
+    
+    async function login() {
+      try {
+        // Try logging in via backend with form
+        const loginAttempt = await fetch('/api/login', {
+          method: 'post',
+          body: new FormData(form),
+        });
+
+        const ok = loginAttempt.ok;
+        const body = await loginAttempt.json();
+        if (!ok) {
+          const { message } = body;
+          notify(message, 'erorr');
+          return;
+        }
+
+        if (loginAttempt.ok) {
+          const { access_token } = body;
+          localStorage.setItem('token', access_token);
+          notify('Login Success!', 'success');
+          setTimeout(() => {
+            navigate('/profile');
+          }, 1500);
+        }
+      } catch (e) {
+        notify('Login failed!', 'error');
+      }
+    }
+
+    subBtn.onclick = async () => {
+      await login();
+    };
   }, []);
-  
+
   return (
     <>
       <SwipeAnimation />
       <div className="size-full min-h-screen flex justify-center items-center">
         <form
-          action="/login"
+          id="loginform"
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
         >
           <h3 className="text-4xl font-bold shingo">Login</h3>
@@ -48,7 +95,9 @@ export default function Login() {
             </div>
           </label>
 
-          <button className="btn btn-primary w-full max-w-sm">Login</button>
+          <button id="loginbutton" className="btn btn-primary w-full max-w-sm">
+            Login
+          </button>
           {/* Create An Account link*/}
           <span className="italic text-info">
             <a className="link link-info text-sm" href="#">

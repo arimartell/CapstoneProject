@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM, { createRoot } from 'react-dom/client';
 import './index.css';
-import { createRef } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  redirect,
+} from 'react-router-dom';
 import Root from './routes/root';
 import Meal from './routes/meal';
 import Login from './routes/login';
@@ -13,51 +16,63 @@ import Dashboard from './routes/dashboard';
 import Lookup from './routes/lookup';
 import Staple from './routes/staple';
 import Graph from './routes/graph';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+
+// Removed unused ref, replaced with boolean to decide whether route is protected
 export const routes = [
   {
     path: '/login',
     element: <Login />,
-    nodeRef: createRef(),
+    protected: false,
   },
   {
     path: '/meal',
     element: <Meal />,
-    nodeRef: createRef(),
+    protected: true,
   },
   {
     path: '/signup',
     element: <Signup />,
-    nodeRef: createRef(),
+    protected: false,
   },
   {
     path: '/profile',
     element: <Profile />,
-    nodeRef: createRef(),
+    protected: true,
   },
   {
     path: '/resetpassword',
     element: <ResetPassword />,
-    nodeRef: createRef(),
+    protected: false,
   },
   {
     path: '/dashboard',
     element: <Dashboard />,
-    nodeRef: createRef(),
+    protected: true,
   },
   {
     path: '/lookup',
     element: <Lookup />,
+    protected: true,
   },
   {
     path: '/staple',
     element: <Staple />,
+    protected: true,
   },
   {
     path: '/graph',
-    element: <Graph />
-  }
+    element: <Graph />,
+    protected: true,
+  },
 ];
+
+// Check if token in client localstorage
+export function getToken() {
+  return localStorage.getItem('token') ?? null;
+}
 
 const router = createBrowserRouter([
   {
@@ -67,6 +82,18 @@ const router = createBrowserRouter([
       index: route.path === '/',
       path: route.path === '/' ? undefined : route.path,
       element: route.element,
+      // https://reactrouter.com/en/main/route/loader
+      // Function that's run on every route, using this to protect routes from users who aren't logged in
+      loader: () => {
+        if (route.protected) {
+          const loggedIn = getToken();
+          if (!loggedIn) {
+            throw redirect('/login');
+          }
+        }
+
+        return {};
+      },
     })),
   },
 ]);
@@ -77,6 +104,7 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
+    <ToastContainer />
   </React.StrictMode>,
 );
 

@@ -2,8 +2,21 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import SwipeAnimation from '../components/swipe';
+import { getToken } from '../main';
+
+export async function loader() {
+  // Get token
+  const t = getToken()
+
+  // Fetch profile using token & await below
+
+
+  // Return profile data here
+  return {};
+}
 
 export default function Profile() {
+  // const { profile } = useLoaderData();
   useEffect(() => {
     document.title = 'Profile';
   }, []);

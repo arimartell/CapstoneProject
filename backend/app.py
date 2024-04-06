@@ -44,9 +44,8 @@ def home():
 
 @app.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    login_identifier = data.get("login_identifier")
-    password = data.get("password")
+    login_identifier = request.form["username"]
+    password = request.form["password"]
 
     # Check if login_identifier is email or username
     user = User.get(email=login_identifier) or User.get(username=login_identifier)
@@ -56,6 +55,18 @@ def login():
 
     access_token = create_access_token(identity=user.username)
     return jsonify(access_token=access_token), 200
+    # data = request.get_json()
+    # login_identifier = data.get("login_identifier")
+    # password = data.get("password")
+
+    # # Check if login_identifier is email or username
+    # user = User.get(email=login_identifier) or User.get(username=login_identifier)
+
+    # if not user or not check_password_hash(user.password, password):
+    #     return jsonify({"message": "Invalid username or password"}), 401
+
+    # access_token = create_access_token(identity=user.username)
+    # return jsonify(access_token=access_token), 200
 
 @app.route("/signup", methods=["POST"])
 def signup():
