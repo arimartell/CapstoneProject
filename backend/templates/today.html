@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Today</title>
+    <style>
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Goal cals for the day: {{ total_cals }}</h1>
+    <h1>Total cals for the day: {{ total_cals - cals_left }}</h1>
+    <h1>Cals remaining: {{ cals_left }}</h1>
+    <h1>Meals so far: </h1>
+    <ul>
+        {% for meal in meals %}
+            <li>{{ meal.name }}</li>
+            <li>{{ meal.calories }} cals</li>
+            <br> 
+        {% endfor %}
+    </ul>
+</body>
+</html>
