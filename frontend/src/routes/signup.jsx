@@ -1,15 +1,60 @@
+import { Link } from 'react-router-dom';
 import SwipeAnimation from '../components/swipe';
 import { useEffect } from 'react';
+import { notify } from '../toast';
+import { useNavigate } from 'react-router-dom';
 //* Created by: Ariana Martell
 export default function Signup() {
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = 'Sign up';
+
+    // Grab needed elements
+    const subBtn = document.getElementById('signupbutton');
+    const form = document.getElementById('signupform');
+
+    // Prevents default browser behaviour of reloading the page whenever you submit a form
+    form.onsubmit = (e) => {
+      e.preventDefault();
+    };
+
+    async function signup() {
+      try {
+        const signupAttempt = await fetch('/api/signup', {
+          method: 'post',
+          body: new FormData(form),
+        });
+        const ok = signupAttempt.ok;
+        const body = await signupAttempt.json();
+        if (!ok) {
+          const { message } = body;
+          notify(message, 'error');
+          return;
+        }
+
+        if (signupAttempt.ok) {
+          const { access_token } = body;
+          localStorage.setItem('token', access_token);
+          notify('You Created An Account!', 'success');
+          setTimeout(() => {
+            navigate('/profile');
+          }, 1500);
+        }
+      } catch (e) {
+        notify('Account Creation Failed', 'error');
+      }
+    }
+    subBtn.onclick = async () => {
+      await signup();
+    };
   }, []);
+
   return (
     <>
       <SwipeAnimation />
       <div className=" size-full min-h-screen flex justify-center items-center flex-col">
         <form
+          id="signupform"
           action="/signup"
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
         >
@@ -69,7 +114,7 @@ export default function Signup() {
             />
           </label>
 
-          <button className="btn btn-primary w-full max-w-sm">
+          <button id="signupbutton" className="btn btn-primary w-full max-w-sm">
             Create Account
           </button>
         </form>

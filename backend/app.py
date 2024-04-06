@@ -70,12 +70,12 @@ def login():
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    data = request.get_json()
-    username = data.get("username")
-    email = data.get("email")
-    confirm_email = data.get("confirm_email")
-    password = data.get("password")
-    confirm_password = data.get("confirm_password")
+    # data = request.get_json()
+    username = request.form["username"]; 
+    email = request.form["email"]
+    confirm_email = request.form["confirm_email"]
+    password = request.form["password"]
+    confirm_password = request.form["confirm_password"]
 
     # Check if any required field is missing
     if not all([username, email, confirm_email, password, confirm_password]):
