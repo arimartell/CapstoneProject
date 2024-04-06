@@ -194,7 +194,7 @@ def profile():
         data = request.get_json()
 
         # Ensure all required fields are present in the request data
-        required_fields = ["sex", "weight", "heightfeet", "heightinches", "birthday", "activitylevel", "diettype", "goaltype", "targetweight"]
+        required_fields = ["sex", "weight", "heightfeet", "heightinches", "birthday", "activiFtylevel", "diettype", "goaltype", "targetweight"]
         for field in required_fields:
             if field not in data:
                 return jsonify({"message": f"Missing '{field}'"}), 400

@@ -29,7 +29,7 @@ export default function Graph() {
         <div className="hero bg-base-200 min-h-[20vh]">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl font-bold shingo">Your Progress and Data page</div>
+              <div className="text-5xl text-nowrap font-bold shingo">Your Progress page</div>
             </div>
           </div>
         </div>
@@ -37,10 +37,10 @@ export default function Graph() {
         <section class="size-full px-12 flex justify-center items-center flex-col space-y-16 py-4">
 
           <div>
-            <p className="mt-12 text-xl font-bold">Goal</p>
+            <p className="mt-12 sm:mt-32 md:mt-32 xl:mt-40 lg:mt-32 2xl:mt-32  text-xl font-bold ">Goal</p>
             <div className="relative flex justify-center items-center">
               <progress
-                class="progress progress-accent w-56 h-6"
+                class="progress progress-accent w-80 h-6"
                 value="70"
                 max="100"
               ></progress>

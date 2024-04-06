@@ -11,10 +11,10 @@ export default function Staple() {
     <>
       <SwipeAnimation />
       <div className="size-full min-h-screen flex flex-col justify-center items-center">
-        <div className="hero bg-base-200 min-h-[20vh]">
+        <div className="hero bg-base-200 ">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl font-bold shingo">Add a staple food</div>
+              <div className="text-5xl font-bold shingo md:shrink-0">Add a staple food</div>
               <p className=" text-2xl py-4">Here you can quickly add a common staple food</p>
             </div>
           </div>
@@ -22,17 +22,17 @@ export default function Staple() {
 
         <form
           action="/login"
-          className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md"
+          className="flex w-full flex-col justify-center py-8 items-center h-full space-y-4 max-w-md"
         >
 
-          {/* //! Meal Calories Input */}
+          {/* //! Egg Input */}
           <label className="form-control gap-2 w-full">
             <input
               className="input input-bordered w-full"
               type="number"
               min={0}
               name="eggs"
-              placeholder="Eggs* (kcal)"
+              placeholder="Eggs (kcal)"
             />
           </label>
 
@@ -91,38 +91,7 @@ export default function Staple() {
             />
           </label>
 
-          {/* //! Sugars Input */}
-          <label className="form-control gap-2 w-full">
-            <input
-              className="input input-bordered w-full"
-              type="number"
-              name="carbs_sugar"
-              min={0}
-              placeholder="Sugars (g)"
-            />
-          </label>
 
-          {/* //! Protein Input */}
-          <label className="form-control gap-2 w-full">
-            <input
-              className="input input-bordered w-full"
-              type="number"
-              name="protein"
-              min={0}
-              placeholder="Protein* (g)"
-            />
-          </label>
-
-          {/* //! Sodium Input */}
-          <label className="form-control gap-2 w-full">
-            <input
-              className="input input-bordered w-full"
-              type="number"
-              name="sodium"
-              min={0}
-              placeholder="Sodium (mg)"
-            />
-          </label>
 
           <button className="btn btn-primary w-full max-w-sm">Submit</button>
         </form>

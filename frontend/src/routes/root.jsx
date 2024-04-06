@@ -51,7 +51,7 @@ export default function Root() {
             </li>
             <li>
               <Link to="/graph">
-                <span className="text-2xl shingo">Graphs</span>
+                <span className="text-2xl shingo">Progress</span>
               </Link>
             </li>
             <li>

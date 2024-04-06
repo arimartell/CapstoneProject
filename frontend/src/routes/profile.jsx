@@ -16,8 +16,8 @@ export default function Profile() {
   return (
     <>
       <SwipeAnimation />
-      <div className="w-full min-h-screen flex flex-col justify-center items-center">
-        <div className="hero bg-base-200 h-full">
+      <div className="w-full min-h-screen flex flex-col justify-stretch items-center">
+        <div className="hero bg-base-200 h-full min-h-[20vh]">
           <div className="hero-content text-center">
             <div className="max-w-md">
               <div className="text-5xl font-bold shingo">Profile Page</div>
