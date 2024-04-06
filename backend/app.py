@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
 from pony.orm import commit
-from models import db, User
+from models import db, User, Meal, Staple_meal
 import string
 import re
 from datetime import timedelta, datetime
@@ -38,26 +38,30 @@ def is_password_complex(password: string) -> bool:
         return False
     return True
 
+def has_filled_out_profile(current_user):
+    if not current_user:
+        return False
+
+    if (
+        current_user.unit_type == "" or
+        current_user.sex == "" or
+        current_user.weight == 0 or
+        current_user.height == 0 or
+        current_user.activity_level == "" or
+        current_user.goal_type == ""
+    ):
+        return False
+    else:
+        return True
+    
 @app.route("/")
 def home():
     return jsonify(message="Welcome to the home page")
 
 @app.route("/login", methods=["POST"])
 def login():
-    login_identifier = request.form["username"]
-    password = request.form["password"]
-
-    # Check if login_identifier is email or username
-    user = User.get(email=login_identifier) or User.get(username=login_identifier)
-
-    if not user or not check_password_hash(user.password, password):
-        return jsonify({"message": "Invalid username or password"}), 401
-
-    access_token = create_access_token(identity=user.username)
-    return jsonify(access_token=access_token), 200
-    # data = request.get_json()
-    # login_identifier = data.get("login_identifier")
-    # password = data.get("password")
+    # login_identifier = request.form["username"]
+    # password = request.form["password"]
 
     # # Check if login_identifier is email or username
     # user = User.get(email=login_identifier) or User.get(username=login_identifier)
@@ -68,14 +72,27 @@ def login():
     # access_token = create_access_token(identity=user.username)
     # return jsonify(access_token=access_token), 200
 
+    data = request.get_json()
+    login_identifier = data.get("login_identifier")
+    password = data.get("password")
+
+    # Check if login_identifier is email or username
+    user = User.get(email=login_identifier) or User.get(username=login_identifier)
+
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"message": "Invalid username or password"}), 401
+
+    access_token = create_access_token(identity=user.username)
+    return jsonify(access_token=access_token), 200
+
 @app.route("/signup", methods=["POST"])
 def signup():
-    # data = request.get_json()
-    username = request.form["username"]; 
-    email = request.form["email"]
-    confirm_email = request.form["confirm_email"]
-    password = request.form["password"]
-    confirm_password = request.form["confirm_password"]
+    data = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    confirm_email = data.get("confirm_email")
+    password = data.get("password")
+    confirm_password = data.get("confirm_password")
 
     # Check if any required field is missing
     if not all([username, email, confirm_email, password, confirm_password]):
@@ -330,6 +347,59 @@ def biometrics():
     }
 
     return jsonify(response)
+
+@app.route("/meal", methods=["POST"])
+@jwt_required()
+def add_meal():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
+
+    data = request.get_json()
+
+    # Ensure fields are not missing
+    required_fields = ["name", "calories", "carbs", "total_fat", "protein"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"message": f"Missing '{field}'"}), 400
+
+    # Ensure fields are not empty
+    for field, value in data.items():
+        if value == "":
+            return jsonify({"message": f"Invalid '{field}'"}), 400
+
+    # Validation so input can only be digits for all fields except name
+    numeric_fields = ["calories", "carbs", "total_fat", "protein"]
+    for field in numeric_fields:
+        if not data[field].isdigit():
+            return jsonify({"message": f"Invalid '{field}'"}), 400
+
+    # Optional fields based on model
+    optional_fields = {}
+    optional_field_names = ["sat_fat", "trans_fat", "carbs_fiber", "carbs_sugar", "sodium"]
+    for field_name in optional_field_names:
+        if field_name in data and data[field_name] != "":
+            optional_fields[field_name] = data[field_name]
+
+    # Create a new meal object
+    new_meal = Meal(
+        name=data["name"],
+        calories=float(data["calories"]),
+        carbs=float(data["carbs"]),
+        total_fat=float(data["total_fat"]),
+        protein=float(data["protein"]),
+        user=current_user,
+        date=datetime.now(),
+        **optional_fields
+    )
+
+    # Check if the user has filled out their profile
+    if not has_filled_out_profile(current_user):
+        return jsonify({"message": "Profile not filled out"}), 400
+
+    # Commit the new meal to the database
+    db.commit()
+
+    return jsonify({"message": "Meal added successfully"}), 201
 
 # To check which user is currently logged in via access token when user logs in
 @app.route("/protected", methods=["GET"])
