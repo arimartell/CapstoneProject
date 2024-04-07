@@ -2,19 +2,19 @@
 import SwipeAnimation from '../components/swipe';
 import { useEffect } from 'react';
 
-export default function ResetPassword() {
+export default function ForgotPassword() {
   useEffect(() => {
-    document.title = 'Reset Password';
+    document.title = 'Forgot Password';
   }, []);
   return (
     <>
       <SwipeAnimation />
       <div className=" size-full min-h-screen flex justify-center items-center flex-col">
         <form
-          action="/resetpassword"
+          action="/forgotpassword"
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
         >
-          <h3 className="text-4xl font-bold shingo">Reset Your Password</h3>
+          <h3 className="text-4xl font-bold shingo">Enter Email</h3>
 
           {/* Email Input */}
           <label className="form-control gap-2 w-full">
