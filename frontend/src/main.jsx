@@ -11,7 +11,7 @@ import Meal from './routes/meal';
 import Login from './routes/login';
 import Signup from './routes/signup';
 import Profile from './routes/profile';
-import ResetPassword from './routes/resetpassword';
+import ForgotPassword from './routes/forgotpassword';
 import Dashboard from './routes/dashboard';
 import Lookup from './routes/lookup';
 import Staple from './routes/staple';
@@ -43,8 +43,8 @@ export const routes = [
     protected: true,
   },
   {
-    path: '/resetpassword',
-    element: <ResetPassword />,
+    path: '/forgotpassword',
+    element: <ForgotPassword />,
     protected: false,
   },
   {

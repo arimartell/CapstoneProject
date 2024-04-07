@@ -90,7 +90,7 @@ export default function Login() {
             <div className="label">
               <span className="label-text-alt italic text-info">
                 <a className="link link-info text-sm" href="#">
-                  <Link to="/resetpassword" className="link link-info text-sm">
+                  <Link to="/forgotpassword" className="link link-info text-sm">
                     Forgot Password?
                   </Link>
                 </a>
