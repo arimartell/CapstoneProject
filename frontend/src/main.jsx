@@ -12,6 +12,7 @@ import Login from './routes/login';
 import Signup from './routes/signup';
 import Profile from './routes/profile';
 import ForgotPassword from './routes/forgotpassword';
+import ResetPassword from './routes/resetpassword';
 import Dashboard from './routes/dashboard';
 import Lookup from './routes/lookup';
 import Staple from './routes/staple';
@@ -46,6 +47,11 @@ export const routes = [
     path: '/forgotpassword',
     element: <ForgotPassword />,
     protected: false,
+  },
+  {
+    path: '/resetpassword',
+    element: <ResetPassword />,
+    protected: true,
   },
   {
     path: '/dashboard',

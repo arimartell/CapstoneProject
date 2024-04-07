@@ -1,4 +1,4 @@
-//* Created by: Ariana Martell
+//* Created by: Ariana Martell + Tabshir Ahmed
 import { Link } from 'react-router-dom';
 import SwipeAnimation from '../components/swipe';
 import { useEffect } from 'react';

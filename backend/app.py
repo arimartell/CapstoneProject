@@ -151,14 +151,10 @@ def forgot_password():
     session["verification_code"] = verification_code
     session["email"] = email
 
-    # Generate a short-lived access token for resetting password
-    access_token = create_access_token(identity=email, expires_delta=timedelta(minutes=15))
-
-    # Return success message along with the access token for reset-password
-    return jsonify({"message": "Verification code sent successfully", "access_token": access_token}), 200
+    # Return success message
+    return jsonify({"message": "Verification code sent successfully"}), 200
 
 @app.route("/reset-password", methods=["POST"])
-@jwt_required()
 def reset_password():
     data = request.get_json()
     verification_code = data.get("verification_code")
@@ -194,11 +190,8 @@ def reset_password():
     session.pop("verification_code", None)
     session.pop("email", None)
 
-    # Remove access token generated from forgot-password route
-    response = jsonify({"message": "Password reset successful"})
-    response.delete_cookie("access_token")
-    
-    return response, 200
+    # Return success message
+    return jsonify({"message": "Password reset successful"}), 200
 
 @app.route("/profile", methods=["GET", "POST"])
 @jwt_required()
