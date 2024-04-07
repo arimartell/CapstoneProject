@@ -16,6 +16,7 @@ import Dashboard from './routes/dashboard';
 import Lookup from './routes/lookup';
 import Staple from './routes/staple';
 import Graph from './routes/graph';
+import Recipe from './routes/recipe';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -65,6 +66,11 @@ export const routes = [
   {
     path: '/graph',
     element: <Graph />,
+    protected: true,
+  },
+  {
+    path: '/recipe',
+    element: <Recipe />,
     protected: true,
   },
 ];
