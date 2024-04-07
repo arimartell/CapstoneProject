@@ -24,29 +24,32 @@ export default function Login() {
     
     async function login() {
       try {
-        // Try logging in via backend with form
+        const formData = new FormData(form);
+        const loginData = {
+          login_identifier: formData.get('login_identifier'),
+          password: formData.get('password')
+        };
+    
         const loginAttempt = await fetch('/api/login', {
           method: 'post',
-          body: new FormData(form),
+          headers: { // Important for server to identify JSON data
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify(loginData)
         });
-
-        const ok = loginAttempt.ok;
-        const body = await loginAttempt.json();
-        if (!ok) {
-          const { message } = body;
-          notify(message, 'erorr');
+    
+        if (!loginAttempt.ok) {
+          const { message } = await loginAttempt.json();
+          notify(message, 'error');
           return;
         }
-
-        if (loginAttempt.ok) {
-          const { access_token } = body;
-          localStorage.setItem('token', access_token);
-          notify('Login Success!', 'success');
-          setTimeout(() => {
-            navigate('/profile');
-          }, 1500);
-        }
-      } catch (e) {
+    
+        const { access_token } = await loginAttempt.json();
+        localStorage.setItem('token', access_token);
+        notify('Login Success!', 'success');
+        
+        navigate('/profile');
+      } catch (error) {
         notify('Login failed!', 'error');
       }
     }
@@ -65,13 +68,13 @@ export default function Login() {
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
         >
           <h3 className="text-4xl font-bold shingo">Login</h3>
-          {/* Username Input */}
+          {/* Login Identifier Input */}
           <label className="form-control gap-2 w-full">
             <input
               className="input input-bordered w-full"
               type="text"
-              name="username"
-              placeholder="Username"
+              name="login_identifier" // I tweaked the two lines to indicate login by Username or Email instead of just Username
+              placeholder="Username or Email"
             />
           </label>
 
