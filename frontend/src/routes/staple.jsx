@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
 import SwipeAnimation from '../components/swipe';
+import egg from "../egg.png";
+import bagel from "../bagel.png";
+import chicken from "../chicken.png";
+import steak from "../steak.png";
+import bread from "../bread.png"
+import rice from "../rice.png"
 
 //* Created by: Ariana Martell
 export default function Staple() {
@@ -14,8 +20,12 @@ export default function Staple() {
         <div className="hero bg-base-200 ">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl font-bold shingo md:shrink-0">Add a staple food</div>
-              <p className=" text-2xl py-4">Here you can quickly add a common staple food</p>
+              <div className="text-5xl font-bold shingo md:shrink-0">
+                Add a staple food
+              </div>
+              <p className="text-2xl py-4">
+                Here you can quickly add a common staple food
+              </p>
             </div>
           </div>
         </div>
@@ -24,74 +34,77 @@ export default function Staple() {
           action="/login"
           className="flex w-full flex-col justify-center py-8 items-center h-full space-y-4 max-w-md"
         >
-
           {/* //! Egg Input */}
-          <label className="form-control gap-2 w-full">
+          <label className="flex justify-around flex-row items-center form-control gap-2 w-full">
+          <img src={egg} className='w-8 h-8'/>
             <input
               className="input input-bordered w-full"
               type="number"
               min={0}
               name="eggs"
-              placeholder="Eggs (kcal)"
+              placeholder="Eggs"
             />
           </label>
 
-          {/* //! Meal Carbs Input */}
-          <label className="form-control gap-2 w-full">
+          {/* //! Bagel Input */}
+          <label className="flex justify-around flex-row form-control gap-2 w-full">
+          <img src={bagel} className='w-8 h-8'/>
             <input
               className="input input-bordered w-full"
               type="number"
-              name="carbs"
+              name="bagel"
               min={0}
-              placeholder="Carbs* (g)"
+              placeholder="Bagel"
             />
           </label>
 
-          {/* //! Meal Carbs Input */}
-          <label className="form-control gap-2 w-full">
+          {/* //! Chicken Input */}
+          <label className=" flex justify-around flex-row form-control gap-2 w-full">
+          <img src={chicken} className='w-8 h-8'/>
             <input
               className="input input-bordered w-full"
               type="number"
-              name="total_fat"
+              name="chicken"
               min={0}
-              placeholder="Total Fat* (g)"
+              placeholder="Chicken (120g)"
             />
           </label>
 
-          {/* //! Saturated Fat Input */}
-          <label className="form-control gap-2 w-full">
+          {/* //! Steak Input */}
+          <label className="flex justify-around flex-row form-control gap-2 w-full">
+          <img src={steak} className='w-8 h-8'/>
             <input
               className="input input-bordered w-full"
               type="number"
-              name="sat_fat"
+              name="steak"
               min={0}
-              placeholder="Saturated Fat (g)"
+              placeholder="Steak (220g)"
             />
           </label>
 
-          {/* //! Trans Fat Input */}
-          <label className="form-control gap-2 w-full">
+          {/* //! Bread Input */}
+          <label className="flex justify-around flex-row form-control gap-2 w-full">
+          <img src={bread} className='w-8 h-8'/>
             <input
               className="input input-bordered w-full"
               type="number"
               name="trans_fat"
               min={0}
-              placeholder="Trans Fat (g)"
+              placeholder="Bread (1 slice)"
             />
           </label>
 
-          {/* //! Fiber Input */}
-          <label className="form-control gap-2 w-full">
+          {/* //! Rice Input */}
+          <label className="flex justify-around flex-row form-control gap-2 w-full">
+          <img src={rice} className='w-8 h-8'/>
             <input
               className="input input-bordered w-full"
               type="number"
-              name="carbs_fiber"
+              name="Rice"
               min={0}
-              placeholder="Fiber (g)"
+              placeholder="Rice (160g)"
             />
           </label>
-
-
 
           <button className="btn btn-primary w-full max-w-sm">Submit</button>
         </form>

@@ -11,8 +11,7 @@ import React from 'react';
 export default function Root() {
   const location = useLocation();
   const currentOutlet = useOutlet();
-  //   const { nodeRef } =
-  //     routes.find((route) => route.path === location.pathname) ?? {};
+
   return (
     <>
       {/* Navbar */}
@@ -57,6 +56,11 @@ export default function Root() {
             <li>
               <Link to="/lookup">
                 <span className="text-2xl shingo">Lookup Food</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/recipe">
+                <span className="text-2xl shingo">Recipe Lookup</span>
               </Link>
             </li>
           </ul>
