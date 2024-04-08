@@ -26,10 +26,10 @@ export default function Graph() {
     <>
       <SwipeAnimation />
       <div className="size-full min-h-screen flex flex-col items-center">
-        <div className="hero bg-base-200 min-h-[20vh]">
+        <div className="hero bg-base-200 min-h-[20vh] md:w-[96rem] xl:[90rem] sm:w-[60rem] xs:w-[90rem]">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl text-nowrap font-bold shingo">Your Progress page</div>
+              <div className="text-5xl text-nowrap font-bold shingo">Your Progress Page</div>
             </div>
           </div>
         </div>

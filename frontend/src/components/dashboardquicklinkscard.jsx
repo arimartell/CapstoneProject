@@ -58,7 +58,7 @@ export default function QuickCard({ title }) {
           <p className="py-4">Press ESC key or click on ✕ button to close</p>
         </div>
       </dialog>
-      <div className="card w-[30cqw] min-w-lg m-5 bg-neutral shadow-2xl">
+      <div className="card w-[42cqw] min-w-lg m-5 bg-neutral shadow-2xl">
         <div className="card-body">
           <h2 className="mb-2 card-title justify-center text-lg xl:text-4xl">
             {title}
@@ -70,7 +70,7 @@ export default function QuickCard({ title }) {
               </span>
               <select
                 onChange={handleChoice}
-                className="select w-full select-accent join-item"
+                className="select w-full  select-accent join-item"
               >
                 <option value="" disabled selected>
                   Log a meal
