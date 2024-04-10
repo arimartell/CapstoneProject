@@ -6,7 +6,7 @@ from pony.flask import Pony
 from pony.orm import commit
 from models import db, User, Meal, Staple_meal
 import string
-import re
+import requests
 from datetime import timedelta, datetime
 from email_verif_code import *
 from calculations import *
@@ -451,6 +451,54 @@ def staple_meal():
     db.commit()
 
     return jsonify({"message": "Staple meal added successfully"}), 201
+
+@app.route("/recipe", methods=["POST"])
+@jwt_required()
+def recipe():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid request"}), 400
+
+    ingredients_list = data.get("ingredients", "").split('\n')
+
+    # Define the URL and headers
+    url = 'https://api.edamam.com/api/nutrition-details'
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+
+    # Define the payload data
+    data = {
+        "title": "meal",
+        "ingr": ingredients_list,
+        "url": "",
+        "summary": "",
+        "yield": "",
+        "time": "",
+        "img": "",
+        "prep": ""
+    }
+
+    # Specify the app_id and app_key in the URL parameters
+    params = {
+        'app_id': 'e1148ade',
+        'app_key': 'edb8b2c1e8f7356ab2db349a02ccc13a'
+    }
+
+    # Send the POST request
+    response = requests.post(url, headers=headers, params=params, json=data)
+
+    # Check if the request was successful
+    if response.ok:
+        nutrients = response.json().get('totalNutrients', {})
+        return jsonify({"nutrients": nutrients}), 200
+    else:
+        # Print the error message if the request failed
+        print(f"Error: {response.status_code} - {response.reason}")
+        return jsonify({"error": "Recipe unknown"}), 500
+
+
 
 # To check which user is currently logged in via access token when user logs in
 @app.route("/protected", methods=["GET"])

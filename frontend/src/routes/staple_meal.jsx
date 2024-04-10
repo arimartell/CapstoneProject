@@ -8,6 +8,7 @@ import steak from "../steak.png";
 import bread from "../bread.png";
 import rice from "../rice.png";
 
+//* Created by: Luca Burlacu
 export default function Staple() {
     useEffect(() => {
         document.title = 'Staple';
