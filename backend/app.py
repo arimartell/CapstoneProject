@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, session, make_response
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
@@ -11,6 +12,7 @@ from email_verif_code import *
 from calculations import *
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = "some secret blah blah"
 app.config["JWT_SECRET_KEY"] = "jwt_secret_key"
 jwt = JWTManager(app)
@@ -401,14 +403,18 @@ def staple_meal():
     # Get data from the request
     data = request.get_json()
 
+    def get_int_value(key):
+        """Convert the value to integer, default to 0 if not a valid number."""
+        return int(data.get(key, 0)) if data.get(key, '').isdigit() else 0
+
     # Parse meal data from request
     meal_list = [
-        int(data["eggs"]),
-        int(data["bagel"]),
-        int(data["chicken"]),
-        int(data["steak"]),
-        int(data["bread"]),
-        int(data["rice"]),
+        get_int_value("eggs"),
+        get_int_value("bagel"),
+        get_int_value("chicken"),
+        get_int_value("steak"),
+        get_int_value("bread"),
+        get_int_value("rice"),
     ]
 
     # Create new meal obj to add macro count from each staple item to
