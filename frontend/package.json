@@ -10,6 +10,7 @@
     "format": "prettier . --write --ignore-unknown"
   },
   "dependencies": {
+    "axios": "^1.6.8",
     "chart.js": "^4.4.2",
     "framer-motion": "^11.0.22",
     "localforage": "^1.10.0",
@@ -40,6 +41,6 @@
     "postcss": "^8.4.36",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
-    "vite": "^5.1.6"
+    "vite": "^5.2.8"
   }
 }

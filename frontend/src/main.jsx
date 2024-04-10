@@ -15,7 +15,7 @@ import ForgotPassword from './routes/forgotpassword';
 import ResetPassword from './routes/resetpassword';
 import Dashboard from './routes/dashboard';
 import Lookup from './routes/lookup';
-import Staple from './routes/staple';
+import Staple from './routes/staple_meal';
 import Graph from './routes/graph';
 import Recipe from './routes/recipe';
 import { ToastContainer } from 'react-toastify';
