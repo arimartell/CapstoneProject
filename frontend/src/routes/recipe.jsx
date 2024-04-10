@@ -54,7 +54,12 @@ export default function Recipe() {
                     >
                         <textarea
                             className="textarea textarea-success items-center h-48 xs:w-[20rem] md:w-[40rem] sm:w-[40rem] xl:w-[48rem]"
-                            placeholder="Enter ingredients on separate lines"
+                            placeholder="Enter ingredients on separate lines
+For example: 
+1 cup rice
+2 chicken breasts
+300g broccoli
+                            "
                             name="ingredients"
                             value={formData.ingredients}
                             onChange={handleChange}
