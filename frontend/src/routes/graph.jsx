@@ -26,16 +26,15 @@ export default function Graph() {
     <>
       <SwipeAnimation />
       <div className="size-full min-h-screen flex flex-col items-center">
-        <div className="hero bg-base-200 min-h-[20vh] md:w-[96rem] xl:[90rem] sm:w-[60rem] xs:w-[90rem]">
+        <div className="hero bg-base-200 min-h-[20vh] w-full min-w-[100vw]">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl text-nowrap font-bold shingo">Your Progress Page</div>
+              <div className="text-3xl xl:text-5xl text-nowrap font-bold shingo">Your Progress Page</div>
             </div>
           </div>
         </div>
 
-        <section class="size-full px-12 flex justify-center items-center flex-col space-y-16 py-4">
-
+        <section class="size-full px-12 flex justify-center items-center flex-col space-y-16 py-4 my-8">
           <div>
             <p className="mt-12 sm:mt-32 md:mt-32 xl:mt-40 lg:mt-32 2xl:mt-32  text-xl font-bold ">Goal</p>
             <div className="relative flex justify-center items-center">

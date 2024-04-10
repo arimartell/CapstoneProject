@@ -45,7 +45,7 @@ export default function Dashboard() {
             <Chart type="doughnut" data={data} />
           </div>
           {/* Adjusted container to display QuickCards in a row */}
-          <div className=" min-w-lg text-4xl font-bold shingo quick-add-container flex flex-col md:flex-row flex-wrap justify-center items-center">
+          <div className="w-full px-8 text-4xl font-bold shingo quick-add-container flex flex-col md:flex-row flex-wrap justify-center items-center">
             {/* QuickCards */}
             {/* Adjust margin as needed */}
             <QuickCard title={'Breakfast'} className="mb-20" />

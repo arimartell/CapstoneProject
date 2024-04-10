@@ -145,7 +145,7 @@ export default function Staple() {
                         />
                     </label>
 
-                    <button className="btn btn-primary w-full max-w-sm">Submit</button>
+                    <button id="staplesubmit" className="btn btn-primary w-full max-w-sm">Submit</button>
                 </form>
             </div>
         </>
