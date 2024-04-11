@@ -1,63 +1,74 @@
 import { useState } from 'react';
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
 import QuickCard from '../components/dashboardquicklinkscard';
 import SwipeAnimation from '../components/swipe';
-import 'chart.js/auto';
-import { Chart } from 'react-chartjs-2';
 
 export default function Dashboard() {
-  useEffect(() => {
-    document.title = 'Dashboard';
-  }, []);
+    const [dashboardData, setDashboardData] = useState({
+        cals_left: 0,
+        protein_left: 0,
+        total_cals: 0,
+        total_protein: 0
+    });
+    const [showSummary, setShowSummary] = useState(false);
 
-  const data = {
-    labels: ['Red', 'Blue', 'Yellow'],
-    datasets: [
-      {
-        label: 'My First Dataset',
-        data: [300, 50, 100],
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgb(255, 205, 86)',
-        ],
-        hoverOffset: 4,
-      },
-    ],
-  };
-  return (
-    <>
-      <SwipeAnimation />
-      <div className="size-full flex flex-col items-center min-w-lg">
-        <div className="hero bg-base-200 min-h-[20vh]">
-          <div className="hero-content text-center">
-            <div className="max-w-xl">
-              <div className="text-5xl font-bold shingo">
-                Record what you've eaten today
-              </div>
+    const fetchAndShowSummary = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post('http://127.0.0.1:5000/dashboard', {
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            setDashboardData(response.data);
+            setShowSummary(true); // Show summary after fetching data
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+            setShowSummary(false); // Hide summary if there's an error
+        }
+    };
+
+    return (
+        <>
+            <SwipeAnimation />
+            <div className="size-full flex flex-col items-center min-w-lg">
+                <div className="hero bg-base-200 min-h-[20vh]">
+                    <div className="hero-content text-center">
+                        <div className="max-w-xl">
+                            <div className="text-5xl font-bold">
+                                Record what you've eaten today
+                            </div>
+                            <button 
+                                className="mt-4 p-2 bg-blue-500 text-white rounded"
+                                onClick={fetchAndShowSummary}
+                            >
+                                {showSummary ? 'Refresh' : 'Show'} Nutrition Summary
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="w-full px-8 text-4xl font-bold quick-add-container flex flex-col md:flex-row flex-wrap justify-center items-center">
+                    <QuickCard title={'Breakfast'} className="mb-20" />
+                    <QuickCard title={'Lunch'} />
+                    <QuickCard title={'Dinner'} />
+                    <QuickCard title={'Snacks'} />
+                </div>
+
+                {showSummary && (
+                    <section className="size-full flex flex-col justify-evenly items-center">
+                        <div className="text-center mt-8">
+                            <h2 className="text-2xl font-bold mb-4">Nutrition Summary</h2>
+                            <p>Total Calories: {dashboardData.total_cals}</p>
+                            <p>Calories Left: {dashboardData.cals_left}</p>
+                            <p>Total Protein: {dashboardData.total_protein}g</p>
+                            <p>Protein Left: {dashboardData.protein_left}g</p>
+                        </div>
+                    </section>
+                )}
             </div>
-          </div>
-        </div>
-
-        <section className="size-full flex flex-col justify-evenly items-center">
-          <div className="max-w-xl text-white">
-            <Chart type="doughnut" data={data} />
-          </div>
-          {/* Adjusted container to display QuickCards in a row */}
-          <div className="w-full px-8 text-4xl font-bold shingo quick-add-container flex flex-col md:flex-row flex-wrap justify-center items-center">
-            {/* QuickCards */}
-            {/* Adjust margin as needed */}
-            <QuickCard title={'Breakfast'} className="mb-20" />
-            {/* Adjust margin as needed */}
-            <QuickCard title={'Lunch'} />
-            {/* Adjust margin as needed */}
-            <QuickCard title={'Dinner'} />
-            {/* Adjust margin as needed */}
-            <QuickCard title={'Snacks'} />
-          </div>
-        </section>
-      </div>
-    </>
-  );
+        </>
+    );
 }

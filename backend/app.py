@@ -258,6 +258,38 @@ def profile():
         "targetweight": current_user.goal_weight
     }), 200
 
+@app.route("/dashboard", methods=["POST"])
+@jwt_required()
+def dashboard():
+
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username) 
+    meals_today = []
+
+    if current_user.diet_type == "regular":
+        current_user.protein_goal = current_user.weight * .35
+    elif current_user.diet_type == "ketogenic" or current_user.diet_type == "low_fat" or current_user.diet_type == "low_carb":
+        current_user.protein_goal = current_user.weight * .8
+    elif current_user.diet_type == "high_protein":
+        current_user.protein_goal = current_user.weight 
+
+    cals_left = total_cals = User[current_user.id].maintenance_calories
+    protein_left = total_protein = User[current_user.id].protein_goal 
+
+    user_meals = Meal.select(lambda m: m.user == current_user)
+    for m in user_meals:
+        print(m.date.date())
+        if m.date.date() == datetime.now().date():
+            meals_today.append(m)
+    for m in meals_today:
+        cals_left -= m.calories
+        protein_left -= m.protein
+    return jsonify({"cals_left": cals_left,
+                    "protein_left": protein_left,
+                    "total_cals": total_cals,
+                    "total_protein": total_protein}), 200
+
+
 @app.route("/biometrics", methods=["GET"])
 @jwt_required()
 def biometrics():
@@ -488,7 +520,6 @@ def recipe():
 
     # Send the POST request
     response = requests.post(url, headers=headers, params=params, json=data)
-
     # Check if the request was successful
     if response.ok:
         nutrients = response.json().get('totalNutrients', {})
