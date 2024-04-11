@@ -3,51 +3,49 @@ import SwipeAnimation from '../components/swipe';
 import { useEffect } from 'react';
 import { notify } from '../toast';
 import { useNavigate } from 'react-router-dom';
-//* Created by: Ariana Martell
+//* Created by: Ariana Martell + Tabshir Ahmed
 export default function Signup() {
   const navigate = useNavigate();
-  useEffect(() => {
-    document.title = 'Sign up';
 
-    // Grab needed elements
-    const subBtn = document.getElementById('signupbutton');
-    const form = document.getElementById('signupform');
-
-    // Prevents default browser behaviour of reloading the page whenever you submit a form
-    form.onsubmit = (e) => {
-      e.preventDefault();
-    };
-
-    async function signup() {
-      try {
-        const signupAttempt = await fetch('/api/signup', {
-          method: 'post',
-          body: new FormData(form),
-        });
-        const ok = signupAttempt.ok;
-        const body = await signupAttempt.json();
-        if (!ok) {
-          const { message } = body;
-          notify(message, 'error');
-          return;
-        }
-
-        if (signupAttempt.ok) {
-          const { access_token } = body;
-          localStorage.setItem('token', access_token);
-          notify('You Created An Account!', 'success');
-          setTimeout(() => {
-            navigate('/profile');
-          }, 1500);
-        }
-      } catch (e) {
-        notify('Account Creation Failed', 'error');
+  async function signup(formData) {
+    try {
+      const signupAttempt = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      const body = await signupAttempt.json();
+      if (!signupAttempt.ok) {
+        const { message } = body;
+        notify(message, 'error');
+        return;
       }
+
+      const { access_token } = body;
+      localStorage.setItem('token', access_token);
+      notify('You Created An Account!', 'success');
+      setTimeout(() => {
+        navigate('/profile');
+      }, 1500);
+    } catch (e) {
+      notify('Account Creation Failed', 'error');
     }
-    subBtn.onclick = async () => {
-      await signup();
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = {
+      username: form.username.value,
+      email: form.email.value,
+      confirm_email: form.confirm_email.value,
+      password: form.password.value,
+      confirm_password: form.confirm_password.value,
     };
-  }, []);
+    await signup(formData);
+  };
 
   return (
     <>
@@ -55,8 +53,8 @@ export default function Signup() {
       <div className=" size-full min-h-screen flex justify-center items-center flex-col">
         <form
           id="signupform"
-          action="/signup"
           className="flex w-full flex-col justify-center items-center h-full space-y-4 max-w-md"
+          onSubmit={handleSubmit}
         >
           <h3 className="text-4xl font-bold shingo">Create an account</h3>
           {/* Username Input */}

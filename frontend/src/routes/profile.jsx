@@ -1,26 +1,37 @@
-//* Created by: Ariana Martell
 import { useState } from 'react';
-import { useEffect } from 'react';
+import axios from 'axios';
 import SwipeAnimation from '../components/swipe';
 import { getToken } from '../main';
-
-export async function loader() {
-  // Get token
-  const t = getToken()
-
-  // Fetch profile using token & await below
-
-
-  // Return profile data here
-  return {};
-}
-
+import { useNavigate } from 'react-router-dom';
+//* Created by: Tabshir Ahmed
 export default function Profile() {
-  // const { profile } = useLoaderData();
-  useEffect(() => {
-    document.title = 'Profile';
-  }, []);
+  const navigate = useNavigate();
   const [goalType, setGoalType] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = getToken();
+      const formData = new FormData(e.target);
+      const jsonData = {};
+      formData.forEach((value, key) => {
+        jsonData[key] = value;
+      });
+  
+      const response = await axios.post('http://127.0.0.1:5000/profile', jsonData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(response.data.message);
+      // Navigate to dashboard upon successful submission
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+  
 
   const onGoalChange = (e) => {
     setGoalType(e.target.value);
@@ -42,10 +53,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <form
-          action="/login"
-          className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md"
-        >
+        <form onSubmit={handleSubmit} className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md">
           {/* TODO: UNIT TYPE!!!, NEEDS INPUT */}
           <input type="hidden" name="unittype" value="imperial" readOnly />
 
@@ -123,6 +131,20 @@ export default function Profile() {
               </option>
               <option value="heavy">Heavy (Excercise 6-7 days per week)</option>
               <option value="extreme">Extreme (Excercise 2 times daily)</option>
+            </select>
+          </label>
+
+          {/* Diet type */}
+          <label className="form-control gap-2 w-full">
+            <select name="diettype" className="select select-bordered">
+              <option disabled selected>
+                Choose your diet type
+              </option>
+              <option value="regular">Regular (40% Carbs, 30% Fats, 30% Protein)</option>
+              <option value="ketogenic">Ketogenic (10% Carbs, 70% Fats, 20% Protein)</option>
+              <option value="low_fat">Low Fat (60% Carbs, 20% Fats, 20% Protein)</option>
+              <option value="low_carb">Low Carb (20% Carbs, 55% Fats, 25% Protein)</option>
+              <option value="high_protein">High Protein (40% Carbs, 10% Fats, 50% Protein)</option>
             </select>
           </label>
 
