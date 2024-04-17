@@ -11,7 +11,6 @@ export default function Login() {
   useEffect(() => {
     document.title = 'Login';
 
-
     // Grab needed elements
     const subBtn = document.getElementById('loginbutton');
     const form = document.getElementById('loginform');
@@ -21,34 +20,39 @@ export default function Login() {
       e.preventDefault();
     };
 
-    
     async function login() {
       try {
         const formData = new FormData(form);
         const loginData = {
           login_identifier: formData.get('login_identifier'),
-          password: formData.get('password')
+          password: formData.get('password'),
         };
-    
+
         const loginAttempt = await fetch('/api/login', {
           method: 'post',
-          headers: { // Important for server to identify JSON data
-            'Content-Type': 'application/json' 
+          headers: {
+            // Important for server to identify JSON data
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(loginData)
+          body: JSON.stringify(loginData),
         });
-    
+
         if (!loginAttempt.ok) {
           const { message } = await loginAttempt.json();
           notify(message, 'error');
           return;
         }
-    
-        const { access_token } = await loginAttempt.json();
+
+        const response = await loginAttempt.json();
+        const { access_token, isFirstLogin } = response;
         localStorage.setItem('token', access_token);
         notify('Login Success!', 'success');
-        
-        navigate('/profile');
+        // Navigate to profile if first time user otherwise goes to dashboard
+        if (isFirstLogin) {
+          navigate('/profile');
+        } else {
+          navigate('/dashboard');
+        }
       } catch (error) {
         notify('Login failed!', 'error');
       }
