@@ -21,7 +21,6 @@ export default function Meal() {
         </div>
 
         <form
-          action="/login"
           className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md"
         >
           {/* //! Meal Name Input */}
@@ -30,7 +29,7 @@ export default function Meal() {
               className="input input-bordered w-full"
               type="text"
               name="name"
-              placeholder="Name *"
+              placeholder="Name*"
             />
           </label>
 

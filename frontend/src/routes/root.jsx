@@ -1,13 +1,39 @@
 //* Created by: Ariana Martell
 // import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import { useLocation, useOutlet, Outlet, Link } from 'react-router-dom';
+import {
+  useLocation,
+  useOutlet,
+  Outlet,
+  Link,
+  useNavigate,
+} from 'react-router-dom';
 import { AnimatePresence, motion, useIsPresent } from 'framer-motion';
 import React from 'react';
 
 // Good resource for messing with react router stuff
 // https://reactrouter.com/en/main/start/tutorial
 // Note a bunch of stuff here is unused, will prune things later, leaving in case needed
+function LogoutButton() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Clear the token
+    navigate('/login'); // Navigate to login
+  };
 
+  return (
+
+      <button
+        id="logout"
+        onClick={handleLogout}
+        className={isLoginPage ? 'hidden' : 'btn btn-primary absolute right-8 top-4'}
+      >
+        Logout
+      </button>
+
+  );
+}
 export default function Root() {
   const location = useLocation();
   const currentOutlet = useOutlet();
@@ -32,12 +58,6 @@ export default function Root() {
             className="drawer-overlay"
           ></label>
           <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-            <li>
-              {/*Link tag for client side render*/}
-              <Link to="/login">
-                <span className="text-2xl shingo">Login</span>
-              </Link>
-            </li>
             <li>
               <Link to="/profile">
                 <span className="text-2xl shingo">Profile</span>
@@ -65,6 +85,9 @@ export default function Root() {
             </li>
           </ul>
         </div>
+      </div>
+      <div>
+        <LogoutButton />
       </div>
       <AnimatePresence mode="wait">
         {React.cloneElement(currentOutlet, { key: location.pathname })}
