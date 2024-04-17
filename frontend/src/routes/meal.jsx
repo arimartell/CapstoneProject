@@ -1,12 +1,53 @@
 import { useEffect } from 'react';
 import SwipeAnimation from '../components/swipe';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+
 
 //* Created by: Ariana Martell
 export default function Meal() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.title = 'Meal';
   }, []);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const formData = new FormData(e.target);
+    const jsonData = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+
+    try {
+      const response = await axios.post(
+        'http://127.0.0.1:5000/meal',
+        jsonData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      console.log(response.data.message);
+      toast.success('Meal saved successfully!');
+      navigate('/meal');
+    } catch (error) {
+      if (error.response) {
+        const message =
+          error.response.data.message || 'An unexpected server error occurred.';
+        toast.error(message);
+      } else if (error.request) {
+        toast.error('No response from server.');
+      } else {
+        toast.error('Error: ' + error.message);
+      }
+    }
+  };
   return (
     <>
       <SwipeAnimation />
@@ -22,6 +63,7 @@ export default function Meal() {
 
         <form
           className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md"
+          onSubmit={handleSubmit}
         >
           {/* //! Meal Name Input */}
           <label className="form-control gap-2 w-full">
