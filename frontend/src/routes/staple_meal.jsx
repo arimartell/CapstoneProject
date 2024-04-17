@@ -7,6 +7,7 @@ import chicken from "../chicken.png";
 import steak from "../steak.png";
 import bread from "../bread.png";
 import rice from "../rice.png";
+import { toast } from 'react-toastify';
 
 //* Created by: Luca Burlacu
 export default function Staple() {
@@ -40,10 +41,10 @@ export default function Staple() {
                     Authorization: `Bearer ${token}`  // Use the token in the Authorization header
                 }
             });
-            alert('Staple meal added successfully');
+            toast.success('Staple meal added successfully');
         } catch (error) {
             console.error('Error adding staple meal:', error);
-            alert('Error adding staple meal');
+            toast.error('Error adding staple meal');
         }
     };
 

@@ -32,6 +32,7 @@ export default function Profile() {
       );
       console.log(response.data.message);
       // Navigate to dashboard upon successful submission
+      toast.success('Profile saved successfully!');
       navigate('/dashboard');
       // Toastify popup with error message from backend validations 
     } catch (error) {

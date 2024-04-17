@@ -381,13 +381,15 @@ def add_meal():
     required_fields = ["name", "calories", "carbs", "total_fat", "protein"]
     for field in required_fields:
         if field not in data or data[field] in (None, ""):
-            return jsonify({"message": f"Missing '{field}'"}), 400
+            return jsonify({"message": f"Please fill out all required fields"}), 400
 
     # Validation so input can only be digits for all fields except name
     numeric_fields = ["calories", "carbs", "total_fat", "protein"]
     for field in numeric_fields:
-        if not data[field].isdigit():
-            return jsonify({"message": f"Invalid '{field}'"}), 400
+        try:
+            data[field] = float(data[field])
+        except ValueError:
+            return jsonify({"message": "Please enter a valid number"}), 400
 
     # Optional fields based on model
     optional_fields = {}
