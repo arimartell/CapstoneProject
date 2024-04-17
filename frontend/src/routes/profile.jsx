@@ -3,6 +3,8 @@ import axios from 'axios';
 import SwipeAnimation from '../components/swipe';
 import { getToken } from '../main';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 //* Created by: Tabshir Ahmed
 export default function Profile() {
   const navigate = useNavigate();
@@ -17,21 +19,32 @@ export default function Profile() {
       formData.forEach((value, key) => {
         jsonData[key] = value;
       });
-  
-      const response = await axios.post('http://127.0.0.1:5000/profile', jsonData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+
+      const response = await axios.post(
+        'http://127.0.0.1:5000/profile',
+        jsonData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
       console.log(response.data.message);
       // Navigate to dashboard upon successful submission
       navigate('/dashboard');
+      // Toastify popup with error message from backend validations 
     } catch (error) {
-      console.error('Error updating profile:', error);
+      if (error.response) {
+        const message = error.response.data.message || "An unexpected server error occurred.";
+        toast.error(message);
+      } else if (error.request) {
+        toast.error("No response from server.");
+      } else {
+        toast.error("Error: " + error.message);
+      }
     }
   };
-  
 
   const onGoalChange = (e) => {
     setGoalType(e.target.value);
@@ -53,7 +66,10 @@ export default function Profile() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md">
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col justify-start py-8 items-center h-full space-y-4 max-w-md"
+        >
           {/* TODO: UNIT TYPE!!!, NEEDS INPUT */}
           <input type="hidden" name="unittype" value="imperial" readOnly />
 
@@ -140,11 +156,21 @@ export default function Profile() {
               <option disabled selected>
                 Choose your diet type
               </option>
-              <option value="regular">Regular (40% Carbs, 30% Fats, 30% Protein)</option>
-              <option value="ketogenic">Ketogenic (10% Carbs, 70% Fats, 20% Protein)</option>
-              <option value="low_fat">Low Fat (60% Carbs, 20% Fats, 20% Protein)</option>
-              <option value="low_carb">Low Carb (20% Carbs, 55% Fats, 25% Protein)</option>
-              <option value="high_protein">High Protein (40% Carbs, 10% Fats, 50% Protein)</option>
+              <option value="regular">
+                Regular (40% Carbs, 30% Fats, 30% Protein)
+              </option>
+              <option value="ketogenic">
+                Ketogenic (10% Carbs, 70% Fats, 20% Protein)
+              </option>
+              <option value="low_fat">
+                Low Fat (60% Carbs, 20% Fats, 20% Protein)
+              </option>
+              <option value="low_carb">
+                Low Carb (20% Carbs, 55% Fats, 25% Protein)
+              </option>
+              <option value="high_protein">
+                High Protein (40% Carbs, 10% Fats, 50% Protein)
+              </option>
             </select>
           </label>
 

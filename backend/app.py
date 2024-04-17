@@ -206,15 +206,20 @@ def profile():
         data = request.get_json()
 
         # Ensure all required fields are present in the request data
-        required_fields = ["sex", "weight", "heightfeet", "heightinches", "birthday", "activitylevel", "diettype", "goaltype", "targetweight"]
+        required_fields = ["sex", "weight", "heightfeet", "heightinches", "birthday", "activitylevel", "diettype", "goaltype"]
+
+        # Add targetweight to required fields if goaltype is weight loss
+        if data.get('goaltype') == 'loss':
+            required_fields.append('targetweight')
+            
         for field in required_fields:
             if field not in data:
-                return jsonify({"message": f"Missing '{field}'"}), 400
+                return jsonify({"message": f"Missing {field}"}), 400
 
         # Ensure none of the fields are empty
         for field, value in data.items():
             if value == "":
-                return jsonify({"message": f"Invalid '{field}'"}), 400
+                return jsonify({"message": f"Invalid {field}"}), 400
 
         # Validate certain fields using regex
         if not re.match(r"^\d+$", data["weight"]):
