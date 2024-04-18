@@ -20,7 +20,7 @@ import Graph from './routes/graph';
 import Recipe from './routes/recipe';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { getRecentMeals } from './services/mealpageloader';
 
 // Removed unused ref, replaced with boolean to decide whether route is protected
 export const routes = [
@@ -96,14 +96,21 @@ const router = createBrowserRouter([
       element: route.element,
       // https://reactrouter.com/en/main/route/loader
       // Function that's run on every route, using this to protect routes from users who aren't logged in
-      loader: () => {
+      loader: async () => {
         if (route.protected) {
           const loggedIn = getToken();
           if (!loggedIn) {
+            console.log('Not logged in, redirecting...');
             throw redirect('/login');
           }
+          if (route.path == '/dashboard') {
+            const recent = await getRecentMeals(loggedIn);
+            return recent;
+          }
+
+          return {};
         }
-        
+
         return {};
       },
     })),

@@ -1,6 +1,12 @@
 from flask import Flask, jsonify, request, session, make_response
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+    unset_jwt_cookies,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
 from pony.orm import commit
@@ -20,6 +26,7 @@ jwt = JWTManager(app)
 db.bind(provider="sqlite", filename="main.db3", create_db=True)
 db.generate_mapping(create_tables=True)
 Pony(app)
+
 
 def is_password_complex(password: string) -> bool:
     """
@@ -41,25 +48,28 @@ def is_password_complex(password: string) -> bool:
         return False
     return True
 
+
 def has_filled_out_profile(current_user):
     if not current_user:
         return False
 
     if (
-        current_user.unit_type == "" or
-        current_user.sex == "" or
-        current_user.weight == 0 or
-        current_user.height == 0 or
-        current_user.activity_level == "" or
-        current_user.goal_type == ""
+        current_user.unit_type == ""
+        or current_user.sex == ""
+        or current_user.weight == 0
+        or current_user.height == 0
+        or current_user.activity_level == ""
+        or current_user.goal_type == ""
     ):
         return False
     else:
         return True
-    
+
+
 @app.route("/")
 def home():
     return jsonify(message="Welcome to the home page")
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -76,6 +86,7 @@ def login():
     access_token = create_access_token(identity=user.username)
     return jsonify(access_token=access_token), 200
 
+
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
@@ -87,7 +98,14 @@ def signup():
 
     # Check if any required field is missing
     if not all([username, email, confirm_email, password, confirm_password]):
-        return jsonify({"message": "All fields (username, email, confirm_email, password, confirm_password) are required"}), 400
+        return (
+            jsonify(
+                {
+                    "message": "All fields (username, email, confirm_email, password, confirm_password) are required"
+                }
+            ),
+            400,
+        )
 
     # Check if username exists in database
     existing_user = User.get(username=username)
@@ -113,7 +131,14 @@ def signup():
 
     # Check password complexity
     if not is_password_complex(password):
-        return jsonify({"message": "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"}), 400
+        return (
+            jsonify(
+                {
+                    "message": "Password must be at least 8 characters long and contain at least one alphabet letter, one number, and one special character"
+                }
+            ),
+            400,
+        )
 
     # Hash the password
     hashed_password = generate_password_hash(password)
@@ -124,6 +149,7 @@ def signup():
 
     access_token = create_access_token(identity=user.username)
     return jsonify(access_token=access_token), 200
+
 
 @app.route("/logout", methods=["POST"])
 @jwt_required()
@@ -156,6 +182,7 @@ def forgot_password():
 
     # Return success message
     return jsonify({"message": "Verification code sent successfully"}), 200
+
 
 @app.route("/reset-password", methods=["POST"])
 def reset_password():
@@ -196,6 +223,7 @@ def reset_password():
     # Return success message
     return jsonify({"message": "Password reset successful"}), 200
 
+
 @app.route("/profile", methods=["GET", "POST"])
 @jwt_required()
 def profile():
@@ -206,12 +234,21 @@ def profile():
         data = request.get_json()
 
         # Ensure all required fields are present in the request data
-        required_fields = ["sex", "weight", "heightfeet", "heightinches", "birthday", "activitylevel", "diettype", "goaltype"]
+        required_fields = [
+            "sex",
+            "weight",
+            "heightfeet",
+            "heightinches",
+            "birthday",
+            "activitylevel",
+            "diettype",
+            "goaltype",
+        ]
 
         # Add targetweight to required fields if goaltype is weight loss
-        if data.get('goaltype') == 'loss':
-            required_fields.append('targetweight')
-            
+        if data.get("goaltype") == "loss":
+            required_fields.append("targetweight")
+
         for field in required_fields:
             if field not in data:
                 return jsonify({"message": f"Missing {field}"}), 400
@@ -252,35 +289,45 @@ def profile():
         return jsonify({"message": "Profile updated successfully"}), 200
 
     # Handle GET request to retrieve the user's profile
-    return jsonify({
-        "sex": current_user.sex,
-        "weight": current_user.weight,
-        "heightfeet": current_user.height // 12,
-        "heightinches": current_user.height % 12,
-        "birthday": current_user.birthday,
-        "activitylevel": current_user.activity_level,
-        "diettype": current_user.diet_type,
-        "goaltype": current_user.goal_type,
-        "targetweight": current_user.goal_weight
-    }), 200
+    return (
+        jsonify(
+            {
+                "sex": current_user.sex,
+                "weight": current_user.weight,
+                "heightfeet": current_user.height // 12,
+                "heightinches": current_user.height % 12,
+                "birthday": current_user.birthday,
+                "activitylevel": current_user.activity_level,
+                "diettype": current_user.diet_type,
+                "goaltype": current_user.goal_type,
+                "targetweight": current_user.goal_weight,
+            }
+        ),
+        200,
+    )
+
 
 @app.route("/dashboard", methods=["POST"])
 @jwt_required()
 def dashboard():
 
     current_username = get_jwt_identity()
-    current_user = User.get(username=current_username) 
+    current_user = User.get(username=current_username)
     meals_today = []
 
     if current_user.diet_type == "regular":
-        current_user.protein_goal = current_user.weight * .35
-    elif current_user.diet_type == "ketogenic" or current_user.diet_type == "low_fat" or current_user.diet_type == "low_carb":
-        current_user.protein_goal = current_user.weight * .8
+        current_user.protein_goal = current_user.weight * 0.35
+    elif (
+        current_user.diet_type == "ketogenic"
+        or current_user.diet_type == "low_fat"
+        or current_user.diet_type == "low_carb"
+    ):
+        current_user.protein_goal = current_user.weight * 0.8
     elif current_user.diet_type == "high_protein":
-        current_user.protein_goal = current_user.weight 
+        current_user.protein_goal = current_user.weight
 
     cals_left = total_cals = User[current_user.id].maintenance_calories
-    protein_left = total_protein = User[current_user.id].protein_goal 
+    protein_left = total_protein = User[current_user.id].protein_goal
 
     user_meals = Meal.select(lambda m: m.user == current_user)
     for m in user_meals:
@@ -290,10 +337,17 @@ def dashboard():
     for m in meals_today:
         cals_left -= m.calories
         protein_left -= m.protein
-    return jsonify({"cals_left": cals_left,
-                    "protein_left": protein_left,
-                    "total_cals": total_cals,
-                    "total_protein": total_protein}), 200
+    return (
+        jsonify(
+            {
+                "cals_left": cals_left,
+                "protein_left": protein_left,
+                "total_cals": total_cals,
+                "total_protein": total_protein,
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/biometrics", methods=["GET"])
@@ -308,11 +362,15 @@ def biometrics():
     activity_level = current_user.activity_level
     sex = current_user.sex
     goal_weight = current_user.goal_weight
-    
+
     # Age calculation
     birthday = current_user.birthday
     today = datetime.today()
-    age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
+    age = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
 
     # Calculate BMR (Basal Metabolic Rate)
     bmr = int(calculate_bmr(weight, height, age, sex))
@@ -328,16 +386,22 @@ def biometrics():
 
     # Calculate macronutrient ratios for each weight loss goal
     diet_type = current_user.diet_type
-    carbs_calories_0_5lb, fats_calories_0_5lb, protein_calories_0_5lb = calculate_macronutrient_ratios(daily_calories[0], diet_type)
-    carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = calculate_macronutrient_ratios(daily_calories[1], diet_type)
-    carbs_calories_2lb, fats_calories_2lb, protein_calories_2lb = calculate_macronutrient_ratios(daily_calories[2], diet_type)
+    carbs_calories_0_5lb, fats_calories_0_5lb, protein_calories_0_5lb = (
+        calculate_macronutrient_ratios(daily_calories[0], diet_type)
+    )
+    carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
+        calculate_macronutrient_ratios(daily_calories[1], diet_type)
+    )
+    carbs_calories_2lb, fats_calories_2lb, protein_calories_2lb = (
+        calculate_macronutrient_ratios(daily_calories[2], diet_type)
+    )
 
     # Calculate weights for each week based on weight loss rates
     current_weight = weight
     goal_weights_0_5lb = [current_weight - 0.5 * i for i in range(weeks_to_goal[0] + 1)]
     goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal[1] + 1)]
     goal_weights_2lb = [current_weight - 2 * i for i in range(weeks_to_goal[2] + 1)]
-    max_weeks = max(weeks_to_goal) + 1  
+    max_weeks = max(weeks_to_goal) + 1
     x_labels = [f"Week {i}" for i in range(max_weeks)]
 
     # Update user's maintenance calories in the database
@@ -364,60 +428,100 @@ def biometrics():
         "protein_calories_1lb": protein_calories_1lb,
         "carbs_calories_2lb": carbs_calories_2lb,
         "fats_calories_2lb": fats_calories_2lb,
-        "protein_calories_2lb": protein_calories_2lb
+        "protein_calories_2lb": protein_calories_2lb,
     }
 
     return jsonify(response)
 
-@app.route("/meal", methods=["POST"])
+
+@app.route("/meal", methods=["POST", "GET"])
 @jwt_required()
 def add_meal():
-    current_username = get_jwt_identity()
-    current_user = User.get(username=current_username)
+    if request.method == "POST":
+        current_username = get_jwt_identity()
+        current_user = User.get(username=current_username)
 
-    data = request.get_json()
+        data = request.get_json()
 
-    # Ensure fields are not missing
-    required_fields = ["name", "calories", "carbs", "total_fat", "protein"]
-    for field in required_fields:
-        if field not in data or data[field] in (None, ""):
-            return jsonify({"message": f"Please fill out all required fields"}), 400
+        # Ensure fields are not missing
+        required_fields = ["name", "calories", "carbs", "total_fat", "protein"]
+        for field in required_fields:
+            if field not in data or data[field] in (None, ""):
+                return jsonify({"message": f"Please fill out all required fields"}), 400
 
-    # Validation so input can only be digits for all fields except name
-    numeric_fields = ["calories", "carbs", "total_fat", "protein"]
-    for field in numeric_fields:
-        try:
-            data[field] = float(data[field])
-        except ValueError:
-            return jsonify({"message": "Please enter a valid number"}), 400
+        # Validation so input can only be digits for all fields except name
+        numeric_fields = ["calories", "carbs", "total_fat", "protein"]
+        for field in numeric_fields:
+            try:
+                data[field] = float(data[field])
+            except ValueError:
+                return jsonify({"message": "Please enter a valid number"}), 400
 
-    # Optional fields based on model
-    optional_fields = {}
-    optional_field_names = ["sat_fat", "trans_fat", "carbs_fiber", "carbs_sugar", "sodium"]
-    for field_name in optional_field_names:
-        if field_name in data and data[field_name] != "":
-            optional_fields[field_name] = data[field_name]
+        # Optional fields based on model
+        optional_fields = {}
+        optional_field_names = [
+            "sat_fat",
+            "trans_fat",
+            "carbs_fiber",
+            "carbs_sugar",
+            "sodium",
+        ]
+        for field_name in optional_field_names:
+            if field_name in data and data[field_name] != "":
+                optional_fields[field_name] = data[field_name]
 
-    # Create a new meal object
-    new_meal = Meal(
-        name=data["name"],
-        calories=float(data["calories"]),
-        carbs=float(data["carbs"]),
-        total_fat=float(data["total_fat"]),
-        protein=float(data["protein"]),
-        user=current_user,
-        date=datetime.now(),
-        **optional_fields
-    )
+        # Create a new meal object
+        new_meal = Meal(
+            name=data["name"],
+            calories=float(data["calories"]),
+            carbs=float(data["carbs"]),
+            total_fat=float(data["total_fat"]),
+            protein=float(data["protein"]),
+            user=current_user,
+            date=datetime.now(),
+            **optional_fields,
+        )
 
-    # Check if the user has filled out their profile
-    if not has_filled_out_profile(current_user):
-        return jsonify({"message": "Profile not filled out"}), 400
+        # Check if the user has filled out their profile
+        if not has_filled_out_profile(current_user):
+            return jsonify({"message": "Profile not filled out"}), 400
 
-    # Commit the new meal to the database
-    db.commit()
+        # Commit the new meal to the database
+        db.commit()
 
-    return jsonify({"message": "Meal added successfully"}), 201
+        return jsonify({"message": "Meal added successfully"}), 201
+    else:
+        current_username = get_jwt_identity()
+        current_user = User.get(username=current_username)
+        recent_meals_query = Meal.select(lambda m: m.user == current_user)
+        recent_meals = recent_meals_query[:]
+
+        def serialize_except(meal):
+            return {
+                "name": meal.name,
+                "calories": meal.calories,
+                "carbs": meal.carbs,
+                "total_fat": meal.total_fat,
+                "sat_fat": meal.sat_fat,
+                "trans_fat": meal.trans_fat,
+                "carbs_fiber": meal.carbs_fiber,
+                "carbs_sugar": meal.carbs_sugar,
+                "protein": meal.protein,
+                "sodium": meal.sodium,
+            }
+
+        # object_like_recent_meals = []
+        # for meal in recent_meals:
+        #     object_like_recent_meals.append(dict(zip(['name', 'calories', 'carbs'], meal)))
+        # print(recent_meals)
+
+        meal_data = [serialize_except(meal) for meal in recent_meals]
+
+        # if not a POST request direct to meal page template
+        return jsonify(meal_data)
+        # return jsonify({})
+        # return render_template("meal.html", recent=recent_meals)
+
 
 @app.route("/staple_meal", methods=["POST"])
 @jwt_required()
@@ -432,7 +536,7 @@ def staple_meal():
         ["Chicken", 198, 0, 4.3, 1.2, 0, 0, 0, 37, 0.089, 120],
         ["Steak", 614, 0, 41, 16, 0, 0, 0, 58, 0.115, 221],
         ["Bread", 72, 13, 0.9, 0.2, 0, 0.7, 1.5, 2.4, 0.132, 1],
-        ["Rice", 205, 45, 0.4, 0.1, 0, 0.6, 0.1, 4.3, 0.0016, 158]
+        ["Rice", 205, 45, 0.4, 0.1, 0, 0.6, 0.1, 4.3, 0.0016, 158],
     ]
 
     # Get data from the request
@@ -440,7 +544,7 @@ def staple_meal():
 
     def get_int_value(key):
         """Convert the value to integer, default to 0 if not a valid number."""
-        return int(data.get(key, 0)) if data.get(key, '').isdigit() else 0
+        return int(data.get(key, 0)) if data.get(key, "").isdigit() else 0
 
     # Parse meal data from request
     meal_list = [
@@ -465,7 +569,7 @@ def staple_meal():
         protein=0.0,
         sodium=0.0,
         user=current_user,
-        date=datetime.now()
+        date=datetime.now(),
     )
 
     # Parse through each staple input and extract macros to add to total
@@ -487,6 +591,7 @@ def staple_meal():
 
     return jsonify({"message": "Staple meal added successfully"}), 201
 
+
 @app.route("/recipe", methods=["POST"])
 @jwt_required()
 def recipe():
@@ -494,13 +599,13 @@ def recipe():
     if not data:
         return jsonify({"error": "Invalid request"}), 400
 
-    ingredients_list = data.get("ingredients", "").split('\n')
+    ingredients_list = data.get("ingredients", "").split("\n")
 
     # Define the URL and headers
-    url = 'https://api.edamam.com/api/nutrition-details'
+    url = "https://api.edamam.com/api/nutrition-details"
     headers = {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
+        "accept": "application/json",
+        "Content-Type": "application/json",
     }
 
     # Define the payload data
@@ -512,26 +617,22 @@ def recipe():
         "yield": "",
         "time": "",
         "img": "",
-        "prep": ""
+        "prep": "",
     }
 
     # Specify the app_id and app_key in the URL parameters
-    params = {
-        'app_id': 'e1148ade',
-        'app_key': 'edb8b2c1e8f7356ab2db349a02ccc13a'
-    }
+    params = {"app_id": "e1148ade", "app_key": "edb8b2c1e8f7356ab2db349a02ccc13a"}
 
     # Send the POST request
     response = requests.post(url, headers=headers, params=params, json=data)
     # Check if the request was successful
     if response.ok:
-        nutrients = response.json().get('totalNutrients', {})
+        nutrients = response.json().get("totalNutrients", {})
         return jsonify({"nutrients": nutrients}), 200
     else:
         # Print the error message if the request failed
         print(f"Error: {response.status_code} - {response.reason}")
         return jsonify({"error": "Recipe unknown"}), 500
-
 
 
 # To check which user is currently logged in via access token when user logs in
@@ -540,6 +641,7 @@ def recipe():
 def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,12 +1,60 @@
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+//* Created by: Ariana Martell
 
-export default function QuickCard({ title }) {
+// Adds a meal to the user's data on the server.
+async function addMealToUser(meal) {
+  try {
+    const response = await fetch('/api/meal', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      // Converts the `meal` object into a JSON string
+      body: JSON.stringify(meal),
+    });
+
+    if (!response.ok) {
+      toast.error("Failed to add meal");
+      const resp = await response.text();
+      console.log(resp);
+      return;
+    } else {
+      toast.success('Successfully added recent meal!');
+    }
+  } catch (e) {
+    throw e;
+  }
+}
+{/* //! Meal quick add component */}
+function MealForm(meal) {
+  return (
+    <div className="m-2 border-2 border-dashed border-info rounded p-2">
+      <h3 className="text-2xl text-neutral-content mb-2">{meal.name}</h3>
+      <form action="/meal" method="POST">
+        <button
+          className="btn btn-info btn-xs"
+          type="submit"
+          onClick={(e) => {
+            e.preventDefault();
+            addMealToUser(meal);
+          }}
+        >
+          Quick Add
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function QuickCard({ title, recents }) {
   const dialog = useRef(null);
   const navigate = useNavigate();
 
-  const makeRecent = (item) => {
-    return <div>Details here...</div>;
+  const MakeRecent = (items) => {
+    return <>{items.map(MealForm)}</>;
   };
 
   function openDialog() {
@@ -16,14 +64,6 @@ export default function QuickCard({ title }) {
     dialog.current?.close();
   }
 
-  async function fetchRecent() {
-    // await fetch('/getrecent') ...
-    /*
-    const items = fetchresults...
-    const elements = items.map(makeRecent);
-    Then update state with new elements to show in dialog
-    */
-  }
 
   function handleChoice(e) {
     const choice = e.target.value;
@@ -54,8 +94,9 @@ export default function QuickCard({ title }) {
               ✕
             </button>
           </form>
-          <div></div>
-          <p className="py-4">Press ESC key or click on ✕ button to close</p>
+          <p className="py-4 flex flex-row flex-wrap justify-center items-center">
+            {recents.map(MealForm)}
+          </p>
         </div>
       </dialog>
       <div className="card xl:w-[32cqw] xl:mx-5 w-full my-4 bg-neutral shadow-2xl">

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-
 //* Created by: Ariana Martell
 export default function Meal() {
   const navigate = useNavigate();

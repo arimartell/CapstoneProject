@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import SwipeAnimation from '../components/swipe';
-import { getToken } from '../main';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
