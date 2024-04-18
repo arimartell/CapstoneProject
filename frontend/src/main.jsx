@@ -10,7 +10,8 @@ import Root from './routes/root';
 import Meal from './routes/meal';
 import Login from './routes/login';
 import Signup from './routes/signup';
-import Profile from './routes/profile';
+import SetProfile from './routes/setprofile';
+import ViewProfile from './routes/viewprofile';
 import ForgotPassword from './routes/forgotpassword';
 import ResetPassword from './routes/resetpassword';
 import Dashboard from './routes/dashboard';
@@ -40,8 +41,13 @@ export const routes = [
     protected: false,
   },
   {
-    path: '/profile',
-    element: <Profile />,
+    path: '/setprofile',
+    element: <SetProfile />,
+    protected: true,
+  },
+  {
+    path: '/viewprofile',
+    element: <ViewProfile />,
     protected: true,
   },
   {

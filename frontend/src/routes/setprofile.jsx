@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 //* Created by: Tabshir Ahmed
-export default function Profile() {
+export default function SetProfile() {
   const navigate = useNavigate();
   const [goalType, setGoalType] = useState('');
 

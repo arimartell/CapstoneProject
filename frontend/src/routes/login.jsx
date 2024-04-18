@@ -49,7 +49,7 @@ export default function Login() {
         notify('Login Success!', 'success');
         // Navigate to profile if first time user otherwise goes to dashboard
         if (isFirstLogin) {
-          navigate('/profile');
+          navigate('/setprofile');
         } else {
           navigate('/dashboard');
         }
