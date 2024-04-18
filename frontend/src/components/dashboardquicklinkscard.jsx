@@ -17,7 +17,7 @@ async function addMealToUser(meal) {
     });
 
     if (!response.ok) {
-      toast.error("Failed to add meal");
+      toast.error('Failed to add meal');
       const resp = await response.text();
       console.log(resp);
       return;
@@ -28,7 +28,9 @@ async function addMealToUser(meal) {
     throw e;
   }
 }
-{/* //! Meal quick add component */}
+{
+  /* //! Meal quick add component */
+}
 function MealForm(meal) {
   return (
     <div className="m-2 border-2 border-dashed border-info rounded p-2">
@@ -53,9 +55,9 @@ export default function QuickCard({ title, recents }) {
   const dialog = useRef(null);
   const navigate = useNavigate();
 
-  const MakeRecent = (items) => {
-    return <>{items.map(MealForm)}</>;
-  };
+  // const MakeRecent = (items) => {
+  //   return <>{items.map(MealForm)}</>;
+  // };
 
   function openDialog() {
     dialog.current?.showModal();
@@ -63,7 +65,6 @@ export default function QuickCard({ title, recents }) {
   function closeDialog() {
     dialog.current?.close();
   }
-
 
   function handleChoice(e) {
     const choice = e.target.value;
@@ -95,7 +96,11 @@ export default function QuickCard({ title, recents }) {
             </button>
           </form>
           <p className="py-4 flex flex-row flex-wrap justify-center items-center">
-            {recents.map(MealForm)}
+            {recents && recents.length > 0 ? (
+              recents.map(MealForm)
+            ) : (
+              <div> You haven't added any meals yet</div>
+            )}
           </p>
         </div>
       </dialog>
