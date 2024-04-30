@@ -3,6 +3,7 @@ import SwipeAnimation from '../components/swipe';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import Badge from '../components/badge';
 
 //* Created by: Ariana Martell
 export default function Meal() {

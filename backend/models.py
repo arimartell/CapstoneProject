@@ -38,7 +38,7 @@ class Meal(db.Entity):
     carbs_fiber = Optional(float, default=0)
     carbs_sugar = Optional(float, default=0)
     protein = Required(float, default=0)
-    sodium = Optional(float, default=0) 
+    sodium = Optional(float, default=0)
 
 class Staple_meal(db.Entity):
     id = PrimaryKey(int, auto=True)

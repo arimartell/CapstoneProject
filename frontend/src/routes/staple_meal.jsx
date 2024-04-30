@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import SwipeAnimation from '../components/swipe';
-import egg from "../egg.png";
-import bagel from "../bagel.png";
-import chicken from "../chicken.png";
-import steak from "../steak.png";
-import bread from "../bread.png";
-import rice from "../rice.png";
+import egg from "../assests/egg.png";
+import bagel from "../assests/bagel.png";
+import chicken from "../assests/chicken.png";
+import steak from "../assests/steak.png";
+import bread from "../assests/bread.png";
+import rice from "../assests/rice.png";
 import { toast } from 'react-toastify';
 
 //* Created by: Luca Burlacu

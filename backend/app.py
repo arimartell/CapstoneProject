@@ -635,6 +635,19 @@ def recipe():
         return jsonify({"error": "Recipe unknown"}), 500
 
 
+@app.route("/badge/firstmeal", methods=["GET"])
+@jwt_required()
+def badge_firstmeal():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
+    recent_meals_query = Meal.select(lambda m: m.user == current_user)
+    recent_meals = recent_meals_query[:]
+    if len(recent_meals) > 0:
+        return jsonify({"has_badge": True})
+    else:
+        return jsonify({"has_badge": False})
+
+
 # To check which user is currently logged in via access token when user logs in
 @app.route("/protected", methods=["GET"])
 @jwt_required()
