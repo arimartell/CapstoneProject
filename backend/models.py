@@ -19,12 +19,15 @@ class User(db.Entity, UserMixin):
     weight = Optional(int, default=0)          # lbs
     height = Optional(int, default=0)          # inches
     birthday = Optional(datetime)
+    age = Optional(int, default =0)
     activity_level = Optional(str, default="")
     goal_type = Optional(str, default="") # weight loss or weight maintenance
     goal_weight = Optional(int, default=0)
     maintenance_calories = Optional(float, default=0.0)
     protein_goal = Optional(float, default=0.0)
     diet_type = Optional(str, default="")
+    bmr = Optional(float, default =0)
+    tdee = Optional(float, default =0)
 
 class Meal(db.Entity):
     user = Required(User)

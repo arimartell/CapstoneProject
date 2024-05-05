@@ -37,10 +37,13 @@ export default function ViewProfile() {
     return <div>Error: {error || 'Profile data not available'}</div>; // Display error message if there's an error or profile data is not available
   }
 
-  // Function to format date to YYYY-MM-DD
+  // Function to format date to MM/DD/YYYY
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
   };
 
   return (
@@ -61,7 +64,10 @@ export default function ViewProfile() {
         </div>
         <div className="max-w-md text-center mx-auto mt-8">
           <p className="text-xl mb-4"><strong>Sex:</strong> {profileData.sex}</p>
-          <p className="text-xl mb-4"><strong>Birthday:</strong> {formatDate(profileData.birthday)}</p>
+          <p className="text-xl mb-4"><strong>Birthday (MM/DD/YYYY):</strong> {formatDate(profileData.birthday)}</p>
+          <p className="text-xl mb-4"><strong>Age:</strong> {profileData.age}</p>
+          <p className="text-xl mb-4"><strong>Basal Metabolic Rate (BMR):</strong> {profileData.bmr}</p>  
+          <p className="text-xl mb-4"><strong>Total Daily Energy Expenditure (TDEE):</strong> {profileData.tdee}</p>    
           <p className="text-xl mb-4"><strong>Diet Type:</strong> {profileData.diettype}</p>
           <p className="text-xl mb-4"><strong>Goal Type:</strong> {profileData.goaltype}</p>
           <p className="text-xl mb-4"><strong>Height:</strong> {profileData.heightfeet}' {profileData.heightinches}"</p>

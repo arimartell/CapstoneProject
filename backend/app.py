@@ -22,6 +22,8 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = "some secret blah blah"
 app.config["JWT_SECRET_KEY"] = "jwt_secret_key"
+# Set the expiration time for access tokens (1 hour)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 jwt = JWTManager(app)
 db.bind(provider="sqlite", filename="main.db3", create_db=True)
 db.generate_mapping(create_tables=True)
@@ -280,8 +282,25 @@ def profile():
         current_user.activity_level = data["activitylevel"]
         current_user.goal_type = data["goaltype"]
         current_user.goal_weight = true_tweight
-        current_user.maintenance_calories = 0
         current_user.diet_type = data["diettype"]
+
+        # Calculate age
+        birthday = current_user.birthday
+        today = datetime.today()
+        age = (
+            today.year
+            - birthday.year
+            - ((today.month, today.day) < (birthday.month, birthday.day))
+        )
+        current_user.age = age
+
+        # Calculate BMR (Basal Metabolic Rate)
+        bmr = calculate_bmr(current_user.weight, current_user.height, current_user.age, current_user.sex)
+        current_user.bmr = bmr
+
+        # Calculate TDEE (Total Daily Energy Expenditure)
+        tdee = calculate_tdee(bmr, current_user.activity_level)
+        current_user.tdee = tdee
 
         commit()
 
@@ -297,10 +316,13 @@ def profile():
                 "heightfeet": current_user.height // 12,
                 "heightinches": current_user.height % 12,
                 "birthday": current_user.birthday,
+                "age": current_user.age,
                 "activitylevel": current_user.activity_level,
                 "diettype": current_user.diet_type,
                 "goaltype": current_user.goal_type,
                 "targetweight": current_user.goal_weight,
+                "bmr": current_user.bmr,
+                "tdee": current_user.tdee
             }
         ),
         200,

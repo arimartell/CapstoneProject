@@ -3,6 +3,7 @@ import axios from 'axios';
 import SwipeAnimation from '../components/swipe';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { getToken } from '../main';
 
 //* Created by: Tabshir Ahmed
 export default function SetProfile() {

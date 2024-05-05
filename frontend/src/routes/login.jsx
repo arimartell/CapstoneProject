@@ -79,7 +79,7 @@ export default function Login() {
               type="text"
               name="login_identifier" // I tweaked the two lines to indicate login by Username or Email instead of just Username
               placeholder="Username or Email"
-              value={"Ari2"}
+              // value={"Ari2"}
             />
           </label>
 
@@ -90,7 +90,7 @@ export default function Login() {
               type="password"
               name="password"
               placeholder="Password"
-              value={"Test1$$$$"}
+              // value={"Test1$$$$"}
             />
             {/* Forget Password link*/}
             <div className="label">

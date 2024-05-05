@@ -12,7 +12,7 @@ def calculate_bmr(weight, height, age, sex):
         bmr = 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
     elif sex.lower() == 'female':
         bmr = 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
-    return bmr
+    return round(bmr, 2)
 
 def calculate_tdee(bmr, activity_level):
     '''
@@ -34,7 +34,7 @@ def calculate_tdee(bmr, activity_level):
         'heavy': 1.725,
         'extreme': 1.9
     }
-    return bmr * activity_multipliers.get(activity_level.lower(), 1.2)
+    return round(bmr * activity_multipliers.get(activity_level.lower(), 1.2), 2)
 
 def calculate_goal_weight_loss(current_weight, goal_weight):
     weight_loss_needed = current_weight - goal_weight
