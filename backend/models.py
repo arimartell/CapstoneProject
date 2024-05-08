@@ -57,4 +57,8 @@ class Staple_meal(db.Entity):
     sodium = Optional(float, default=0) 
     serving_size = Required(int, default=0)
 
-
+class User_Weight(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    user_id = Required(int)
+    weight = Required(int)
+    date = Required(datetime)

@@ -1,4 +1,10 @@
 from math import ceil
+from models import db, User, Meal, Staple_meal, User_Weight
+from datetime import timedelta, datetime
+from pony.orm import db_session, select, desc
+
+
+
 
 def calculate_bmr(weight, height, age, sex):
     '''
@@ -64,3 +70,24 @@ def calculate_macronutrient_ratios(daily_calories, diet_type):
     protein_calories = daily_calories * diet['protein']
     
     return carbs_calories, fats_calories, protein_calories
+
+#def predict_weight(user, timeline): TODO call scalar func for same timeline and provide checkpoints based on users current weight and current weight loss trend
+    
+def weight_loss_scalar(user, timeframe): 
+    weight_fluctuation = []
+    current_datetime = datetime.now()
+    user_weights = list(User_Weight.select(lambda m: m.user_id == user.id).order_by(desc(User_Weight.date)))
+    
+    for index, value in enumerate(user_weights):
+        if abs((current_datetime - value.date).days) <= timeframe: #Check for weight in timeframe
+            if index + 1 < len(user_weights): #Avoid list OOB
+                next_weight = user_weights[index + 1].weight
+                print(next_weight)
+                weight_change = value.weight - next_weight
+                weight_fluctuation.append(weight_change)
+    
+    return sum(weight_fluctuation) / len(weight_fluctuation)
+
+
+
+    

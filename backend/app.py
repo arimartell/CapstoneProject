@@ -10,7 +10,7 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from pony.flask import Pony
 from pony.orm import commit
-from models import db, User, Meal, Staple_meal
+from models import db, User, Meal, Staple_meal, User_Weight
 import string
 import requests
 from datetime import timedelta, datetime
@@ -284,24 +284,6 @@ def profile():
         current_user.goal_weight = true_tweight
         current_user.diet_type = data["diettype"]
 
-        # Calculate age
-        birthday = current_user.birthday
-        today = datetime.today()
-        age = (
-            today.year
-            - birthday.year
-            - ((today.month, today.day) < (birthday.month, birthday.day))
-        )
-        current_user.age = age
-
-        # Calculate BMR (Basal Metabolic Rate)
-        bmr = calculate_bmr(current_user.weight, current_user.height, current_user.age, current_user.sex)
-        current_user.bmr = bmr
-
-        # Calculate TDEE (Total Daily Energy Expenditure)
-        tdee = calculate_tdee(bmr, current_user.activity_level)
-        current_user.tdee = tdee
-
         commit()
 
         # Redirect to the home page after successfully updating profile
@@ -332,7 +314,6 @@ def profile():
 @app.route("/dashboard", methods=["POST"])
 @jwt_required()
 def dashboard():
-
     current_username = get_jwt_identity()
     current_user = User.get(username=current_username)
     meals_today = []
@@ -353,23 +334,16 @@ def dashboard():
 
     user_meals = Meal.select(lambda m: m.user == current_user)
     for m in user_meals:
-        print(m.date.date())
+        #print(m.date.date())
         if m.date.date() == datetime.now().date():
             meals_today.append(m)
     for m in meals_today:
         cals_left -= m.calories
         protein_left -= m.protein
-    return (
-        jsonify(
-            {
-                "cals_left": cals_left,
-                "protein_left": protein_left,
-                "total_cals": total_cals,
-                "total_protein": total_protein,
-            }
-        ),
-        200,
-    )
+    return jsonify({"cals_left": cals_left,
+                    "protein_left": protein_left,
+                    "total_cals": total_cals,
+                    "total_protein": total_protein}), 200
 
 
 @app.route("/biometrics", methods=["GET"])
