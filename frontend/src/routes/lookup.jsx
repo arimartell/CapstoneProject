@@ -1,57 +1,90 @@
-import { useEffect } from 'react';
-import SwipeAnimation from '../components/swipe';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-//* Created by: Ariana Martell
-export default function Lookup() {
-  useEffect(() => {
-    document.title = 'Lookup';
-  }, []);
+function FoodLookup() {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState([]);
+    const [detailedInfo, setDetailedInfo] = useState(null);
+    const [activeIndex, setActiveIndex] = useState(null); // Track which item is active
 
-  return (
-    <>
-      <SwipeAnimation />
-      <div className="size-full min-h-screen flex flex-col items-center">
-        <div className="hero bg-base-200 min-h-[20vh]">
-          <div className="hero-content text-center">
-            <div className="max-w-md">
-              <div className="text-5xl font-bold shingo">Lookup a meal</div>
-              <p className="py-4 text-2xl">
-              Feel free to search for a food's Macros
-              </p>
+    const handleSearch = async () => {
+        try {
+            const response = await axios.post('http://127.0.0.1:5000/lookup', { ingr: query });
+            const modifiedResults = response.data.hints.map(item => ({
+                ...item,
+                image: item.food.image // Save the image URL from the search result
+            }));
+            setResults(modifiedResults);
+            setDetailedInfo(null); // Reset detailed info on new search
+            setActiveIndex(null); // Reset active index on new search
+        } catch (error) {
+            console.error('Error during lookup:', error);
+            alert('Error during lookup');
+        }
+    };
+
+    const fetchDetailedInfo = async (foodId, index) => {
+        try {
+            const url = `https://api.edamam.com/api/food-database/v2/nutrients?app_id=dca363b5&app_key=6b400d1db41322ce8fc5cd0e892b418d`;
+            const data = {
+                ingredients: [
+                    {
+                        quantity: 100,
+                        measureURI: "http://www.edamam.com/ontologies/edamam.owl#Measure_gram",
+                        foodId: foodId
+                    }
+                ]
+            };
+            const headers = {
+                'Content-Type': 'application/json',
+                'accept': 'application/json'
+            };
+            const response = await axios.post(url, data, { headers });
+            setDetailedInfo(response.data);
+            setActiveIndex(index); // Set active index to control display logic
+        } catch (error) {
+            console.error('Error fetching detailed info:', error);
+            alert('Error fetching detailed info');
+        }
+    };
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>
+            <h1 style={{ margin: '20px', fontSize: '24px', fontWeight: 'bold' }}>Food Lookup (per 100g)</h1>
+            <div>
+                <input
+                    style={{ padding: '10px', width: '300px', marginRight: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Enter food item"
+                />
+                <button 
+                    style={{ padding: '10px 20px', borderRadius: '5px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
+                    onClick={handleSearch}>
+                    Search
+                </button>
             </div>
-          </div>
+            <ul style={{ listStyleType: 'none', padding: '0', width: '100%' }}>
+                {results.map((item, index) => (
+                    <li key={index} style={{ width: '100%', cursor: 'pointer' }}>
+                        <div onClick={() => fetchDetailedInfo(item.food.foodId, index)} style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
+                            {item.food.label} - {item.food.category}
+                        </div>
+                        {activeIndex === index && detailedInfo && (
+                            <div style={{ paddingLeft: '20px', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
+                                <img src={item.image} alt={item.food.label} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                                <p>Calories: {detailedInfo.totalNutrients.ENERC_KCAL.quantity} kcal</p>
+                                <p>Protein: {detailedInfo.totalNutrients.PROCNT.quantity} g</p>
+                                <p>Fat: {detailedInfo.totalNutrients.FAT.quantity} g</p>
+                                <p>Carbs: {detailedInfo.totalNutrients.CHOCDF.quantity} g</p>
+                            </div>
+                        )}
+                    </li>
+                ))}
+            </ul>
         </div>
-
-        <form
-          action="/login"
-          className="flex size-full flex-col justify-start px-8 mt-48 items-center space-y-4 max-w-md"
-        >
-          <label className="input input-bordered flex items-center gap-2 w-full">
-            <input
-              className="grow"
-              type="text"
-              name="name"
-              placeholder="Search food"
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="w-4 h-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </label>
-
-          <button className="btn btn-primary w-full max-w-[5rem]">
-            Submit
-          </button>
-        </form>
-      </div>
-    </>
-  );
+    );
 }
+
+export default FoodLookup;
