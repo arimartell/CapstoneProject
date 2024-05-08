@@ -199,9 +199,19 @@ export default function SetProfile() {
                 Weight Maintenance
               </span>
             </label>
+            <label className="label cursor-pointer">
+              <input
+                className="radio checked:bg-info"
+                type="radio"
+                name="goaltype"
+                value="gain"
+                onClick={onGoalChange}
+              />
+              <span className="label-text w-16 text-base">Weight Gain </span>
+            </label>
           </div>
-          {/* Drop down another input for target weight if goal is weight loss */}
-          {goalType === 'loss' ? (
+          {/* Drop down another input for target weight if goal is weight loss or gain*/}
+          {(goalType === 'loss' || goalType === 'gain') ? (
             <>
               <label className="form-control gap-2 w-full">
                 <input
@@ -214,7 +224,7 @@ export default function SetProfile() {
               </label>
             </>
           ) : null}
-          {/* Weight (if goal is weightloss) */}
+          {/* Weight (if goal is weightloss or gain) */}
 
           <button className="btn btn-primary w-full max-w-sm">Submit</button>
         </form>

@@ -1,8 +1,5 @@
 from calculations import *
 
-
-
-
 def test_calculate_bmr():
     # Test for male 177lbs, 68 inches (5 foot 8), 25 years old
     assert int(calculate_bmr(177, 68, 25, 'male')) == 1762
@@ -26,6 +23,11 @@ def test_calculate_macronutrient_ratios():
     assert calculate_macronutrient_ratios(2160, 'regular') == (864.0, 648.0, 648.0)
     print("test_calculate_macronutrient_ratios passed")
 
+def test_bmi():
+    assert calculate_bmi(65, 145) == 24.13
+    print("test_bmi pased")
+
+
 
 if __name__ == "__main__":
     test_calculate_bmr()
@@ -33,3 +35,4 @@ if __name__ == "__main__":
     test_calculate_goal_weight_loss()
     test_calculate_daily_calories()
     test_calculate_macronutrient_ratios()
+    test_bmi() 

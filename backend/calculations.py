@@ -12,6 +12,7 @@ def calculate_bmr(weight, height, age, sex):
     For men: 10 x weight (kg) + 6.25 x height (cm) - 5 x age (y) + 5 (kcal / day)
     For women: 10 x weight (kg) + 6.25 x height (cm) - 5 x age (y) -161 (kcal / day)
     '''
+
     weight_kg = weight * 0.453592  # 1 pound is approximately 0.453592 kilograms
     height_cm = height * 2.54
     if sex.lower() == 'male':
@@ -71,23 +72,35 @@ def calculate_macronutrient_ratios(daily_calories, diet_type):
     
     return carbs_calories, fats_calories, protein_calories
 
-#def predict_weight(user, timeline): TODO call scalar func for same timeline and provide checkpoints based on users current weight and current weight loss trend
-    
-def weight_loss_scalar(user, timeframe): 
-    weight_fluctuation = []
-    current_datetime = datetime.now()
-    user_weights = list(User_Weight.select(lambda m: m.user_id == user.id).order_by(desc(User_Weight.date)))
-    
-    for index, value in enumerate(user_weights):
-        if abs((current_datetime - value.date).days) <= timeframe: #Check for weight in timeframe
-            if index + 1 < len(user_weights): #Avoid list OOB
-                next_weight = user_weights[index + 1].weight
-                print(next_weight)
-                weight_change = value.weight - next_weight
-                weight_fluctuation.append(weight_change)
-    
-    return sum(weight_fluctuation) / len(weight_fluctuation)
+def calculate_bmi(height, weight):
+    '''
+    Formula: BMI = (weight_lbs / (height_inches ** 2)) * 703
 
+    Parameter:
+        height: Height in inches.
+        weight: Weight in pounds.
 
+    Returns:
+        float: BMI value rounded to two decimal places.
+    '''
+   
+    bmi = (weight / (height ** 2)) * 703
+    return round(bmi, 2)
 
-    
+def classify_bmi(bmi):
+    '''
+    BMI Categories:
+    Underweight = <18.5
+    Normal weight = 18.5 to 24.9
+    Overweight = 25 to 29.9
+    Obesity = BMI of 30 or greater
+    '''
+
+    if bmi < 18.5:
+        return "Underweight"
+    elif 18.5 <= bmi < 25:
+        return "Normal weight"
+    elif 25 <= bmi < 30:
+        return "Overweight"
+    else:
+        return "Obesity"
