@@ -657,6 +657,7 @@ def recipe():
         return jsonify({"error": "Recipe unknown"}), 500
     
 @app.route('/lookup', methods=['POST'])
+#jwt_required breaks this?
 def lookup_food():
     data = request.get_json()
     ingredient = data.get('ingr')
