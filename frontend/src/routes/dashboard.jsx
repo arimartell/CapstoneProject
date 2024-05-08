@@ -4,9 +4,9 @@ import { useLoaderData } from 'react-router-dom';
 import QuickCard from '../components/dashboardquicklinkscard';
 import SwipeAnimation from '../components/swipe';
 import Badge from '../components/badge';
-import star from "../assests/star.svg";
-import thumb from "../assests/thumb.svg";
-import note from "../assests/note.svg";
+import star from '../assests/star.svg';
+import thumb from '../assests/thumb.svg';
+import note from '../assests/note.svg';
 // badge svg source: https://www.svgrepo.com/collection/e-commerce-2/
 
 export default function Dashboard() {
@@ -20,7 +20,7 @@ export default function Dashboard() {
   const [firstMealBadge, setFirstMealBadge] = useState(false);
   const data = useLoaderData();
   console.log(star);
-// Ariana Martell Work in progress will mkae it show up for only first time meals
+  // Ariana Martell Work in progress will mkae it show up for only first time meals
   const checkFirstMealBadge = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -36,6 +36,9 @@ export default function Dashboard() {
         const data = await response.json();
         // Extract 'has_badge'from the parsed data
         const { has_badge } = data;
+
+        console.log(data);
+
         //Updates state of has_badge
         setFirstMealBadge(has_badge);
       }
@@ -96,25 +99,29 @@ export default function Dashboard() {
       return { dialog, closebtn, p };
     };
 
-    console.log();
     // Check if the firstMealBadge is true which indicates badge earned
     if (firstMealBadge) {
-       // Check local storage to see if the badge popup has been shown before
+      // Check local storage to see if the badge popup has been shown before
       const shownPopup = localStorage.getItem('shownfirstmealbadge') ?? false;
 
-      const { dialog, closebtn, p } = createPopup(
-        'Your just earned a badge for creating your first meal!',
-      );
+      console.log(shownPopup);
 
-      document.body.appendChild(dialog);
-      // Behavior for close button 
-      closebtn.onclick = () => {
-        dialog.close();
-        dialog.remove();
-      };
-      dialog.showModal();
+      if (shownPopup !== 'true') {
+        const { dialog, closebtn, p } = createPopup(
+          'Your just earned a badge for creating your first meal!',
+        );
 
-      console.log('Has shown user?', shownPopup);
+        document.body.appendChild(dialog);
+        // Behavior for close button
+        closebtn.onclick = () => {
+          dialog.close();
+          dialog.remove();
+          localStorage.setItem('shownfirstmealbadge', true);
+        };
+
+        dialog.showModal();
+        console.log('Has shown user?', shownPopup);
+      }
     }
   }, [firstMealBadge]);
 
@@ -144,21 +151,9 @@ export default function Dashboard() {
             <hr />
           </h3>
           <div className="badge-container flex flex-row h-fullflex-wrap justify-start items-center">
-            <Badge
-              img={star}
-              title={'Star badge'}
-              i={1}
-            />
-            <Badge
-              img={thumb}
-              title={'Thumbs up badge'}
-              i={1.25}
-            />
-            <Badge
-              img={note}
-              title={'Notepad badge'}
-              i={1.5}
-            />
+            {firstMealBadge ? <Badge img={star} title={'Star badge'} i={1} /> : null}
+            <Badge img={thumb} title={'Thumbs up badge'} i={1.25} />
+            <Badge img={note} title={'Notepad badge'} i={1.5} />
           </div>
         </div>
 
