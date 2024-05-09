@@ -6,31 +6,34 @@ function FoodLookup() {
     const [results, setResults] = useState([]);
     const [detailedInfo, setDetailedInfo] = useState(null);
     const [activeIndex, setActiveIndex] = useState(null); // Track which item is active
+    const [selectedMeasureIndex, setSelectedMeasureIndex] = useState(null); // Track which measurement is selected
 
     const handleSearch = async () => {
         try {
             const response = await axios.post('http://127.0.0.1:5000/lookup', { ingr: query });
             const modifiedResults = response.data.hints.map(item => ({
                 ...item,
-                image: item.food.image // Save the image URL from the search result
+                image: item.food.image,
+                uri: item.food.uri
             }));
             setResults(modifiedResults);
-            setDetailedInfo(null); // Reset detailed info on new search
-            setActiveIndex(null); // Reset active index on new search
+            setDetailedInfo(null);
+            setActiveIndex(null);
+            setSelectedMeasureIndex(null);
         } catch (error) {
             console.error('Error during lookup:', error);
             alert('Error during lookup');
         }
     };
 
-    const fetchDetailedInfo = async (foodId, index) => {
+    const fetchDetailedInfo = async (foodId, measureURI, measureIdx) => {
         try {
             const url = `https://api.edamam.com/api/food-database/v2/nutrients?app_id=dca363b5&app_key=6b400d1db41322ce8fc5cd0e892b418d`;
             const data = {
                 ingredients: [
                     {
-                        quantity: 100,
-                        measureURI: "http://www.edamam.com/ontologies/edamam.owl#Measure_gram",
+                        quantity: 1,
+                        measureURI: measureURI,
                         foodId: foodId
                     }
                 ]
@@ -41,7 +44,7 @@ function FoodLookup() {
             };
             const response = await axios.post(url, data, { headers });
             setDetailedInfo(response.data);
-            setActiveIndex(index); // Set active index to control display logic
+            setSelectedMeasureIndex(measureIdx); // Set selected measure index
         } catch (error) {
             console.error('Error fetching detailed info:', error);
             alert('Error fetching detailed info');
@@ -50,7 +53,7 @@ function FoodLookup() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>
-            <h1 style={{ margin: '20px', fontSize: '24px', fontWeight: 'bold' }}>Food Lookup (per 100g)</h1>
+            <h1 style={{ margin: '20px', fontSize: '24px', fontWeight: 'bold' }}>Food Lookup</h1>
             <div>
                 <input
                     style={{ padding: '10px', width: '300px', marginRight: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
@@ -68,18 +71,39 @@ function FoodLookup() {
             <ul style={{ listStyleType: 'none', padding: '0', width: '100%' }}>
                 {results.map((item, index) => (
                     <li key={index} style={{ width: '100%', cursor: 'pointer' }}>
-                        <div onClick={() => fetchDetailedInfo(item.food.foodId, index)} style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
+                        <div onClick={() => setActiveIndex(index)} style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
                             {item.food.label} - {item.food.category}
                         </div>
-                        {activeIndex === index && detailedInfo && (
-                            <div style={{ paddingLeft: '20px', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
-                                <img src={item.image} alt={item.food.label} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
-                                <p>Calories: {detailedInfo.totalNutrients.ENERC_KCAL.quantity} kcal</p>
-                                <p>Protein: {detailedInfo.totalNutrients.PROCNT.quantity} g</p>
-                                <p>Fat: {detailedInfo.totalNutrients.FAT.quantity} g</p>
-                                <p>Carbs: {detailedInfo.totalNutrients.CHOCDF.quantity} g</p>
-                            </div>
-                        )}
+                        {activeIndex === index && (
+                          <div>
+                              <img src={item.image} alt={item.food.label} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                              <ul style={{ paddingLeft: '20px' }}>
+                                  {item.measures.map((measure, idx) => (
+                                      <li key={idx} onClick={() => fetchDetailedInfo(item.food.foodId, measure.uri, idx)} style={{
+                                          listStyleType: 'none', 
+                                          cursor: 'pointer', 
+                                          padding: '5px',
+                                          backgroundColor: selectedMeasureIndex === idx && activeIndex === index ? '#4CAF50' : 'transparent', // Change color when selected
+                                          color: selectedMeasureIndex === idx && activeIndex === index ? 'white' : 'white'
+                                      }}>
+                                          {measure.label}
+                                      </li>
+                                  ))}
+                              </ul>
+                              {detailedInfo && activeIndex === index && (
+                                  <div style={{ paddingLeft: '20px', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
+                                      <p>Calories: {Math.floor(detailedInfo.totalNutrients.ENERC_KCAL.quantity)} kcal</p>
+                                      <p>Protein: {Math.floor(detailedInfo.totalNutrients.PROCNT.quantity)} g</p>
+                                      <p>Fat: {Math.floor(detailedInfo.totalNutrients.FAT.quantity)} g</p>
+                                      <p>Saturated Fat: {Math.floor(detailedInfo.totalNutrients.FASAT.quantity)} g</p>
+                                      <p>Carbs: {Math.floor(detailedInfo.totalNutrients.CHOCDF.quantity)} g</p>
+                                      <p>Sugars: {Math.floor(detailedInfo.totalNutrients.SUGAR.quantity)} g</p>
+
+                                  </div>
+                              )}
+                          </div>
+                      )}
+
                     </li>
                 ))}
             </ul>
