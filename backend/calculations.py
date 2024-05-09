@@ -43,16 +43,17 @@ def calculate_tdee(bmr, activity_level):
     }
     return round(bmr * activity_multipliers.get(activity_level.lower(), 1.2), 2)
 
-def calculate_goal_weight_loss(current_weight, goal_weight):
-    weight_loss_needed = current_weight - goal_weight
-    weeks_to_goal = ceil(weight_loss_needed / 0.5), ceil(weight_loss_needed), ceil(weight_loss_needed / 2) # General assumption 1-2 lbs loss per week is ideal
-    return weeks_to_goal # Weeks needed for losing 0.5lb, 1lb, 2lb per week
-
-def calculate_daily_calories(weight, height, age, sex, activity_level):
-    bmr = calculate_bmr(weight, height, age, sex)
-    tdee = calculate_tdee(bmr, activity_level)
-    daily_calories = int(tdee - 250),int(tdee - 500), int(tdee - 1000)
-    return daily_calories
+def calculate_goal_weight_weeks(current_weight, goal_weight, goal_type):
+    if goal_type == "loss":
+        return ceil(current_weight - goal_weight)
+    elif goal_type == "gain":
+        return ceil(goal_weight - current_weight)
+    
+def calculate_daily_calories(tdee, goal_type):
+    if goal_type == "loss":
+        return tdee - 500.00
+    elif goal_type == "gain":
+        return tdee + 500.00
     
 def calculate_macronutrient_ratios(daily_calories, diet_type):
     diet_ratios = {
@@ -70,7 +71,7 @@ def calculate_macronutrient_ratios(daily_calories, diet_type):
     fats_calories = daily_calories * diet['fats']
     protein_calories = daily_calories * diet['protein']
     
-    return carbs_calories, fats_calories, protein_calories
+    return round(carbs_calories, 2), round(fats_calories, 2), round(protein_calories, 2)
 
 def calculate_bmi(height, weight):
     '''

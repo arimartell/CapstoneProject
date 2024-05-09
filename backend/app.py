@@ -333,6 +333,31 @@ def profile():
         return jsonify({"message": "Profile updated successfully"}), 200
 
     # Handle GET request to retrieve the user's profile
+    # Grab user attributes to use in calculations
+    weight = current_user.weight
+    goal_weight = current_user.goal_weight
+    tdee = current_user.tdee   # TDEE (Total Daily Energy Expenditure)
+    goal_type = current_user.goal_type
+
+
+    # Calculate weeks needed to reach weight goal
+    weeks_to_goal = calculate_goal_weight_weeks(weight, goal_weight, goal_type)
+
+    # Calculate average daily calories under the weight loss plan
+    daily_calories = calculate_daily_calories(tdee, goal_type)
+
+    # Calculate macronutrient ratios for each weight loss goal
+    diet_type = current_user.diet_type
+    carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
+        calculate_macronutrient_ratios(daily_calories, diet_type)
+    )
+
+
+    # Calculate weights for each week based on weight loss rates
+    current_weight = weight
+    goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal + 1)]
+    max_weeks = weeks_to_goal + 1
+    x_labels = [f"Week {i}" for i in range(max_weeks)]
     return (
         jsonify(
             {
@@ -347,7 +372,15 @@ def profile():
                 "goaltype": current_user.goal_type,
                 "targetweight": current_user.goal_weight,
                 "bmr": current_user.bmr,
-                "tdee": current_user.tdee
+                "tdee": current_user.tdee,
+                "user": current_username,
+                "weeks_to_goal": weeks_to_goal,
+                "daily_calories": daily_calories,
+                "goal_weights_1lb": goal_weights_1lb,
+                "x_labels": x_labels,
+                "carbs_calories_1lb": carbs_calories_1lb,
+                "fats_calories_1lb": fats_calories_1lb,
+                "protein_calories_1lb": protein_calories_1lb
             }
         ),
         200,
@@ -373,7 +406,7 @@ def dashboard():
     elif current_user.diet_type == "high_protein":
         current_user.protein_goal = current_user.weight
 
-    cals_left = total_cals = User[current_user.id].maintenance_calories
+    cals_left = total_cals = User[current_user.id].tdee
     protein_left = total_protein = User[current_user.id].protein_goal
 
     user_meals = Meal.select(lambda m: m.user == current_user)
@@ -395,90 +428,6 @@ def dashboard():
         ),
         200,
     )
-
-
-@app.route("/biometrics", methods=["GET"])
-@jwt_required()
-def biometrics():
-    current_username = get_jwt_identity()
-    current_user = User.get(username=current_username)
-
-    # Grab user attributes to use in calculations
-    weight = current_user.weight
-    height = current_user.height
-    activity_level = current_user.activity_level
-    sex = current_user.sex
-    goal_weight = current_user.goal_weight
-
-    # Age calculation
-    birthday = current_user.birthday
-    today = datetime.today()
-    age = (
-        today.year
-        - birthday.year
-        - ((today.month, today.day) < (birthday.month, birthday.day))
-    )
-
-    # Calculate BMR (Basal Metabolic Rate)
-    bmr = int(calculate_bmr(weight, height, age, sex))
-
-    # Calculate TDEE (Total Daily Energy Expenditure)
-    tdee = int(calculate_tdee(bmr, activity_level))
-
-    # Calculate weeks needed to reach weight goal
-    weeks_to_goal = calculate_goal_weight_loss(weight, goal_weight)
-
-    # Calculate average daily calories under the weight loss plan
-    daily_calories = calculate_daily_calories(weight, height, age, sex, activity_level)
-
-    # Calculate macronutrient ratios for each weight loss goal
-    diet_type = current_user.diet_type
-    carbs_calories_0_5lb, fats_calories_0_5lb, protein_calories_0_5lb = (
-        calculate_macronutrient_ratios(daily_calories[0], diet_type)
-    )
-    carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
-        calculate_macronutrient_ratios(daily_calories[1], diet_type)
-    )
-    carbs_calories_2lb, fats_calories_2lb, protein_calories_2lb = (
-        calculate_macronutrient_ratios(daily_calories[2], diet_type)
-    )
-
-    # Calculate weights for each week based on weight loss rates
-    current_weight = weight
-    goal_weights_0_5lb = [current_weight - 0.5 * i for i in range(weeks_to_goal[0] + 1)]
-    goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal[1] + 1)]
-    goal_weights_2lb = [current_weight - 2 * i for i in range(weeks_to_goal[2] + 1)]
-    max_weeks = max(weeks_to_goal) + 1
-    x_labels = [f"Week {i}" for i in range(max_weeks)]
-
-    # Update user's maintenance calories in the database
-    current_user.maintenance_calories = tdee
-    commit()
-
-    # Prepare JSON response
-    response = {
-        "user": current_username,
-        "bmr": bmr,
-        "tdee": tdee,
-        "age": age,
-        "weeks_to_goal": weeks_to_goal,
-        "daily_calories": daily_calories,
-        "goal_weights_0_5lb": goal_weights_0_5lb,
-        "goal_weights_1lb": goal_weights_1lb,
-        "goal_weights_2lb": goal_weights_2lb,
-        "x_labels": x_labels,
-        "carbs_calories_0_5lb": carbs_calories_0_5lb,
-        "fats_calories_0_5lb": fats_calories_0_5lb,
-        "protein_calories_0_5lb": protein_calories_0_5lb,
-        "carbs_calories_1lb": carbs_calories_1lb,
-        "fats_calories_1lb": fats_calories_1lb,
-        "protein_calories_1lb": protein_calories_1lb,
-        "carbs_calories_2lb": carbs_calories_2lb,
-        "fats_calories_2lb": fats_calories_2lb,
-        "protein_calories_2lb": protein_calories_2lb,
-    }
-
-    return jsonify(response)
 
 
 @app.route("/meal", methods=["POST", "GET"])
