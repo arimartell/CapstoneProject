@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { Line, Doughnut } from 'react-chartjs-2'; // Import Doughnut from react-chartjs-2
 import SwipeAnimation from '../components/swipe';
 import { getToken } from '../main';
 
@@ -46,6 +47,44 @@ export default function ViewProfile() {
     return `${month}/${day}/${year}`;
   };
 
+  // Chart.js configuration options
+  const chartOptions = {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Weight Loss Timeline',
+        fontSize: 20,
+        padding: 20
+      }
+    },
+    scales: {
+      y: {
+        scaleLabel: {
+          display: true,
+          labelString: 'Weight (lbs)'
+        }
+      },
+      x: {
+        scaleLabel: {
+          display: true,
+          labelString: 'Weeks'
+        }
+      }
+    }
+  };
+
+  // Chart.js configuration options for donut chart
+  const donutChartOptions = {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Macronutrient Ratio (1 lb/week)',
+        fontSize: 20,
+        padding: 20
+      }
+    }
+  };
+
   return (
     <>
       <SwipeAnimation />
@@ -75,6 +114,40 @@ export default function ViewProfile() {
           {profileData.goaltype === 'loss' && (
             <p className="text-xl mb-4"><strong>Target Weight:</strong> {profileData.targetweight} lbs</p>
           )}
+          {/* Chart.js Line chart for weight loss */}
+          <div className="mt-8">
+            <Line data={{
+              labels: profileData.x_labels,
+              datasets: [
+                {
+                  label: '1 lb/week',
+                  data: profileData.goal_weights_1lb,
+                  borderColor: 'green',
+                },
+              ]
+            }} options={chartOptions} />
+          </div>
+          {/* Chart.js Donut chart for macronutrient ratio */}
+          <div className="mt-8">
+            <Doughnut data={{
+              labels: ['Carbs', 'Fats', 'Protein'],
+              datasets: [{
+                label: 'Calories',
+                data: [profileData.carbs_calories_1lb, profileData.fats_calories_1lb, profileData.protein_calories_1lb],
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+              }]
+            }} options={donutChartOptions} />
+          </div>
         </div>
       </div>
     </>
