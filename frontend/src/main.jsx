@@ -19,9 +19,11 @@ import Lookup from './routes/lookup';
 import Staple from './routes/staple_meal';
 import Graph from './routes/graph';
 import Recipe from './routes/recipe';
+import AllMeals from './routes/allmeals';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getRecentMeals } from './services/mealpageloader';
+import { getAllMeals } from './services/allmealsloader';
 
 // Removed unused ref, replaced with boolean to decide whether route is protected
 export const routes = [
@@ -85,6 +87,11 @@ export const routes = [
     element: <Recipe />,
     protected: true,
   },
+  {
+    path: '/allmeals',
+    element: <AllMeals />,
+    protected: true,
+  },
 ];
 
 // Check if token in client localstorage
@@ -109,9 +116,13 @@ const router = createBrowserRouter([
             console.log('Not logged in, redirecting...');
             throw redirect('/login');
           }
-          if (route.path == '/dashboard') {
+          if (route.path === '/dashboard') {
             const recent = await getRecentMeals(loggedIn);
             return recent;
+          }
+          if(route.path === '/allmeals') {
+            const meals = await getAllMeals(loggedIn);
+            return meals;
           }
 
           return {};
