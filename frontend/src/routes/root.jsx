@@ -82,6 +82,11 @@ export default function Root() {
               <Link to="/recipe">
                 <span className="text-2xl shingo">Recipe Lookup</span>
               </Link>
+            </li> 
+            <li>
+              <Link to="/allmeals">
+                <span className="text-2xl shingo">Today's Meals</span>
+              </Link>
             </li>
           </ul>
         </div>
