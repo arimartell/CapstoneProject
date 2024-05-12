@@ -8,7 +8,7 @@ export default function AllMeals() {
   console.log('All Meal');
   console.log(data);
 
-  if (data.length === 0) {
+  if ((data || []).length === 0) {
     return (
       <>
         {' '}
