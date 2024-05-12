@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Line, Doughnut } from 'react-chartjs-2'; // Import Doughnut from react-chartjs-2
+import { Line, Doughnut } from 'react-chartjs-2';
 import SwipeAnimation from '../components/swipe';
 import { getToken } from '../main';
 
@@ -115,18 +115,20 @@ export default function ViewProfile() {
             <p className="text-xl mb-4"><strong>Target Weight:</strong> {profileData.targetweight} lbs</p>
           )}
           {/* Chart.js Line chart for weight loss */}
-          <div className="mt-8">
-            <Line data={{
-              labels: profileData.x_labels,
-              datasets: [
-                {
-                  label: '1 lb/week',
-                  data: profileData.goal_weights_1lb,
-                  borderColor: 'green',
-                },
-              ]
-            }} options={chartOptions} />
-          </div>
+          {profileData.goaltype !== 'maintenance' && (
+            <div className="mt-8">
+              <Line data={{
+                labels: profileData.x_labels,
+                datasets: [
+                  {
+                    label: '1 lb/week',
+                    data: profileData.goal_weights_1lb,
+                    borderColor: 'green',
+                  },
+                ]
+              }} options={chartOptions} />
+            </div>
+          )}
           {/* Chart.js Donut chart for macronutrient ratio */}
           <div className="mt-8">
             <Doughnut data={{

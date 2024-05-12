@@ -54,6 +54,8 @@ def calculate_daily_calories(tdee, goal_type):
         return tdee - 500.00
     elif goal_type == "gain":
         return tdee + 500.00
+    elif goal_type == "maintenance":
+        return tdee
     
 def calculate_macronutrient_ratios(daily_calories, diet_type):
     diet_ratios = {

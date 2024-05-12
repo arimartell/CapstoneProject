@@ -27,7 +27,7 @@ export default function Signup() {
       localStorage.setItem('token', access_token);
       notify('You Created An Account!', 'success');
       setTimeout(() => {
-        navigate('/profile');
+        navigate('/setprofile');
       }, 1500);
     } catch (e) {
       notify('Account Creation Failed', 'error');

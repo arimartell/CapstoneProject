@@ -273,6 +273,31 @@ def profile():
         # Convert target weight to integer if present
         true_tweight = int(data.get("targetweight", data["weight"]))
 
+        # Update user's profile information based on form data
+        current_user.sex = data["sex"]
+        current_user.weight = data["weight"]
+        h = int(data["heightfeet"])
+        current_user.height = int(data["heightinches"]) + 12 * h
+        current_user.birthday = data["birthday"]
+        current_user.activity_level = data["activitylevel"]
+        current_user.goal_type = data["goaltype"]
+        current_user.goal_weight = true_tweight
+        current_user.diet_type = data["diettype"]
+
+        # Calculate age
+        birthday = datetime.strptime(data["birthday"], "%Y-%m-%d")
+        today = datetime.today()
+        age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
+        current_user.age = age
+
+        # Calculate BMR (Basal Metabolic Rate)
+        bmr = calculate_bmr(current_user.weight, current_user.height, current_user.age, current_user.sex)
+        current_user.bmr = bmr
+
+        # Calculate TDEE (Total Daily Energy Expenditure)
+        tdee = calculate_tdee(bmr, current_user.activity_level)
+        current_user.tdee = tdee
+
         # Check if target weight is greater than current weight when goaltype is loss
         if data["goaltype"] == "loss" and true_tweight >= int(data["weight"]):
             return jsonify({"message": "Target weight must be less than current weight for weight loss goal"}), 400
@@ -302,31 +327,6 @@ def profile():
             elif current_bmi_category in ["Overweight", "Obesity"]:
                 return jsonify({"message": "Current BMI is Overweight, Choose Weight Loss for Healthy BMI"}), 400
 
-        # Update user's profile information based on form data
-        current_user.sex = data["sex"]
-        current_user.weight = data["weight"]
-        h = int(data["heightfeet"])
-        current_user.height = int(data["heightinches"]) + 12 * h
-        current_user.birthday = data["birthday"]
-        current_user.activity_level = data["activitylevel"]
-        current_user.goal_type = data["goaltype"]
-        current_user.goal_weight = true_tweight
-        current_user.diet_type = data["diettype"]
-
-        # Calculate age
-        birthday = datetime.strptime(data["birthday"], "%Y-%m-%d")
-        today = datetime.today()
-        age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
-        current_user.age = age
-
-        # Calculate BMR (Basal Metabolic Rate)
-        bmr = calculate_bmr(current_user.weight, current_user.height, current_user.age, current_user.sex)
-        current_user.bmr = bmr
-
-        # Calculate TDEE (Total Daily Energy Expenditure)
-        tdee = calculate_tdee(bmr, current_user.activity_level)
-        current_user.tdee = tdee
-
         commit()
 
         # Redirect to the home page after successfully updating profile
@@ -339,25 +339,38 @@ def profile():
     tdee = current_user.tdee   # TDEE (Total Daily Energy Expenditure)
     goal_type = current_user.goal_type
 
+    if goal_type in ["loss", "gain"]:
+        # Calculate weeks needed to reach weight goal
+        weeks_to_goal = calculate_goal_weight_weeks(weight, goal_weight, goal_type)
 
-    # Calculate weeks needed to reach weight goal
-    weeks_to_goal = calculate_goal_weight_weeks(weight, goal_weight, goal_type)
+        # Calculate average daily calories under the weight loss plan
+        daily_calories = calculate_daily_calories(tdee, goal_type)
 
-    # Calculate average daily calories under the weight loss plan
-    daily_calories = calculate_daily_calories(tdee, goal_type)
+        # Calculate macronutrient ratios for each weight loss goal
+        diet_type = current_user.diet_type
+        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
+            calculate_macronutrient_ratios(daily_calories, diet_type)
+        )
 
-    # Calculate macronutrient ratios for each weight loss goal
-    diet_type = current_user.diet_type
-    carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
-        calculate_macronutrient_ratios(daily_calories, diet_type)
-    )
+        # Calculate weights for each week based on weight loss rates
+        current_weight = weight
+        if goal_type == "loss":
+            goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal + 1)]
+            max_weeks = weeks_to_goal + 1
+            x_labels = [f"Week {i}" for i in range(max_weeks)]
+        elif goal_type == "gain":
+            goal_weights_1lb = [current_weight + i for i in range(weeks_to_goal + 1)]
+            max_weeks = weeks_to_goal + 1
+            x_labels = [f"Week {i}" for i in range(max_weeks)]
+    else:
+        # For maintenance, calculate macronutrient ratios and daily calories
+        daily_calories = calculate_daily_calories(tdee, goal_type)
+        diet_type = current_user.diet_type
+        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
+            calculate_macronutrient_ratios(daily_calories, diet_type)
+        )
+        goal_weights_1lb = None
 
-
-    # Calculate weights for each week based on weight loss rates
-    current_weight = weight
-    goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal + 1)]
-    max_weeks = weeks_to_goal + 1
-    x_labels = [f"Week {i}" for i in range(max_weeks)]
     return (
         jsonify(
             {
@@ -374,10 +387,10 @@ def profile():
                 "bmr": current_user.bmr,
                 "tdee": current_user.tdee,
                 "user": current_username,
-                "weeks_to_goal": weeks_to_goal,
+                "weeks_to_goal": weeks_to_goal if goal_type in ["loss", "gain"] else None,
                 "daily_calories": daily_calories,
                 "goal_weights_1lb": goal_weights_1lb,
-                "x_labels": x_labels,
+                "x_labels": x_labels if goal_type in ["loss", "gain"] else None,
                 "carbs_calories_1lb": carbs_calories_1lb,
                 "fats_calories_1lb": fats_calories_1lb,
                 "protein_calories_1lb": protein_calories_1lb
