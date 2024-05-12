@@ -105,30 +105,17 @@ export default function ViewProfile() {
           <p className="text-xl mb-4"><strong>Sex:</strong> {profileData.sex}</p>
           <p className="text-xl mb-4"><strong>Birthday (MM/DD/YYYY):</strong> {formatDate(profileData.birthday)}</p>
           <p className="text-xl mb-4"><strong>Age:</strong> {profileData.age}</p>
-          <p className="text-xl mb-4"><strong>Basal Metabolic Rate (BMR):</strong> {profileData.bmr}</p>  
-          <p className="text-xl mb-4"><strong>Total Daily Energy Expenditure (TDEE):</strong> {profileData.tdee}</p>    
-          <p className="text-xl mb-4"><strong>Diet Type:</strong> {profileData.diettype}</p>
-          <p className="text-xl mb-4"><strong>Goal Type:</strong> {profileData.goaltype}</p>
           <p className="text-xl mb-4"><strong>Height:</strong> {profileData.heightfeet}' {profileData.heightinches}"</p>
           <p className="text-xl mb-4"><strong>Current Weight:</strong> {profileData.weight} lbs</p>
-          {profileData.goaltype === 'loss' && (
+          {profileData.goaltype !== 'maintenance' && (
             <p className="text-xl mb-4"><strong>Target Weight:</strong> {profileData.targetweight} lbs</p>
           )}
-          {/* Chart.js Line chart for weight loss */}
-          {profileData.goaltype !== 'maintenance' && (
-            <div className="mt-8">
-              <Line data={{
-                labels: profileData.x_labels,
-                datasets: [
-                  {
-                    label: '1 lb/week',
-                    data: profileData.goal_weights_1lb,
-                    borderColor: 'green',
-                  },
-                ]
-              }} options={chartOptions} />
-            </div>
-          )}
+          <p className="text-xl mb-4"><strong>Goal Type:</strong> {profileData.goaltype}</p>
+          <p className="text-xl mb-4"><strong>Basal Metabolic Rate:</strong> {profileData.bmr} calories</p>  
+          <p className="text-xl mb-4"><strong>Total Daily Energy Expenditure:</strong> {profileData.tdee} calories</p>
+          <p className="text-xl mb-4"><strong>Suggested Daily Calorie Intake:</strong> {profileData.suggested_daily_calorie_intake} calories</p>     
+          <p className="text-xl mb-4"><strong>Diet Type:</strong> {profileData.diettype} (Carbs: {profileData.carbs_percentage}%, Fats: {profileData.fats_percentage}%, Proteins: {profileData.proteins_percentage}%)</p>
+  
           {/* Chart.js Donut chart for macronutrient ratio */}
           <div className="mt-8">
             <Doughnut data={{
@@ -150,8 +137,31 @@ export default function ViewProfile() {
               }]
             }} options={donutChartOptions} />
           </div>
-        </div>
+  
+        {/* Chart.js Line chart for weight loss or gain*/}
+        {profileData.goaltype !== 'maintenance' && (
+          <div className="mt-8" style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className="graph-container">
+              <Line 
+                data={{
+                  labels: profileData.x_labels,
+                  datasets: [
+                    {
+                      label: '1 lb/week',
+                      data: profileData.goal_weights_1lb,
+                      borderColor: 'green',
+                    },
+                  ]
+                }} 
+                options={chartOptions} 
+                height={600} // Adjust the height of the Line Chart
+                width={800} // Adjust the width of the Line Chart
+              />
+            </div>
+          </div>
+        )}
       </div>
-    </>
-  );
-}
+    </div>
+  </>
+);
+}  

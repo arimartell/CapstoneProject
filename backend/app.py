@@ -348,7 +348,7 @@ def profile():
 
         # Calculate macronutrient ratios for each weight loss goal
         diet_type = current_user.diet_type
-        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
+        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb, carbs_percentage, fats_percentage, proteins_percentage = (
             calculate_macronutrient_ratios(daily_calories, diet_type)
         )
 
@@ -366,7 +366,7 @@ def profile():
         # For maintenance, calculate macronutrient ratios and daily calories
         daily_calories = calculate_daily_calories(tdee, goal_type)
         diet_type = current_user.diet_type
-        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb = (
+        carbs_calories_1lb, fats_calories_1lb, protein_calories_1lb, carbs_percentage, fats_percentage, proteins_percentage = (
             calculate_macronutrient_ratios(daily_calories, diet_type)
         )
         goal_weights_1lb = None
@@ -393,7 +393,11 @@ def profile():
                 "x_labels": x_labels if goal_type in ["loss", "gain"] else None,
                 "carbs_calories_1lb": carbs_calories_1lb,
                 "fats_calories_1lb": fats_calories_1lb,
-                "protein_calories_1lb": protein_calories_1lb
+                "protein_calories_1lb": protein_calories_1lb,
+                "suggested_daily_calorie_intake": round(daily_calories, 2),
+                "carbs_percentage": carbs_percentage,
+                "fats_percentage": fats_percentage,
+                "proteins_percentage": proteins_percentage
             }
         ),
         200,

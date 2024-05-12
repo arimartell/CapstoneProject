@@ -73,7 +73,7 @@ def calculate_macronutrient_ratios(daily_calories, diet_type):
     fats_calories = daily_calories * diet['fats']
     protein_calories = daily_calories * diet['protein']
     
-    return round(carbs_calories, 2), round(fats_calories, 2), round(protein_calories, 2)
+    return round(carbs_calories, 2), round(fats_calories, 2), round(protein_calories, 2), diet['carbs']*100, diet['fats']*100, diet['protein']*100
 
 #def predict_weight(user, timeline): TODO call scalar func for same timeline and provide checkpoints based on users current weight and current weight loss trend
 
