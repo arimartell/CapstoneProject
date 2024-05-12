@@ -18,8 +18,13 @@ export default function Dashboard() {
   });
   const [showSummary, setShowSummary] = useState(false);
   const [firstMealBadge, setFirstMealBadge] = useState(false);
+  const [has3dayBadge, setHas3DayBadge] = useState(false);
+  const [has7dayBadge, setHas7DayBadge] = useState(false);
+
+  // ! To test the account age badge popups, you can change the state below. 3-6 will show the 3day popup (if it hasn't already been shown) and anything greater than or equal to 7 will show the 7 day one if not shown already
+  const [accountAge, setAccountAge] = useState(7);
   const data = useLoaderData();
-  console.log(star);
+
   // Ariana Martell Work in progress will mkae it show up for only first time meals
   const checkFirstMealBadge = async () => {
     try {
@@ -36,9 +41,7 @@ export default function Dashboard() {
         const data = await response.json();
         // Extract 'has_badge'from the parsed data
         const { has_badge } = data;
-
-        console.log(data);
-
+        console.log(data)
         //Updates state of has_badge
         setFirstMealBadge(has_badge);
       }
@@ -47,7 +50,40 @@ export default function Dashboard() {
     }
   };
 
+  const checkAccountAge = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await fetch('/api/accountage', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Parse JSON body of response
+        const data = await response.json();
+
+        // ! To test the badges being given to the users, comment out the line below, and make a variable called "days_old" and change the number to see the corresponding badge show up.
+        // const { days_old } = data;
+        const days_old = 7;
+
+
+
+        if (days_old >= 3) setHas3DayBadge(true);
+        if (days_old >= 7) setHas7DayBadge(true);
+
+        console.log('Days old', days_old);
+        setAccountAge(days_old);
+      }
+    } catch (e) {
+      throw e;
+    }
+  };
+
   checkFirstMealBadge();
+  checkAccountAge();
 
   const fetchAndShowSummary = async () => {
     try {
@@ -98,32 +134,80 @@ export default function Dashboard() {
 
       return { dialog, closebtn, p };
     };
+    // ? Check for ID of dialogs on page to avoid re-adding the dialogs, happens because of state updating means this check may happen more than once.
+    const addedFirstMealDialog =
+      document.querySelector('#firstmealpopup') !== null;
+    const added7DayDialog = document.querySelector('#sevendaypopup') !== null;
+    const added3DayDialog = document.querySelector('#threedaypopup') !== null;
 
     // Check if the firstMealBadge is true which indicates badge earned
-    if (firstMealBadge) {
+    if (firstMealBadge && !addedFirstMealDialog) {
       // Check local storage to see if the badge popup has been shown before
       const shownPopup = localStorage.getItem('shownfirstmealbadge') ?? false;
-
-      console.log(shownPopup);
 
       if (shownPopup !== 'true') {
         const { dialog, closebtn, p } = createPopup(
           'Your just earned a badge for creating your first meal!',
         );
 
+        dialog.id = 'firstmealpopup';
         document.body.appendChild(dialog);
         // Behavior for close button
         closebtn.onclick = () => {
           dialog.close();
           dialog.remove();
-          localStorage.setItem('shownfirstmealbadge', true);
+          localStorage.setItem('shownfirstmealbadge', 'true');
         };
 
         dialog.showModal();
-        console.log('Has shown user?', shownPopup);
+        // console.log('Has shown user?', shownPopup);
       }
     }
-  }, [firstMealBadge]);
+
+    if (accountAge !== -1) {
+      const shouldShow7day =
+        accountAge >= 7 && localStorage.getItem('shown7daybadge') !== 'true';
+      const shouldShow3day =
+        accountAge >= 3 &&
+        accountAge <= 6 &&
+        localStorage.getItem('shown3daybadge') !== 'true';
+
+      if (shouldShow7day && !added7DayDialog) {
+        // ? Show 7 day badge also skip 3day badge if neither have been shown since if you got the 7 day one, kinda obvious you'd get the 3 day one too, also showing both in sequence would be annoying
+        const { dialog, closebtn, p } = createPopup(
+          "Wow! 7 days really flew by didn't it?! Here's a badge for using our site for 7 days!",
+        );
+        dialog.id = 'sevendaypopup';
+
+        document.body.appendChild(dialog);
+        // Behavior for close button
+        closebtn.onclick = () => {
+          dialog.close();
+          dialog.remove();
+          localStorage.setItem('shown7daybadge', 'true');
+          if (localStorage.getItem('shown3daybadge') !== 'true')
+            localStorage.setItem('shown3daybadge', 'true');
+        };
+        dialog.showModal();
+      }
+
+      // ? The "!shouldShow7day" in the below if statement has small potential to cause some unintended behaviour, but it's an extra check anyway so it should never cause any issues
+      if (!shouldShow7day && shouldShow3day && !added3DayDialog) {
+        const { dialog, closebtn, p } = createPopup(
+          "Congratulations on your 3-day anniversary with us 😄 here's to many more exciting days ahead!",
+        );
+        dialog.id = 'threedaypopup';
+        document.body.appendChild(dialog);
+        // Behavior for close button
+        closebtn.onclick = () => {
+          dialog.close();
+          dialog.remove();
+          localStorage.setItem('shown3daybadge', 'true');
+        };
+        dialog.showModal();
+      }
+    }
+  }, [firstMealBadge, accountAge]);
 
   return (
     <>
@@ -150,10 +234,16 @@ export default function Dashboard() {
             Your Badges
             <hr />
           </h3>
-          <div className="badge-container flex flex-row h-fullflex-wrap justify-start items-center">
-            {firstMealBadge ? <Badge img={star} title={'Star badge'} i={1} /> : null}
-            <Badge img={thumb} title={'Thumbs up badge'} i={1.25} />
-            <Badge img={note} title={'Notepad badge'} i={1.5} />
+          <div className="badge-container flex flex-row flex-wrap justify-center items-center">
+            {firstMealBadge ? (
+              <Badge img={star} title={'Star badge'} i={1} />
+            ) : null}
+            {has3dayBadge ? (
+              <Badge img={thumb} title={'Thumbs up badge'} i={1.25} />
+            ) : null}
+            {has7dayBadge ? (
+              <Badge img={note} title={'Notepad badge'} i={1.5} />
+            ) : null}
           </div>
         </div>
 

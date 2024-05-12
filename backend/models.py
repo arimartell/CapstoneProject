@@ -16,17 +16,19 @@ class User(db.Entity, UserMixin):
     meals = Set("Meal")
     unit_type = Optional(str, default="imperial")
     sex = Optional(str, default="")
-    weight = Optional(int, default=0)          # lbs
-    height = Optional(int, default=0)          # inches
+    weight = Optional(int, default=0)  # lbs
+    height = Optional(int, default=0)  # inches
     birthday = Optional(datetime)
-    age = Optional(int, default =0)
+    age = Optional(int, default=0)
     activity_level = Optional(str, default="")
-    goal_type = Optional(str, default="") # weight loss or weight maintenance
+    goal_type = Optional(str, default="")  # weight loss or weight maintenance
     goal_weight = Optional(int, default=0)
     protein_goal = Optional(float, default=0.0)
     diet_type = Optional(str, default="")
-    bmr = Optional(float, default =0)
-    tdee = Optional(float, default =0)
+    bmr = Optional(float, default=0)
+    tdee = Optional(float, default=0)
+    date_created = Required(datetime, default=datetime.now)
+
 
 class Meal(db.Entity):
     user = Required(User)
@@ -41,6 +43,8 @@ class Meal(db.Entity):
     carbs_sugar = Optional(float, default=0)
     protein = Required(float, default=0)
     sodium = Optional(float, default=0)
+    
+
 
 class Staple_meal(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -53,8 +57,9 @@ class Staple_meal(db.Entity):
     carbs_fiber = Optional(float, default=0)
     carbs_sugar = Optional(float, default=0)
     protein = Required(float, default=0)
-    sodium = Optional(float, default=0) 
+    sodium = Optional(float, default=0)
     serving_size = Required(int, default=0)
+
 
 class User_Weight(db.Entity):
     id = PrimaryKey(int, auto=True)

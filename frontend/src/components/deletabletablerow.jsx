@@ -1,3 +1,5 @@
+import { toast } from 'react-toastify';
+
 //* Created by: Ariana Martell
 export default function DeletableRow({ meal }) {
   console.log(meal);
@@ -8,7 +10,7 @@ export default function DeletableRow({ meal }) {
     console.error('Cannot delete meal as user is not logged in');
     return;
   }
-// Delete a meal by its ID.
+  // Delete a meal by its ID.
   async function deleteMeal(mealID) {
     try {
       const resp = await fetch('/api/deletemeal', {
@@ -25,9 +27,15 @@ export default function DeletableRow({ meal }) {
         const { message } = body;
         console.log(message);
         // Toast saying "success" then refresh page after delay
+        toast.success('Meal deleted', {
+          onClose: () => {
+            window.location.reload();
+          },
+        });
       } else {
         const body = await resp.json();
         const { message } = body;
+        toast.error(message);
         // Bad toast
       }
     } catch (err) {

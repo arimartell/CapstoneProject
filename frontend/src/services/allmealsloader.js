@@ -3,7 +3,7 @@
 // Fetch recent meal data from server 
 export async function getAllMeals(token) {
     try {
-        const response = await fetch('/api/allusermeals', {
+        const response = await fetch('/api/todaysmeals', {
             method: 'get',
             headers: {
                 'Content-Type': 'application/json',

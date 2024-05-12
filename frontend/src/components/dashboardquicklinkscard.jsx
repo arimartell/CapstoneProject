@@ -33,7 +33,10 @@ async function addMealToUser(meal) {
 }
 function MealForm(meal) {
   return (
-    <div className="m-2 border-2 border-dashed border-info rounded p-2">
+    <div
+      key={String(Math.random())}
+      className="m-2 border-2 border-dashed border-info rounded p-2"
+    >
       <h3 className="text-2xl text-neutral-content mb-2">{meal.name}</h3>
       <form action="/meal" method="POST">
         <button
@@ -95,13 +98,13 @@ export default function QuickCard({ title, recents }) {
               ✕
             </button>
           </form>
-          <p className="py-4 flex flex-row flex-wrap justify-center items-center">
+          <div className="py-4 flex flex-row flex-wrap justify-center items-center">
             {recents && recents.length > 0 ? (
               recents.map(MealForm)
             ) : (
               <div> You haven't added any meals yet</div>
             )}
-          </p>
+          </div>
         </div>
       </dialog>
       <div className="card xl:w-[32cqw] xl:mx-5 w-full my-4 bg-neutral shadow-2xl">

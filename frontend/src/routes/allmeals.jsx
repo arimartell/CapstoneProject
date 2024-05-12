@@ -1,12 +1,5 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useLoaderData } from 'react-router-dom';
-import QuickCard from '../components/dashboardquicklinkscard';
 import SwipeAnimation from '../components/swipe';
-import Badge from '../components/badge';
-import star from '../assests/star.svg';
-import thumb from '../assests/thumb.svg';
-import note from '../assests/note.svg';
 import DeletableRow from '../components/deletabletablerow';
 //* Created by: Ariana Martell
 export default function AllMeals() {
@@ -15,6 +8,24 @@ export default function AllMeals() {
   console.log('All Meal');
   console.log(data);
 
+  if (data.length === 0) {
+    return (
+      <>
+        {' '}
+        <SwipeAnimation />
+        <div className="size-full flex flex-col items-center min-w-lg">
+          <div className="hero bg-base-200 min-h-[20vh]">
+            <div className="hero-content text-center">
+              <div className="max-w-xl">
+                <div className="text-5xl font-bold">No meals logged today!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <SwipeAnimation />
@@ -22,7 +33,7 @@ export default function AllMeals() {
         <div className="hero bg-base-200 min-h-[20vh]">
           <div className="hero-content text-center">
             <div className="max-w-xl">
-              <div className="text-5xl font-bold">All Logged Meals</div>
+              <div className="text-5xl font-bold">Today's Logged Meals</div>
             </div>
           </div>
         </div>
