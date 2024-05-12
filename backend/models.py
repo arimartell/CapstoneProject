@@ -27,7 +27,7 @@ class User(db.Entity, UserMixin):
     diet_type = Optional(str, default="")
     bmr = Optional(float, default=0)
     tdee = Optional(float, default=0)
-    date_created = Required(datetime, default=datetime.now)
+    # date_created = Required(datetime, default=datetime.now)
 
 
 class Meal(db.Entity):

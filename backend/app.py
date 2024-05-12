@@ -267,9 +267,7 @@ def profile():
             return jsonify({"message": "Invalid height feet"}), 400
         if not re.match(r"^\d+$", data["heightinches"]):
             return jsonify({"message": "Invalid height inches"}), 400
-        if data["goaltype"] in ["loss", "gain"] and not re.match(
-            r"^\d+$", data["targetweight"]
-        ):
+        if data["goaltype"] in ["loss", "gain"] and not re.match(r"^\d+$", data["targetweight"]):
             return jsonify({"message": "Invalid target weight"}), 400
 
         # Convert target weight to integer if present
@@ -302,25 +300,11 @@ def profile():
 
         # Check if target weight is greater than current weight when goaltype is loss
         if data["goaltype"] == "loss" and true_tweight >= int(data["weight"]):
-            return (
-                jsonify(
-                    {
-                        "message": "Target weight must be less than current weight for weight loss goal"
-                    }
-                ),
-                400,
-            )
+            return jsonify({"message": "Target weight must be less than current weight for weight loss goal"}), 400
 
         # Check if target weight is less than current weight when goaltype is gain
         if data["goaltype"] == "gain" and true_tweight <= int(data["weight"]):
-            return (
-                jsonify(
-                    {
-                        "message": "Target weight must be greater than current weight for weight gain goal"
-                    }
-                ),
-                400,
-            )
+            return jsonify({"message": "Target weight must be greater than current weight for weight gain goal"}), 400
 
         # Calculate BMI based on target weight and current height
         target_bmi = calculate_bmi(current_user.height, true_tweight)
@@ -331,76 +315,18 @@ def profile():
         # Alert user based on BMI category for weight loss or gain goal
         if data["goaltype"] in ["loss", "gain"]:
             if target_bmi_category == "Underweight":
-                return (
-                    jsonify(
-                        {"message": "Increase the target weight to reach a healthy BMI"}
-                    ),
-                    400,
-                )
+                return jsonify({"message": "Increase the target weight to reach a healthy BMI"}), 400
             elif target_bmi_category in ["Overweight", "Obesity"]:
-                return (
-                    jsonify(
-                        {"message": "Decrease the target weight to reach a healthy BMI"}
-                    ),
-                    400,
-                )
-
+                return jsonify({"message": "Decrease the target weight to reach a healthy BMI"}), 400
+            
         if data["goaltype"] == "maintenance":
             current_bmi = calculate_bmi(current_user.height, current_user.weight)
             current_bmi_category = classify_bmi(current_bmi)
             if current_bmi_category == "Underweight":
-                return (
-                    jsonify(
-                        {
-                            "message": "Current BMI is Underweight, Choose Weight Gain for Healthy BMI"
-                        }
-                    ),
-                    400,
-                )
+                return jsonify({"message": "Current BMI is Underweight, Choose Weight Gain for Healthy BMI"}), 400
             elif current_bmi_category in ["Overweight", "Obesity"]:
-                return (
-                    jsonify(
-                        {
-                            "message": "Current BMI is Overweight, Choose Weight Loss for Healthy BMI"
-                        }
-                    ),
-                    400,
-                )
+                return jsonify({"message": "Current BMI is Overweight, Choose Weight Loss for Healthy BMI"}), 400
 
-<<<<<<< HEAD
-=======
-        # Update user's profile information based on form data
-        current_user.sex = data["sex"]
-        current_user.weight = data["weight"]
-        h = int(data["heightfeet"])
-        current_user.height = int(data["heightinches"]) + 12 * h
-        current_user.birthday = data["birthday"]
-        current_user.activity_level = data["activitylevel"]
-        current_user.goal_type = data["goaltype"]
-        current_user.goal_weight = true_tweight
-        current_user.diet_type = data["diettype"]
-
-        # Calculate age
-        birthday = datetime.strptime(data["birthday"], "%Y-%m-%d")
-        today = datetime.today()
-        age = (
-            today.year
-            - birthday.year
-            - ((today.month, today.day) < (birthday.month, birthday.day))
-        )
-        current_user.age = age
-
-        # Calculate BMR (Basal Metabolic Rate)
-        bmr = calculate_bmr(
-            current_user.weight, current_user.height, current_user.age, current_user.sex
-        )
-        current_user.bmr = bmr
-
-        # Calculate TDEE (Total Daily Energy Expenditure)
-        tdee = calculate_tdee(bmr, current_user.activity_level)
-        current_user.tdee = tdee
-
->>>>>>> 5f8bebac4f8c5fb42d4a1adfa86079de19bd41eb
         commit()
 
         # Redirect to the home page after successfully updating profile
@@ -410,20 +336,15 @@ def profile():
     # Grab user attributes to use in calculations
     weight = current_user.weight
     goal_weight = current_user.goal_weight
-    tdee = current_user.tdee  # TDEE (Total Daily Energy Expenditure)
+    tdee = current_user.tdee   # TDEE (Total Daily Energy Expenditure)
     goal_type = current_user.goal_type
 
-<<<<<<< HEAD
     if goal_type in ["loss", "gain"]:
         # Calculate weeks needed to reach weight goal
         weeks_to_goal = calculate_goal_weight_weeks(weight, goal_weight, goal_type)
 
         # Calculate average daily calories under the weight loss plan
         daily_calories = calculate_daily_calories(tdee, goal_type)
-=======
-    # Calculate weeks needed to reach weight goal
-    weeks_to_goal = calculate_goal_weight_weeks(weight, goal_weight, goal_type)
->>>>>>> 5f8bebac4f8c5fb42d4a1adfa86079de19bd41eb
 
         # Calculate macronutrient ratios for each weight loss goal
         diet_type = current_user.diet_type
@@ -450,14 +371,6 @@ def profile():
         )
         goal_weights_1lb = None
 
-<<<<<<< HEAD
-=======
-    # Calculate weights for each week based on weight loss rates
-    current_weight = weight
-    goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal + 1)]
-    max_weeks = weeks_to_goal + 1
-    x_labels = [f"Week {i}" for i in range(max_weeks)]
->>>>>>> 5f8bebac4f8c5fb42d4a1adfa86079de19bd41eb
     return (
         jsonify(
             {
@@ -480,11 +393,12 @@ def profile():
                 "x_labels": x_labels if goal_type in ["loss", "gain"] else None,
                 "carbs_calories_1lb": carbs_calories_1lb,
                 "fats_calories_1lb": fats_calories_1lb,
-                "protein_calories_1lb": protein_calories_1lb,
+                "protein_calories_1lb": protein_calories_1lb
             }
         ),
         200,
     )
+
 
 
 @app.route("/dashboard", methods=["POST"])
@@ -807,14 +721,14 @@ def delete_meal():
     return jsonify({"message": "failed"})
 
 
-@app.route("/accountage", methods=["GET"])
-@jwt_required()
-def account_age():
-    current_username = get_jwt_identity()
-    current_user = User.get(username=current_username)
-    true_date_created = datetime.strptime(current_user.date_created, "%Y-%m-%d").date()
-    days_old = (date.today() - true_date_created).days
-    return jsonify({"days_old": days_old})
+# @app.route("/accountage", methods=["GET"])
+# @jwt_required()
+# def account_age():
+#     current_username = get_jwt_identity()
+#     current_user = User.get(username=current_username)
+#     true_date_created = datetime.strptime(current_user.date_created, "%Y-%m-%d").date()
+#     days_old = (date.today() - true_date_created).days
+#     return jsonify({"days_old": days_old})
 
 
 # To check which user is currently logged in via access token when user logs in
