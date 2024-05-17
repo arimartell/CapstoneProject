@@ -104,8 +104,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <Root />,
     children: routes.map((route) => ({
-      index: route.path === '/',
-      path: route.path === '/' ? undefined : route.path,
+      path: route.path,
       element: route.element,
       // https://reactrouter.com/en/main/route/loader
       // Function that's run on every route, using this to protect routes from users who aren't logged in
@@ -120,7 +119,7 @@ const router = createBrowserRouter([
             const recent = await getRecentMeals(loggedIn);
             return recent;
           }
-          if(route.path === '/allmeals') {
+          if (route.path === '/allmeals') {
             const meals = await getAllMeals(loggedIn);
             return meals;
           }

@@ -23,15 +23,15 @@ function LogoutButton() {
   };
 
   return (
-
-      <button
-        id="logout"
-        onClick={handleLogout}
-        className={isLoginPage ? 'hidden' : 'btn btn-primary absolute right-8 top-4'}
-      >
-        Logout
-      </button>
-
+    <button
+      id="logout"
+      onClick={handleLogout}
+      className={
+        isLoginPage ? 'hidden' : 'btn btn-primary absolute right-8 top-4'
+      }
+    >
+      Logout
+    </button>
   );
 }
 export default function Root() {
@@ -82,7 +82,7 @@ export default function Root() {
               <Link to="/recipe">
                 <span className="text-2xl shingo">Recipe Lookup</span>
               </Link>
-            </li> 
+            </li>
             <li>
               <Link to="/allmeals">
                 <span className="text-2xl shingo">Today's Meals</span>
@@ -95,7 +95,9 @@ export default function Root() {
         <LogoutButton />
       </div>
       <AnimatePresence mode="wait">
-        {React.cloneElement(currentOutlet, { key: location.pathname })}
+        {currentOutlet
+          ? React.cloneElement(currentOutlet, { key: location.pathname })
+          : null}
       </AnimatePresence>
     </>
   );

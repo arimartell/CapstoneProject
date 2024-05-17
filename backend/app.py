@@ -725,14 +725,13 @@ def delete_meal():
     return jsonify({"message": "failed"})
 
 
-# @app.route("/accountage", methods=["GET"])
-# @jwt_required()
-# def account_age():
-#     current_username = get_jwt_identity()
-#     current_user = User.get(username=current_username)
-#     true_date_created = datetime.strptime(current_user.date_created, "%Y-%m-%d").date()
-#     days_old = (date.today() - true_date_created).days
-#     return jsonify({"days_old": days_old})
+@app.route("/accountage", methods=["GET"])
+@jwt_required()
+def account_age():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
+    days_old = (date.today() - current_user.date_created.date()).days
+    return jsonify({"days_old": days_old})
 
 
 # To check which user is currently logged in via access token when user logs in

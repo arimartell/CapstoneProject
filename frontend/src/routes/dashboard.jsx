@@ -66,8 +66,8 @@ export default function Dashboard() {
         const data = await response.json();
 
         // ! To test the badges being given to the users, comment out the line below, and make a variable called "days_old" and change the number to see the corresponding badge show up.
-        // const { days_old } = data;
-        const days_old = 7;
+        // const { days_old } = data; // Age from database
+        const days_old = 7; // Manual age variable for testing
 
 
 
@@ -140,10 +140,12 @@ export default function Dashboard() {
     const added7DayDialog = document.querySelector('#sevendaypopup') !== null;
     const added3DayDialog = document.querySelector('#threedaypopup') !== null;
 
+    const token = localStorage.getItem('token');
+
     // Check if the firstMealBadge is true which indicates badge earned
     if (firstMealBadge && !addedFirstMealDialog) {
       // Check local storage to see if the badge popup has been shown before
-      const shownPopup = localStorage.getItem('shownfirstmealbadge') ?? false;
+      const shownPopup = localStorage.getItem(token + 'shownfirstmealbadge') ?? false;
 
       if (shownPopup !== 'true') {
         const { dialog, closebtn, p } = createPopup(
@@ -156,7 +158,7 @@ export default function Dashboard() {
         closebtn.onclick = () => {
           dialog.close();
           dialog.remove();
-          localStorage.setItem('shownfirstmealbadge', 'true');
+          localStorage.setItem(token + 'shownfirstmealbadge', 'true');
         };
 
         dialog.showModal();
@@ -166,11 +168,11 @@ export default function Dashboard() {
 
     if (accountAge !== -1) {
       const shouldShow7day =
-        accountAge >= 7 && localStorage.getItem('shown7daybadge') !== 'true';
+        accountAge >= 7 && localStorage.getItem(token + 'shown7daybadge') !== 'true';
       const shouldShow3day =
         accountAge >= 3 &&
         accountAge <= 6 &&
-        localStorage.getItem('shown3daybadge') !== 'true';
+        localStorage.getItem(token + 'shown3daybadge') !== 'true';
 
       if (shouldShow7day && !added7DayDialog) {
         // ? Show 7 day badge also skip 3day badge if neither have been shown since if you got the 7 day one, kinda obvious you'd get the 3 day one too, also showing both in sequence would be annoying
@@ -184,9 +186,9 @@ export default function Dashboard() {
         closebtn.onclick = () => {
           dialog.close();
           dialog.remove();
-          localStorage.setItem('shown7daybadge', 'true');
-          if (localStorage.getItem('shown3daybadge') !== 'true')
-            localStorage.setItem('shown3daybadge', 'true');
+          localStorage.setItem(token + 'shown7daybadge', 'true');
+          if (localStorage.getItem(token + 'shown3daybadge') !== 'true')
+            localStorage.setItem(token + 'shown3daybadge', 'true');
         };
         dialog.showModal();
       }
@@ -202,7 +204,7 @@ export default function Dashboard() {
         closebtn.onclick = () => {
           dialog.close();
           dialog.remove();
-          localStorage.setItem('shown3daybadge', 'true');
+          localStorage.setItem(token + 'shown3daybadge', 'true');
         };
         dialog.showModal();
       }
