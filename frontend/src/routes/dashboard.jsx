@@ -66,8 +66,8 @@ export default function Dashboard() {
         const data = await response.json();
 
         // ! To test the badges being given to the users, comment out the line below, and make a variable called "days_old" and change the number to see the corresponding badge show up.
-        // const { days_old } = data; // Age from database
-        const days_old = 7; // Manual age variable for testing
+        const { days_old } = data; // Age from database
+        // const days_old = 7; // Manual age variable for testing
 
 
 
