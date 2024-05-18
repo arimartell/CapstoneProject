@@ -67,7 +67,7 @@ export default function ViewProfile() {
     plugins: {
       title: {
         display: true,
-        text: 'Weight Loss Timeline',
+        text: 'Weight Timeline',
         fontSize: 20,
         padding: 20
       }
