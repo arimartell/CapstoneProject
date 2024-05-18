@@ -85,6 +85,7 @@ export default function SetWeeklyWeights() {
                 <input
                   className="input input-bordered w-full"
                   type="number"
+                  step="0.01"
                   min={0}
                   value={weight}
                   onChange={(e) => handleWeightChange(index, e.target.value)}
