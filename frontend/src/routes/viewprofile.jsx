@@ -94,8 +94,8 @@ export default function ViewProfile() {
             <div className="max-w-md">
               <div className="text-5xl font-bold shingo">View Profile</div>
               <div className="mt-4">
-                <Link to="/setprofile" className="btn btn-primary">
-                  Change Profile
+                <Link to="/setweeklyweights" className="btn btn-primary">
+                  Update Weekly Weights
                 </Link>
               </div>
             </div>

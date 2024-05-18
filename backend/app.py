@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, session, make_response
+from flask import Flask, jsonify, request, session, json, make_response
 from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager,
@@ -327,6 +327,13 @@ def profile():
             elif current_bmi_category in ["Overweight", "Obesity"]:
                 return jsonify({"message": "Current BMI is Overweight, Choose Weight Loss for Healthy BMI"}), 400
 
+        # Update weeks_to_goal for weight loss or gain goals
+        if data["goaltype"] in ["loss", "gain"]:
+            weeks_to_goal = calculate_goal_weight_weeks(current_user.weight, true_tweight, data["goaltype"])
+            current_user.weeks_to_goal = weeks_to_goal
+        else:
+            current_user.weeks_to_goal = None
+
         commit()
 
         # Redirect to the home page after successfully updating profile
@@ -370,6 +377,8 @@ def profile():
             calculate_macronutrient_ratios(daily_calories, diet_type)
         )
         goal_weights_1lb = None
+        x_labels = None
+        weeks_to_goal = None
 
     return (
         jsonify(
@@ -387,10 +396,10 @@ def profile():
                 "bmr": current_user.bmr,
                 "tdee": current_user.tdee,
                 "user": current_username,
-                "weeks_to_goal": weeks_to_goal if goal_type in ["loss", "gain"] else None,
+                "weeks_to_goal": weeks_to_goal,
                 "daily_calories": daily_calories,
                 "goal_weights_1lb": goal_weights_1lb,
-                "x_labels": x_labels if goal_type in ["loss", "gain"] else None,
+                "x_labels": x_labels,
                 "carbs_calories_1lb": carbs_calories_1lb,
                 "fats_calories_1lb": fats_calories_1lb,
                 "protein_calories_1lb": protein_calories_1lb,
@@ -402,6 +411,41 @@ def profile():
         ),
         200,
     )
+
+
+
+@app.route("/setweeklyweights", methods=["GET", "POST"])
+@jwt_required()
+def set_weekly_weights():
+    current_username = get_jwt_identity()
+    current_user = User.get(username=current_username)
+
+    if request.method == "GET":
+        existing_weights = json.loads(current_user.weekly_weight)
+        weeks_to_goal = current_user.weeks_to_goal
+        return jsonify({"weekly_weights": existing_weights, "weeks_to_goal": weeks_to_goal}), 200
+
+    data = request.get_json()
+
+    if not data.get("weekly_weights"):
+        return jsonify({"message": "Missing weekly_weights"}), 400
+
+    weekly_weights = data["weekly_weights"]
+    if not isinstance(weekly_weights, list):
+        return jsonify({"message": "Invalid format for weekly_weights"}), 400
+
+    # Validate weights
+    for weight in weekly_weights:
+        if not isinstance(weight, (int, float)) or weight <= 0:
+            return jsonify({"message": "All weights must be positive numbers"}), 400
+
+    # Clear existing weights before adding new ones
+    current_user.weekly_weight = json.dumps([])
+    updated_weights = weekly_weights
+    current_user.weekly_weight = json.dumps(updated_weights)
+    commit()
+
+    return jsonify({"message": "Weekly weights updated successfully"}), 200
 
 
 

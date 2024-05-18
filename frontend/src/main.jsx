@@ -20,6 +20,7 @@ import Staple from './routes/staple_meal';
 import Graph from './routes/graph';
 import Recipe from './routes/recipe';
 import AllMeals from './routes/allmeals';
+import SetWeeklyWeights from './routes/setweeklyweights';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getRecentMeals } from './services/mealpageloader';
@@ -45,6 +46,11 @@ export const routes = [
   {
     path: '/setprofile',
     element: <SetProfile />,
+    protected: true,
+  },
+  {
+    path: '/setweeklyweights',
+    element: <SetWeeklyWeights />,
     protected: true,
   },
   {

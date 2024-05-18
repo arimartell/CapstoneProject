@@ -28,6 +28,9 @@ class User(db.Entity, UserMixin):
     bmr = Optional(float, default=0)
     tdee = Optional(float, default=0)
     date_created = Required(datetime, default=datetime.now)
+    weeks_to_goal = Optional(int, default=0)
+    weekly_weight = Optional(str, default="[]")
+    
 
 
 class Meal(db.Entity):
