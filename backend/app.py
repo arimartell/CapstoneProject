@@ -364,11 +364,11 @@ def profile():
         if goal_type == "loss":
             goal_weights_1lb = [current_weight - i for i in range(weeks_to_goal + 1)]
             max_weeks = weeks_to_goal + 1
-            x_labels = [f"Week {i}" for i in range(max_weeks)]
+            x_labels = [f"Week {i}" for i in range(1, max_weeks)]  # Start from Week 1
         elif goal_type == "gain":
             goal_weights_1lb = [current_weight + i for i in range(weeks_to_goal + 1)]
             max_weeks = weeks_to_goal + 1
-            x_labels = [f"Week {i}" for i in range(max_weeks)]
+            x_labels = [f"Week {i}" for i in range(1, max_weeks)]  # Start from Week 1
     else:
         # For maintenance, calculate macronutrient ratios and daily calories
         daily_calories = calculate_daily_calories(tdee, goal_type)

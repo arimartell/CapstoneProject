@@ -13,12 +13,27 @@ export default function ViewProfile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/profile', {
+        // Fetch profile data
+        const profileResponse = await axios.get('http://127.0.0.1:5000/profile', {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
         });
-        setProfileData(response.data);
+  
+        // Fetch weekly weights data
+        const weeklyWeightsResponse = await axios.get('http://127.0.0.1:5000/setweeklyweights', {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        });
+  
+        // Combine profile data and weekly weights data
+        const profileDataWithWeeklyWeights = {
+          ...profileResponse.data,
+          weekly_weights: weeklyWeightsResponse.data.weekly_weights,
+        };
+  
+        setProfileData(profileDataWithWeeklyWeights);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching profile data:', error);
@@ -26,9 +41,9 @@ export default function ViewProfile() {
         setLoading(false);
       }
     };
-
+  
     fetchProfileData();
-  }, []);
+  }, []);  
 
   if (loading) {
     return <div>Loading...</div>; // Display loading indicator while fetching data
@@ -85,6 +100,12 @@ export default function ViewProfile() {
     }
   };
 
+  // Find the index of the last element in x_labels array
+  const lastIndex = profileData.x_labels.length - 1;
+
+  // Remove the first element from the x_labels array
+  const adjustedLabels = profileData.x_labels.slice(1, lastIndex + 1);
+
   return (
     <>
       <SwipeAnimation />
@@ -102,6 +123,7 @@ export default function ViewProfile() {
           </div>
         </div>
         <div className="max-w-md text-center mx-auto mt-8">
+          {/* Display profile data */}
           <p className="text-xl mb-4"><strong>Sex:</strong> {profileData.sex}</p>
           <p className="text-xl mb-4"><strong>Birthday (MM/DD/YYYY):</strong> {formatDate(profileData.birthday)}</p>
           <p className="text-xl mb-4"><strong>Age:</strong> {profileData.age}</p>
@@ -137,31 +159,36 @@ export default function ViewProfile() {
               }]
             }} options={donutChartOptions} />
           </div>
-  
-        {/* Chart.js Line chart for weight loss or gain*/}
-        {profileData.goaltype !== 'maintenance' && (
-          <div className="mt-8" style={{ display: 'flex', justifyContent: 'center' }}>
-            <div className="graph-container">
-              <Line 
-                data={{
-                  labels: profileData.x_labels,
-                  datasets: [
-                    {
-                      label: '1 lb/week',
-                      data: profileData.goal_weights_1lb,
-                      borderColor: 'green',
-                    },
-                  ]
-                }} 
-                options={chartOptions} 
-                height={600} // Adjust the height of the Line Chart
-                width={800} // Adjust the width of the Line Chart
-              />
+
+          {/* Chart.js Line chart for weight loss or gain*/}
+          {profileData.goaltype !== 'maintenance' && (
+            <div className="mt-8" style={{ display: 'flex', justifyContent: 'center' }}>
+              <div className="graph-container">
+                <Line 
+                  data={{
+                    labels: profileData.x_labels,
+                    datasets: [
+                      {
+                        label: 'Actual Weight',
+                        data: profileData.weekly_weights,
+                        borderColor: 'blue',
+                      },
+                      {
+                        label: '1 lb/week',
+                        data: profileData.goal_weights_1lb.slice(1), // Adjusted to skip week 0
+                        borderColor: 'green',
+                      },
+                    ]
+                  }} 
+                  options={chartOptions} 
+                  height={600} // Adjust the height of the Line Chart
+                  width={800} // Adjust the width of the Line Chart
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  </>
-);
-}  
+    </>
+  );
+}
