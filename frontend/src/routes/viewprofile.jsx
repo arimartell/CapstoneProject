@@ -101,10 +101,10 @@ export default function ViewProfile() {
   };
 
   // Find the index of the last element in x_labels array
-  const lastIndex = profileData.x_labels.length - 1;
+  const lastIndex = profileData.x_labels?.length - 1;
 
   // Remove the first element from the x_labels array
-  const adjustedLabels = profileData.x_labels.slice(1, lastIndex + 1);
+  const adjustedLabels = profileData.x_labels?.slice(1, lastIndex + 1);
 
   return (
     <>
@@ -115,9 +115,11 @@ export default function ViewProfile() {
             <div className="max-w-md">
               <div className="text-5xl font-bold shingo">View Profile</div>
               <div className="mt-4">
-                <Link to="/setweeklyweights" className="btn btn-primary">
-                  Update Weekly Weights
-                </Link>
+                {profileData.goaltype !== 'maintenance' && (
+                  <Link to="/setweeklyweights" className="btn btn-primary">
+                    Update Weekly Weights
+                  </Link>
+                )}
               </div>
             </div>
           </div>
