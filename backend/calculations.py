@@ -89,7 +89,8 @@ def weight_loss_scalar(user, timeframe):
                 print(next_weight)
                 weight_change = value.weight - next_weight
                 weight_fluctuation.append(weight_change)
-
+    if len(weight_fluctuation) == 0:
+        return 0
     return sum(weight_fluctuation) / len(weight_fluctuation)
 
 def calculate_bmi(height, weight):

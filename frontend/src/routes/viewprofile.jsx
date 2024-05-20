@@ -13,26 +13,23 @@ export default function ViewProfile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // Fetch profile data
         const profileResponse = await axios.get('http://127.0.0.1:5000/profile', {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
         });
-  
-        // Fetch weekly weights data
+
         const weeklyWeightsResponse = await axios.get('http://127.0.0.1:5000/setweeklyweights', {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
         });
-  
-        // Combine profile data and weekly weights data
+
         const profileDataWithWeeklyWeights = {
           ...profileResponse.data,
           weekly_weights: weeklyWeightsResponse.data.weekly_weights,
         };
-  
+
         setProfileData(profileDataWithWeeklyWeights);
         setLoading(false);
       } catch (error) {
@@ -41,19 +38,14 @@ export default function ViewProfile() {
         setLoading(false);
       }
     };
-  
+
     fetchProfileData();
-  }, []);  
+  }, []);
 
-  if (loading) {
-    return <div>Loading...</div>; // Display loading indicator while fetching data
-  }
+  const formatRate = (rate) => {
+    return rate ? `${rate >= 0 ? '+' : ''}${rate} lbs` : 'Data not available';
+  };
 
-  if (error || !profileData) {
-    return <div>Error: {error || 'Profile data not available'}</div>; // Display error message if there's an error or profile data is not available
-  }
-
-  // Function to format date to MM/DD/YYYY
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -62,7 +54,47 @@ export default function ViewProfile() {
     return `${month}/${day}/${year}`;
   };
 
-  // Chart.js configuration options
+  const calculateProjectedWeights = (startWeight, rate, numWeeks) => {
+    let weights = [];
+    for (let i = 0; i <= numWeeks; i++) {
+      weights.push(startWeight + rate * i);
+    }
+    return weights;
+  };
+
+  const chartData = profileData ? {
+    labels: profileData.x_labels,
+    datasets: [
+      {
+        label: 'Actual Weight',
+        data: profileData.weekly_weights,
+        borderColor: 'blue',
+        fill: false,
+      },
+      {
+        label: 'Projected Weight (1 Week Rate)',
+        data: calculateProjectedWeights(profileData.weekly_weights[0], profileData.weight_in_rate_one_week, profileData.x_labels.length),
+        borderColor: 'red',
+        borderDash: [5, 5],
+        fill: false,
+      },
+      {
+        label: 'Projected Weight (1 Month Rate)',
+        data: calculateProjectedWeights(profileData.weekly_weights[0], profileData.weight_in_rate_one_month / 4, profileData.x_labels.length),
+        borderColor: 'green',
+        borderDash: [5, 5],
+        fill: false,
+      },
+      {
+        label: 'Projected Weight (3 Months Rate)',
+        data: calculateProjectedWeights(profileData.weekly_weights[0], profileData.weight_in_rate_three_months / 12, profileData.x_labels.length),
+        borderColor: 'purple',
+        borderDash: [5, 5],
+        fill: false,
+      }
+    ]
+  } : {};
+
   const chartOptions = {
     plugins: {
       title: {
@@ -88,23 +120,13 @@ export default function ViewProfile() {
     }
   };
 
-  // Chart.js configuration options for donut chart
-  const donutChartOptions = {
-    plugins: {
-      title: {
-        display: true,
-        text: 'Macronutrient Ratio (1 lb/week)',
-        fontSize: 20,
-        padding: 20
-      }
-    }
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  // Find the index of the last element in x_labels array
-  const lastIndex = profileData.x_labels?.length - 1;
-
-  // Remove the first element from the x_labels array
-  const adjustedLabels = profileData.x_labels?.slice(1, lastIndex + 1);
+  if (error || !profileData) {
+    return <div>Error: {error || 'Profile data not available'}</div>;
+  }
 
   return (
     <>
@@ -113,7 +135,7 @@ export default function ViewProfile() {
         <div className="hero bg-base-200 h-full min-h-[20vh]">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <div className="text-5xl font-bold shingo">View Profile</div>
+              <div className="text-5xl font-bold">View Profile</div>
               <div className="mt-4">
                 {profileData.goaltype !== 'maintenance' && (
                   <Link to="/setweeklyweights" className="btn btn-primary">
@@ -135,11 +157,21 @@ export default function ViewProfile() {
             <p className="text-xl mb-4"><strong>Target Weight:</strong> {profileData.targetweight} lbs</p>
           )}
           <p className="text-xl mb-4"><strong>Goal Type:</strong> {profileData.goaltype}</p>
-          <p className="text-xl mb-4"><strong>Basal Metabolic Rate:</strong> {profileData.bmr} calories</p>  
+          <p className="text-xl mb-4"><strong>Basal Metabolic Rate:</strong> {profileData.bmr} calories</p>
           <p className="text-xl mb-4"><strong>Total Daily Energy Expenditure:</strong> {profileData.tdee} calories</p>
-          <p className="text-xl mb-4"><strong>Suggested Daily Calorie Intake:</strong> {profileData.suggested_daily_calorie_intake} calories</p>     
+          <p className="text-xl mb-4"><strong>Suggested Daily Calorie Intake:</strong> {profileData.suggested_daily_calorie_intake} calories</p>
           <p className="text-xl mb-4"><strong>Diet Type:</strong> {profileData.diettype} (Carbs: {profileData.carbs_percentage}%, Fats: {profileData.fats_percentage}%, Proteins: {profileData.proteins_percentage}%)</p>
-  
+          {/* Chart.js Line chart for weight loss or gain*/}
+          <div className="mt-8" style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className="graph-container">
+              <Line 
+                data={chartData}
+                options={chartOptions} 
+                height={600} // Adjust the height of the Line Chart
+                width={800} // Adjust the width of the Line Chart
+              />
+            </div>
+          </div>
           {/* Chart.js Donut chart for macronutrient ratio */}
           <div className="mt-8">
             <Doughnut data={{
@@ -159,36 +191,17 @@ export default function ViewProfile() {
                 ],
                 borderWidth: 1
               }]
-            }} options={donutChartOptions} />
+            }} options={{
+              plugins: {
+                title: {
+                  display: true,
+                  text: 'Macronutrient Ratio (1 lb/week)',
+                  fontSize: 20,
+                  padding: 20
+                }
+              }
+            }} />
           </div>
-
-          {/* Chart.js Line chart for weight loss or gain*/}
-          {profileData.goaltype !== 'maintenance' && (
-            <div className="mt-8" style={{ display: 'flex', justifyContent: 'center' }}>
-              <div className="graph-container">
-                <Line 
-                  data={{
-                    labels: profileData.x_labels,
-                    datasets: [
-                      {
-                        label: 'Actual Weight',
-                        data: profileData.weekly_weights,
-                        borderColor: 'blue',
-                      },
-                      {
-                        label: '1 lb/week',
-                        data: profileData.goal_weights_1lb.slice(1), // Adjusted to skip week 0
-                        borderColor: 'green',
-                      },
-                    ]
-                  }} 
-                  options={chartOptions} 
-                  height={600} // Adjust the height of the Line Chart
-                  width={800} // Adjust the width of the Line Chart
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>

@@ -346,6 +346,12 @@ def profile():
     tdee = current_user.tdee   # TDEE (Total Daily Energy Expenditure)
     goal_type = current_user.goal_type
 
+    
+
+    weigh_in_rate_one_week = weight_loss_scalar(current_user, 7)
+    weigh_in_rate_one_month = weight_loss_scalar(current_user, 30)
+    weigh_in_rate_three_months = weight_loss_scalar(current_user, 90)
+
     if goal_type in ["loss", "gain"]:
         # Calculate weeks needed to reach weight goal
         weeks_to_goal = calculate_goal_weight_weeks(weight, goal_weight, goal_type)
@@ -406,7 +412,11 @@ def profile():
                 "suggested_daily_calorie_intake": round(daily_calories, 2),
                 "carbs_percentage": carbs_percentage,
                 "fats_percentage": fats_percentage,
-                "proteins_percentage": proteins_percentage
+                "proteins_percentage": proteins_percentage,
+                "weight_in_rate_one_week": weigh_in_rate_one_week,
+                "weight_in_rate_one_month": weigh_in_rate_one_month,
+                "weight_in_rate_three_months": weigh_in_rate_three_months,
+
             }
         ),
         200,
