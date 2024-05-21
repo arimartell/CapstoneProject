@@ -22,7 +22,7 @@ export default function Dashboard() {
   const [has7dayBadge, setHas7DayBadge] = useState(false);
 
   // ! To test the account age badge popups, you can change the state below. 3-6 will show the 3day popup (if it hasn't already been shown) and anything greater than or equal to 7 will show the 7 day one if not shown already
-  const [accountAge, setAccountAge] = useState(7);
+  const [accountAge, setAccountAge] = useState(-1);
   const data = useLoaderData();
 
   // Ariana Martell Work in progress will mkae it show up for only first time meals
@@ -169,6 +169,7 @@ export default function Dashboard() {
     if (accountAge !== -1) {
       const shouldShow7day =
         accountAge >= 7 && localStorage.getItem(token + 'shown7daybadge') !== 'true';
+
       const shouldShow3day =
         accountAge >= 3 &&
         accountAge <= 6 &&
