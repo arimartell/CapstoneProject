@@ -26,9 +26,9 @@ pip install vite
 pip install pytest
 pip install jwt
 ```
-2. To run the backend make sure you cd into the backend folder. Afterwards, run app.py on Python
+##2. To run the backend make sure you cd into the backend folder. Afterwards, run app.py on Python
 
-3. To run the frontend make sure you cd into the frontend folder. Afterwards, run the command npm install to download all the necessary packages and libraries to run react. Afterwards, running the command npm run dev should get the frontend to run. We do not have a proper landing page so the route to access the application is: http://localhost:5173/login
+##3. To run the frontend make sure you cd into the frontend folder. Afterwards, run the command npm install to download all the necessary packages and libraries to run react. Afterwards, running the command npm run dev should get the frontend to run. We do not have a proper landing page so the route to access the application is: http://localhost:5173/login
 
 # Navigating the Application
 The general flow of the application for first time users is to create an account via hyperlink in the login page → set profile → dashboard. From the dashboard you can input meals, and access routes on navbar.
