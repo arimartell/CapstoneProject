@@ -20,8 +20,6 @@ export default function Dashboard() {
   const [firstMealBadge, setFirstMealBadge] = useState(false);
   const [has3dayBadge, setHas3DayBadge] = useState(false);
   const [has7dayBadge, setHas7DayBadge] = useState(false);
-
-  // ! To test the account age badge popups, you can change the state below. 3-6 will show the 3day popup (if it hasn't already been shown) and anything greater than or equal to 7 will show the 7 day one if not shown already
   const [accountAge, setAccountAge] = useState(-1);
   const data = useLoaderData();
 
