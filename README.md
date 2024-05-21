@@ -11,7 +11,7 @@
 
 # Build Instructions
 
-## 1. Install all necessary modules/libraries for the backend
+### 1. Install all necessary modules/libraries for the backend
 List of pip installs if needed:
 
 ```bash
@@ -26,20 +26,20 @@ pip install vite
 pip install pytest
 pip install jwt
 ```
-##2. To run the backend make sure you cd into the backend folder. Afterwards, run app.py on Python
+### 2. To run the backend make sure you cd into the backend folder. Afterwards, run app.py on Python
 
-##3. To run the frontend make sure you cd into the frontend folder. Afterwards, run the command npm install to download all the necessary packages and libraries to run react. Afterwards, running the command npm run dev should get the frontend to run. We do not have a proper landing page so the route to access the application is: http://localhost:5173/login
+### 3. To run the frontend make sure you cd into the frontend folder. Afterwards, run the command npm install to download all the necessary packages and libraries to run react. Afterwards, running the command npm run dev should get the frontend to run. We do not have a proper landing page so the route to access the application is: http://localhost:5173/login
 
 # Navigating the Application
-The general flow of the application for first time users is to create an account via hyperlink in the login page → set profile → dashboard. From the dashboard you can input meals, and access routes on navbar.
+### The general flow of the application for first time users is to create an account via hyperlink in the login page → set profile → dashboard. From the dashboard you can input meals, and access routes on navbar.
 
-If you want to see the badges you can make a new profile and create your first meal and a popup should appear once you navigate to the dashboard page. If you want to see the other badges 3 days later/1 week later badge you should uncomment the line in frontend/routes/dashboard.jsx allowing you to change the amount of days. Make sure to delete local storage by inspect element in the application tab to see this behavior work.
+### If you want to see the badges you can make a new profile and create your first meal and a popup should appear once you navigate to the dashboard page. If you want to see the other badges 3 days later/1 week later badge you should uncomment the line in frontend/routes/dashboard.jsx allowing you to change the amount of days. Make sure to delete local storage by inspect element in the application tab to see this behavior work.
 
-Usage of the lookup and recipe tabs are helpful when inputting meals where specific macros are unknown.
+### Usage of the lookup and recipe tabs are helpful when inputting meals where specific macros are unknown.
 
 # Known Bugs
-1. The progress tab should be ignored. If we try deleting it and its files, it somehow causes the viewprofile route to break.
+### 1. The progress tab should be ignored. If we try deleting it and its files, it somehow causes the viewprofile route to break.
 
-2. A blank square can be displayed on certain lookup results based on APIs database of jpgs.
+### 2. A blank square can be displayed on certain lookup results based on APIs database of jpgs.
 
-3. Note styling issue with display of 3072 x 1920 on profile page
+### 3. Note styling issue with display of 3072 x 1920 on profile page
